@@ -1,5 +1,8 @@
 package com.mrh0.createaddition.blocks.barbed_wire;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.index.CADamageTypes;
@@ -30,9 +33,8 @@ import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProv
 import com.mrh0.createaddition.port.porting_lib.models.generators.ConfiguredModel;
 import com.mrh0.createaddition.port.porting_lib.models.generators.ModelFile;
 import com.mrh0.createaddition.port.porting_lib.models.generators.VariantBlockStateBuilder;
-import net.neoforged.neoforge.common.IShearable;
 
-public class BarbedWireBlock extends Block implements IShearable, SimpleWaterloggedBlock, IWrenchable {
+public class BarbedWireBlock extends Block implements SimpleWaterloggedBlock, IWrenchable {
 	public static final BooleanProperty VERTICAL = BooleanProperty.create("vertical");
 	public static final EnumProperty<Direction> HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
 	public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
@@ -47,10 +49,10 @@ public class BarbedWireBlock extends Block implements IShearable, SimpleWaterlog
 	}
 
 	@Override
-	public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+	protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity, InsideBlockEffectApplier effectApplier, boolean isPrecise) {
 		double delta = Math.abs(entity.getX() - entity.xOld) + Math.abs(entity.getY() - entity.yOld) + Math.abs(entity.getZ() - entity.zOld);
 		if((entity instanceof LivingEntity) && delta > 0d) {
-			if(entity.hurt(CADamageTypes.barbedWire(level), CommonConfig.BARBED_WIRE_DAMAGE.get().floatValue()))
+			if(level instanceof ServerLevel serverLevel && entity.hurtServer(serverLevel, CADamageTypes.barbedWire(level), CommonConfig.BARBED_WIRE_DAMAGE.get().floatValue()))
 				entity.playSound(SoundEvents.PLAYER_HURT_SWEET_BERRY_BUSH, 1f, 1f);
 		}
 		entity.makeStuckInBlock(state, new Vec3(0.25D, 0.05D, 0.25D));

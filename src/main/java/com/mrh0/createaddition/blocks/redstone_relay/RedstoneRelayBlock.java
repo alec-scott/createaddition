@@ -240,7 +240,7 @@ public class RedstoneRelayBlock extends Block implements IBE<RedstoneRelayBlockE
 		return IWrenchable.super.onSneakWrenched(state, c);
 	}
 
-	@Override
+	// PORT-NOTE(26.1): NeoForge extension, no Fabric hook (redstone dust connects to signal sources)
 	public boolean canConnectRedstone(@Nullable BlockState state,@Nullable BlockGetter world,@Nullable BlockPos pos,@Nullable Direction side) {
 		if(pos == null || side == null || state == null || world == null)
 			return false;
@@ -254,11 +254,6 @@ public class RedstoneRelayBlock extends Block implements IBE<RedstoneRelayBlockE
 	@Override
 	public BlockState rotate(BlockState state, Rotation direction) {
 		return fromRotation(state, direction.rotate(state.getValue(HORIZONTAL_FACING)));
-	}
-
-	@Override
-	public BlockState rotate(BlockState state, LevelAccessor world, BlockPos pos, Rotation direction) {
-		return rotate(state, direction);
 	}
 
 	@Override

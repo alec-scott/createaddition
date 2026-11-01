@@ -5,6 +5,7 @@ import com.mrh0.createaddition.event.ClientEventHandler;
 import com.mrh0.createaddition.index.CAPartials;
 import com.mrh0.createaddition.network.ClientPayloadHandler;
 import com.mrh0.createaddition.ponder.CAPonderPlugin;
+import com.mrh0.createaddition.trains.schedule.CASchedule;
 import com.mrh0.createaddition.port.create.foundation.data.CreateRegistrate;
 import com.mrh0.createaddition.port.registrate.util.entry.RegistryEntry;
 import com.zurrtum.create.client.catnip.lang.FontHelper;
@@ -31,6 +32,7 @@ public class CreateAdditionClient implements ClientModInitializer {
         ClientEventHandler.register();
         PonderIndex.addPlugin(new CAPonderPlugin());
         registerTooltips();
+        CASchedule.registerRenders();
     }
 
     // Was REGISTRATE.setTooltipModifierFactory in common code; Create Fly's tooltip classes are client only

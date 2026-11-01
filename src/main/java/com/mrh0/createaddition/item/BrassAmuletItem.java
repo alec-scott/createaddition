@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.item;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import org.jetbrains.annotations.Nullable;
+
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -14,10 +18,10 @@ public class BrassAmuletItem extends Item {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int pSlotId, boolean pIsSelected) {
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
         if(!(entity instanceof Player player)) return;
         if(player.getFoodData().getSaturationLevel() > 1f) {
-            player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, 3, 0, true, true, true));
+            player.addEffect(new MobEffectInstance(MobEffects.SPEED, 3, 0, true, true, true));
         }
     }
 }

@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.item;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import org.jetbrains.annotations.Nullable;
+
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.index.CAEffects;
 import com.mrh0.createaddition.index.CASounds;
@@ -22,7 +26,7 @@ public class ElectrumAmuletItem extends Item {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int pSlotId, boolean pIsSelected) {
+    public void inventoryTick(ItemStack stack, ServerLevel level, Entity entity, @Nullable EquipmentSlot slot) {
         if (!(entity instanceof Player player)) return;
         if (level.isClientSide()) return;
         if (!CommonConfig.AMULET_EFFECT_ENABLED.get()) return;

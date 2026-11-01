@@ -10,8 +10,5 @@ public class BiomassPelletItem extends Item {
 		super(props);
 	}
 
-	@Override
-	public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
-		return 6400;
-	}
+	// PORT-NOTE(26.1): burn time (6400) is registered with Fabric's FuelValueEvents in CreateAddition
 }

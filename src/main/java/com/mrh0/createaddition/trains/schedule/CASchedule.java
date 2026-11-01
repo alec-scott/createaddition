@@ -19,4 +19,10 @@ public class CASchedule {
     }
 
     public static void register() {}
+
+    // PORT-NOTE(26.1): client renders for schedule entries (Create Fly's AllScheduleRenders), called from CreateAdditionClient
+    public static void registerRenders() {
+        com.zurrtum.create.client.AllScheduleRenders.ALL.put(CreateAddition.asResource("energy_threshold"),
+                new com.mrh0.createaddition.trains.schedule.condition.EnergyThresholdConditionRender());
+    }
 }

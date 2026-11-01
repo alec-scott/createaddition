@@ -25,6 +25,7 @@ public class CAItems {
 			CreateAddition.REGISTRATE.item("diamond_grit", Item::new)
 			.register();
 	public static final ItemEntry<DiamondGritSandpaperItem> DIAMOND_GRIT_SANDPAPER = CreateAddition.REGISTRATE.item("diamond_grit_sandpaper", DiamondGritSandpaperItem::new)
+			.properties(p -> p.durability(1024))
 			.register();
 
 	public static final ItemEntry<Item> BIOMASS =

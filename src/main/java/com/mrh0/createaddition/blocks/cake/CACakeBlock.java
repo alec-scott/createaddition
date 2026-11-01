@@ -1,7 +1,6 @@
 package com.mrh0.createaddition.blocks.cake;
 
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.datagen.Models.BlockGenHelper;
 import com.mrh0.createaddition.port.registrate.providers.DataGenContext;
 import com.mrh0.createaddition.port.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.resources.Identifier;
@@ -48,28 +47,5 @@ public class CACakeBlock extends CakeBlock {
 	}
 
 
-	public static <T extends Block> void makeBlockState(DataGenContext<Block, T> ctx, RegistrateBlockstateProvider provider) {
-		BlockModelProvider models = provider.models();
-		String basePath = "block/" + BlockGenHelper.getBlockName(ctx.get()) + "/";
-		MultiPartBlockStateBuilder builder = provider.getMultipartBuilder(ctx.get());
-
-		for(Integer bytes: BITES.getPossibleValues()) {
-			if(bytes == 0) {
-				builder.part()
-						.modelFile(models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "cake")))
-						.addModel()
-						.condition(BITES, 0)
-						.end();
-			}
-			else {
-				builder.part()
-						.modelFile(models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "slice" + bytes)))
-						.addModel()
-						.condition(BITES, bytes)
-						.end();
-			}
-
-		}
-
-	}
+	// PORT-NOTE(26.1): makeBlockState (datagen) removed; the committed blockstate JSON is used
 }

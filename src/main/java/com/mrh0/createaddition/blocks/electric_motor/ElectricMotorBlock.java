@@ -83,7 +83,7 @@ public class ElectricMotorBlock extends DirectionalKineticBlock implements IBE<E
 		world.setBlock(pos, world.getBlockState(pos).setValue(POWERED, powered), 3);
 	}
 
-	@Override
+	// PORT-NOTE(26.1): NeoForge extension, no Fabric hook (redstone dust connects to signal sources)
 	public boolean canConnectRedstone(BlockState state, BlockGetter world, BlockPos pos, @Nullable Direction side) {
 		return true;
 	}

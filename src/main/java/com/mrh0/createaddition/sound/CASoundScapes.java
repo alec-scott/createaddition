@@ -3,7 +3,7 @@ package com.mrh0.createaddition.sound;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.index.CASounds;
 
-import com.zurrtum.create.infrastructure.config.AllConfigs;
+import com.zurrtum.create.client.infrastructure.config.AllConfigs;
 import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
 import com.zurrtum.create.catnip.data.Pair;
 import net.minecraft.client.Minecraft;
@@ -121,7 +121,7 @@ public class CASoundScapes {
 	}
 
 	protected static BlockPos getCameraPos() {
-		Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
+		Entity renderViewEntity = Minecraft.getInstance().getCameraEntity();
 		if (renderViewEntity == null) return BlockPos.ZERO;
         return renderViewEntity.blockPosition();
 	}

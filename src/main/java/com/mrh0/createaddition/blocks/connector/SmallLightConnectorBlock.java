@@ -66,10 +66,7 @@ public class SmallLightConnectorBlock extends AbstractConnectorBlock<SmallLightC
         return CONNECTOR_SHAPE.get(state.getValue(FACING).getOpposite());
     }
 
-    @Override
-    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
-        return state.getValue(POWERED) ? 15 : 0;
-    }
+    // PORT-NOTE(26.1): light level moved to the block properties (CABlocks: lightLevel from POWERED)
 
     public static void makeBlockState(DataGenContext<Block, SmallLightConnectorBlock> ctx, RegistrateBlockstateProvider provider) {
         BlockModelProvider models = provider.models();

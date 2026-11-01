@@ -10,7 +10,7 @@ import net.minecraft.network.chat.Component;
 
 public class WireGraphCommand {
 	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
-		dispatcher.register(Commands.literal("cca_wires").requires(source -> source.hasPermission(2))
+		dispatcher.register(Commands.literal("cca_wires").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
 			.then(action("stats", (source, graph) -> {
 				source.sendSuccess(graph::describe, false);
 				return 1;

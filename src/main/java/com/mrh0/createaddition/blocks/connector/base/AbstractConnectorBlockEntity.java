@@ -1,5 +1,6 @@
 package com.mrh0.createaddition.blocks.connector.base;
 
+import com.mrh0.createaddition.port.minecraft.IOnLoad;
 import com.mrh0.createaddition.port.minecraft.CAValueIO;
 
 import net.minecraft.world.level.storage.ValueOutput;
@@ -44,7 +45,7 @@ import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity implements IWireNode, IObserveBlockEntity, IHaveGoggleInformation, IDebugDrawer, IEnergyProvider {
+public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity implements IOnLoad, IWireNode, IObserveBlockEntity, IHaveGoggleInformation, IDebugDrawer, IEnergyProvider {
 
 	private final Set<LocalNode> wireCache = new HashSet<>();
 	private final LocalNode[] localNodes;
@@ -314,7 +315,6 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 
 	@Override
 	public void onLoad() {
-		super.onLoad();
 		WireGraph.nodeLoaded(level, this);
 	}
 

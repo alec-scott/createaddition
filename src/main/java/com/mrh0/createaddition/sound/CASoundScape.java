@@ -2,7 +2,7 @@ package com.mrh0.createaddition.sound;
 
 
 import com.mrh0.createaddition.CreateAddition;
-import com.zurrtum.create.infrastructure.config.AllConfigs;
+import com.zurrtum.create.client.infrastructure.config.AllConfigs;
 import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
 import com.zurrtum.create.catnip.math.VecHelper;
 import net.minecraft.client.Minecraft;
@@ -85,7 +85,7 @@ class CASoundScape {
 	}
 
 	public float getVolume() {
-		Entity renderViewEntity = Minecraft.getInstance().cameraEntity;
+		Entity renderViewEntity = Minecraft.getInstance().getCameraEntity();
 		float distanceMultiplier = 0;
 		if (renderViewEntity != null) {
 			double distanceTo = renderViewEntity.position()

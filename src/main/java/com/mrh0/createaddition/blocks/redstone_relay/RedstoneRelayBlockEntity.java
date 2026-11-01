@@ -1,5 +1,6 @@
 package com.mrh0.createaddition.blocks.redstone_relay;
 
+import com.mrh0.createaddition.port.minecraft.IOnLoad;
 import com.mrh0.createaddition.port.minecraft.CAValueIO;
 
 import net.minecraft.world.level.storage.ValueOutput;
@@ -44,7 +45,7 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireNode, IHaveGoggleInformation, IObserveBlockEntity {
+public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IOnLoad, IWireNode, IHaveGoggleInformation, IObserveBlockEntity {
 
 	//private final InternalEnergyStorage energyBufferIn;
 	//private final InternalEnergyStorage energyBufferOut;
@@ -321,7 +322,6 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireN
 
 	@Override
 	public void onLoad() {
-		super.onLoad();
 		WireGraph.nodeLoaded(level, this);
 	}
 

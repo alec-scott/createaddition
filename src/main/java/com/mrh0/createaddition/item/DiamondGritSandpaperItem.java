@@ -4,11 +4,8 @@ import java.util.function.Consumer;
 
 import com.mrh0.createaddition.config.CommonConfig;
 import com.zurrtum.create.content.equipment.sandPaper.SandPaperItem;
-import com.simibubi.create.content.equipment.sandPaper.SandPaperItemRenderer;
-import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 
 public class DiamondGritSandpaperItem extends SandPaperItem {
@@ -16,14 +13,8 @@ public class DiamondGritSandpaperItem extends SandPaperItem {
 		super(properties);
 	}
 	
-	@Override
-	public int getMaxDamage(ItemStack stack) {
-		return CommonConfig.DIAMOND_GRIT_SANDPAPER_USES.get();
-	}
+	// PORT-NOTE(26.1): durability is a component now, set from the config default in CAItems (config is not loaded at
+	// registration); the config value is no longer applied at runtime.
 
-	// This needs to be redone OnlyIn is never recommended
-	@Override
-	public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-		consumer.accept(SimpleCustomRenderer.create(this, new SandPaperItemRenderer()));
-	}
+	// TODO(26.1): the animated sandpaper item renderer (was IClientItemExtensions + SandPaperItemRenderer)
 }

@@ -8,6 +8,8 @@ import com.mrh0.createaddition.index.CAItems;
 import com.zurrtum.create.AllBlocks;
 import com.zurrtum.create.content.processing.burner.BlazeBurnerBlock;
 import com.zurrtum.create.content.processing.burner.BlazeBurnerBlockEntity;
+import com.mrh0.createaddition.port.minecraft.IOnLoad;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerBlockEntityEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerChunkEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -31,6 +33,9 @@ public class GameEvents {
 		ServerChunkEvents.CHUNK_LOAD.register((level, chunk, generated) -> WireGraph.chunkLoaded(level, chunk));
 		ServerLevelEvents.UNLOAD.register((server, level) -> WireGraph.levelUnloaded(level));
 		UseBlockCallback.EVENT.register(GameEvents::interact);
+		ServerBlockEntityEvents.BLOCK_ENTITY_LOAD.register((be, level) -> {
+			if (be instanceof IOnLoad loadAware) loadAware.onLoad();
+		});
 	}
 
 	private static InteractionResult interact(Player player, Level level, InteractionHand hand, BlockHitResult hit) {

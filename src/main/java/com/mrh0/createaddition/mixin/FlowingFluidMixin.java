@@ -3,12 +3,13 @@ package com.mrh0.createaddition.mixin;
 import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mrh0.createaddition.datagen.TagProvider.CATagRegister;
+import com.mrh0.createaddition.index.CATags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameRules;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.gamerules.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.FireBlock;
@@ -44,7 +45,7 @@ public class FlowingFluidMixin {
             return true;
         }
 
-        boolean ignites = fluid.is(CATagRegister.Fluids.IGNITES);
+        boolean ignites = fluid.is(CATags.Fluids.IGNITES);
         if (!ignites) {
             return true;
         }
@@ -72,14 +73,15 @@ public class FlowingFluidMixin {
             FluidState fluidState
     ) {
         boolean result = original.call(level, blockPos, fluidBlockState, i);
-        if (level instanceof Level) {
-            if (!((Level) level).getGameRules().getBoolean(GameRules.RULE_DOFIRETICK)) {
+        // PORT-NOTE(26.1): doFireTick became fireSpreadRadiusAroundPlayer (0 = no spread)
+        if (level instanceof ServerLevel serverLevel) {
+            if (serverLevel.getGameRules().get(GameRules.FIRE_SPREAD_RADIUS_AROUND_PLAYER) == 0) {
                 return result;
             }
         }
 
 
-        if (flowDirection == Direction.DOWN && fluidState.is(CATagRegister.Fluids.IGNITES) && toReplace.is(BlockTags.FIRE)) {
+        if (flowDirection == Direction.DOWN && fluidState.is(CATags.Fluids.IGNITES) && toReplace.is(BlockTags.FIRE)) {
             Direction.Plane.HORIZONTAL.stream().forEach(direction -> {
                 BlockPos side = blockPos.relative(direction);
                 if (level.isEmptyBlock(side) && toReplace.canSurvive(level, side)) {

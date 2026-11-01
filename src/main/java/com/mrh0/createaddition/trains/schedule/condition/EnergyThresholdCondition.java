@@ -1,49 +1,23 @@
 package com.mrh0.createaddition.trains.schedule.condition;
 
-import java.util.List;
-
-import com.google.common.collect.ImmutableList;
-import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.blocks.portable_energy_interface.PortableEnergyManager;
-import com.mrh0.createaddition.index.CAItems;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import com.zurrtum.create.content.trains.entity.Carriage;
 import com.zurrtum.create.content.trains.entity.Train;
 import com.zurrtum.create.content.trains.schedule.condition.CargoThresholdCondition;
-import com.zurrtum.create.client.foundation.gui.ModularGuiLineBuilder;
-import com.zurrtum.create.client.foundation.utility.CreateLang;
-
-import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
+/**
+ * PORT-NOTE(26.1): data half only. Create Fly splits schedule entries into data (here) and a client
+ * {@code IScheduleInput} render (titles, icons, configuration widgets): {@link EnergyThresholdConditionRender}.
+ */
 public class EnergyThresholdCondition extends CargoThresholdCondition {
-    @Override
-    protected Component getUnit() {
-        return Component.literal("Kfe");
-    }
-
-    @Override
-    protected ItemStack getIcon() {
-        return CAItems.CAPACITOR.asStack();
-    }
-
-    @Override
-    public ItemStack getSecondLineIcon() {
-        return CAItems.CAPACITOR.asStack();
-    }
-
-    @Override
-    public int slotsTargeted() {
-        return 0;
-    }
-
-    public boolean lazyTickCompletion(Level level, Train train, CompoundTag context) {
-        return this.test(level, train, context);
+    public EnergyThresholdCondition(Identifier id) {
+        super(id);
     }
 
     @Override
@@ -53,9 +27,9 @@ public class EnergyThresholdCondition extends CargoThresholdCondition {
 
         int foundEnergy = 0;
         for (Carriage carriage : train.carriages) {
-            if(carriage.anyAvailableEntity() == null) continue;
+            if (carriage.anyAvailableEntity() == null) continue;
             IEnergyStorage ies = PortableEnergyManager.get(carriage.anyAvailableEntity().getContraption());
-            if(ies == null) continue;
+            if (ies == null) continue;
             foundEnergy += ies.getEnergyStored();
         }
 
@@ -64,39 +38,12 @@ public class EnergyThresholdCondition extends CargoThresholdCondition {
     }
 
     @Override
-    public List<Component> getTitleAs(String type) {
-        return ImmutableList.of(
-                CreateLang.translateDirect("schedule.condition.threshold.train_holds",
-                        CreateLang.translateDirect("schedule.condition.threshold." + CreateLang.asId(getOperator().name()))),
-                CreateLang.translateDirect("schedule.condition.threshold.x_units_of_item", getThreshold(),
-                                Component.translatable("createaddition.schedule.condition.threshold.unit"),
-                                Component.translatable("createaddition.schedule.condition.threshold.energy"))
-                        .withStyle(ChatFormatting.DARK_AQUA));
-    }
-
-    @Override
-    public Identifier getId() {
-        return CreateAddition.asResource("energy_threshold");
-    }
-
-    // This needs to be redone OnlyIn is never recommended
-    @Override
-    public void initConfigurationWidgets(ModularGuiLineBuilder builder) {
-        super.initConfigurationWidgets(builder);
-        builder.addSelectionScrollInput(71, 50, (i, l) -> {
-            i.forOptions(ImmutableList.of(Component.translatable("createaddition.schedule.condition.threshold.unit")))
-                    .titled(null);
-        }, "Measure");
-    }
-
-    @Override
     public MutableComponent getWaitingStatus(Level level, Train train, CompoundTag tag) {
         int lastDisplaySnapshot = getLastDisplaySnapshot(tag);
         if (lastDisplaySnapshot == -1)
             return Component.empty();
         int offset = getOperator() == Ops.LESS ? -1 : getOperator() == Ops.GREATER ? 1 : 0;
-        return CreateLang.translateDirect("schedule.condition.threshold.status", lastDisplaySnapshot,
+        return Component.translatable("create.schedule.condition.threshold.status", lastDisplaySnapshot,
                 Math.max(0, getThreshold() + offset), Component.translatable("createaddition.schedule.condition.threshold.unit"));
     }
-
 }

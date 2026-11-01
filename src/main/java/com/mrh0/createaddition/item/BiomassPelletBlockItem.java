@@ -12,8 +12,5 @@ public class BiomassPelletBlockItem extends BlockItem {
 		super(pBlock, pProperties);
 	}
 
-	@Override
-	public int getBurnTime(ItemStack itemStack, RecipeType<?> recipeType) {
-		return CAItems.BIOMASS_PELLET.get().getBurnTime(itemStack, recipeType) * 9;
-	}
+	// PORT-NOTE(26.1): burn time (9 pellets) is registered with Fabric's FuelValueEvents in CreateAddition
 }

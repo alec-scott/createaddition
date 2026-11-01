@@ -115,6 +115,7 @@ public class CABlocks {
 
 	public static final BlockEntry<SmallLightConnectorBlock> SMALL_LIGHT_CONNECTOR = CreateAddition.REGISTRATE.block("small_light_connector",  SmallLightConnectorBlock::new)
 			.initialProperties(SharedProperties::stone)
+			.properties(p -> p.lightLevel(state -> state.getValue(SmallLightConnectorBlock.POWERED) ? 15 : 0))
 			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new NodeMovementBehaviour()))
 			.item()
 			.transform(customItemModel("connector","small_light","item"))
