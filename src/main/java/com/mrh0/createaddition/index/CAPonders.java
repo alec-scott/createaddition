@@ -3,22 +3,22 @@ package com.mrh0.createaddition.index;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.ponder.DebugScenes;
 import com.mrh0.createaddition.ponder.PonderScenes;
-import com.simibubi.create.AllBlocks;
+import com.zurrtum.create.AllBlocks;
 
-import com.simibubi.create.AllItems;
-import com.simibubi.create.infrastructure.ponder.AllCreatePonderTags;
-import com.tterrag.registrate.util.entry.ItemProviderEntry;
-import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
-import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
-import net.minecraft.resources.ResourceLocation;
-import com.tterrag.registrate.util.entry.RegistryEntry;
+import com.zurrtum.create.AllItems;
+import com.zurrtum.create.client.infrastructure.ponder.AllCreatePonderTags;
+import com.mrh0.createaddition.port.registrate.util.entry.ItemProviderEntry;
+import com.zurrtum.create.client.ponder.api.registration.PonderSceneRegistrationHelper;
+import com.zurrtum.create.client.ponder.api.registration.PonderTagRegistrationHelper;
+import net.minecraft.resources.Identifier;
+import com.mrh0.createaddition.port.registrate.util.entry.RegistryEntry;
 import net.neoforged.fml.loading.FMLEnvironment;
 import net.neoforged.neoforge.data.loading.DatagenModLoader;
 
 public class CAPonders {
-	public static final ResourceLocation ELECTRIC = CreateAddition.asResource("electric");
+	public static final Identifier ELECTRIC = CreateAddition.asResource("electric");
 
-	public static void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
+	public static void registerTags(PonderTagRegistrationHelper<Identifier> helper) {
 		PonderTagRegistrationHelper<RegistryEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
 		HELPER.registerTag(ELECTRIC)
@@ -56,7 +56,7 @@ public class CAPonders {
 				.add(CABlocks.SERVO_MOTOR);
 	}
 
-	public static void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+	public static void registerScenes(PonderSceneRegistrationHelper<Identifier> helper) {
 		PonderSceneRegistrationHelper<ItemProviderEntry<?,?>> HELPER = helper.withKeyFunction(RegistryEntry::getId);
 
 		HELPER.addStoryBoard(CABlocks.ELECTRIC_MOTOR, "electric_motor", PonderScenes::electricMotor, AllCreatePonderTags.KINETIC_SOURCES, ELECTRIC);

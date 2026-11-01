@@ -4,7 +4,7 @@ package com.mrh0.createaddition.compat.simulated;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
@@ -14,7 +14,7 @@ public class SIMCapabilities {
         var dockType = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(
                 ResourceKey.create(
                         Registries.BLOCK_ENTITY_TYPE,
-                        ResourceLocation.fromNamespaceAndPath("simulated", "docking_connector")
+                        Identifier.fromNamespaceAndPath("simulated", "docking_connector")
                 )
         );
 

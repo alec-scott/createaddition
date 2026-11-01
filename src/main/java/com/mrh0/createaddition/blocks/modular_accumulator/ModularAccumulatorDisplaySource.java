@@ -3,9 +3,9 @@ package com.mrh0.createaddition.blocks.modular_accumulator;
 import java.util.List;
 
 import com.mrh0.createaddition.util.Util;
-import com.simibubi.create.content.redstone.displayLink.DisplayLinkContext;
-import com.simibubi.create.content.redstone.displayLink.source.PercentOrProgressBarDisplaySource;
-import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
+import com.zurrtum.create.content.redstone.displayLink.DisplayLinkContext;
+import com.zurrtum.create.content.redstone.displayLink.source.PercentOrProgressBarDisplaySource;
+import com.zurrtum.create.client.foundation.gui.ModularGuiLineBuilder;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

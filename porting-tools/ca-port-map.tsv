@@ -1,0 +1,15 @@
+com.tterrag.registrate	com.mrh0.createaddition.port.registrate
+com.simibubi.create.foundation.data.CreateRegistrate	com.mrh0.createaddition.port.create.foundation.data.CreateRegistrate
+com.simibubi.create.foundation.data.AssetLookup	com.mrh0.createaddition.port.create.foundation.data.AssetLookup
+com.simibubi.create.foundation.data.SharedProperties	com.mrh0.createaddition.port.create.foundation.data.SharedProperties
+com.simibubi.create.foundation.data.TagGen	com.mrh0.createaddition.port.create.foundation.data.TagGen
+com.simibubi.create.foundation.data.ModelGen	com.mrh0.createaddition.port.create.foundation.data.ModelGen
+com.simibubi.create.foundation.data.BlockStateGen	com.mrh0.createaddition.port.create.foundation.data.BlockStateGen
+com.simibubi.create.foundation.data.SpecialBlockStateGen	com.mrh0.createaddition.port.create.foundation.data.SpecialBlockStateGen
+net.neoforged.neoforge.client.model.generators	com.mrh0.createaddition.port.porting_lib.models.generators
+net.neoforged.neoforge.common.conditions.ICondition	com.mrh0.createaddition.port.porting_lib.conditions.ICondition
+net.neoforged.neoforge.registries.DeferredHolder	com.mrh0.createaddition.port.porting_lib.util.DeferredHolder
+net.minecraft.resources.ResourceLocation	net.minecraft.resources.Identifier
+javax.annotation.Nullable	org.jetbrains.annotations.Nullable
+javax.annotation.Nonnull	org.jetbrains.annotations.NotNull
+com.simibubi.create.content.contraptions.ITransformableBlock	com.zurrtum.create.api.contraption.transformable.TransformableBlock

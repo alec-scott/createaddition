@@ -1,8 +1,8 @@
 package com.mrh0.createaddition.blocks.liquid_blaze_burner;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
-import net.createmod.catnip.math.AngleHelper;
+import com.zurrtum.create.content.processing.burner.BlazeBurnerBlock;
+import com.zurrtum.create.catnip.math.AngleHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
 
 public final class LiquidBlazeBurnerSubLevelRenderer {

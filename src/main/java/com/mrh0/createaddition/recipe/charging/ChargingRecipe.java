@@ -16,7 +16,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
@@ -38,7 +38,7 @@ import java.util.function.Supplier;
 public class ChargingRecipe extends ProcessingRecipe<RecipeWrapper, ChargingRecipeParams> implements IAssemblyRecipe {
     public static final IRecipeTypeInfo TYPE_INFO = new IRecipeTypeInfo() {
         @Override
-        public ResourceLocation getId() {
+        public Identifier getId() {
             return CARecipes.CHARGING.getId();
         }
 
@@ -115,7 +115,7 @@ public class ChargingRecipe extends ProcessingRecipe<RecipeWrapper, ChargingReci
     }
 
     public static class Builder<R extends ChargingRecipe> extends ProcessingRecipeBuilder<ChargingRecipeParams, R, ChargingRecipe.Builder<R>> {
-        public Builder(ChargingRecipe.Factory<R> factory, ResourceLocation recipeId) {
+        public Builder(ChargingRecipe.Factory<R> factory, Identifier recipeId) {
             super(factory, recipeId);
         }
 

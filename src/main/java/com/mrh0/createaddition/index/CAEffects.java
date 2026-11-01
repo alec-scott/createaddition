@@ -8,7 +8,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.effect.ShockingEffect;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.mrh0.createaddition.port.porting_lib.util.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 

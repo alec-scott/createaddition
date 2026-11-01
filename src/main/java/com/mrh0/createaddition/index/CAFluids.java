@@ -1,11 +1,11 @@
 package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.CreateAddition;
-import com.simibubi.create.AllFluids;
+import com.zurrtum.create.AllFluids;
 
-import com.tterrag.registrate.util.entry.FluidEntry;
+import com.mrh0.createaddition.port.registrate.util.entry.FluidEntry;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.fluids.BaseFlowingFluid;
@@ -27,8 +27,8 @@ public class CAFluids {
 	 */
 	private static class NoColorFluidAttributes extends AllFluids.TintedFluidType {
 
-		public NoColorFluidAttributes(Properties properties, ResourceLocation stillTexture,
-			ResourceLocation flowingTexture) {
+		public NoColorFluidAttributes(Properties properties, Identifier stillTexture,
+			Identifier flowingTexture) {
 			super(properties, stillTexture, flowingTexture);
 		}
 

@@ -10,8 +10,8 @@ import com.mrh0.createaddition.index.CAPartials;
 import com.mrh0.createaddition.compat.sable.SableUtil;
 import com.mrh0.createaddition.util.ClientMinecraftWrapper;
 import com.mrh0.createaddition.util.Util;
-import net.createmod.catnip.render.CachedBuffers;
-import net.createmod.catnip.theme.Color;
+import com.zurrtum.create.client.catnip.render.CachedBuffers;
+import com.zurrtum.create.catnip.theme.Color;
 
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.LightTexture;

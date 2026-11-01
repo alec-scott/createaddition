@@ -1,6 +1,6 @@
 package com.mrh0.createaddition.index;
 
-import static com.simibubi.create.AllTags.AllItemTags.PLATES;
+import static com.zurrtum.create.AllItemTags.PLATES;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.datagen.TagProvider.CATagRegister;
 import com.mrh0.createaddition.item.ElectrumAmuletItem;
@@ -8,7 +8,7 @@ import com.mrh0.createaddition.item.WireSpool;
 import com.mrh0.createaddition.item.BiomassPelletItem;
 import com.mrh0.createaddition.item.CapacitorItem;
 import com.mrh0.createaddition.item.DiamondGritSandpaperItem;
-import com.tterrag.registrate.util.entry.ItemEntry;
+import com.mrh0.createaddition.port.registrate.util.entry.ItemEntry;
 
 import net.minecraft.world.item.Item;
 

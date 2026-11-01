@@ -1,7 +1,7 @@
 package com.mrh0.createaddition.blocks.modular_accumulator;
 
 import com.mrh0.createaddition.index.CABlockEntities;
-import com.simibubi.create.content.equipment.symmetryWand.SymmetryWandItem;
+import com.zurrtum.create.content.equipment.symmetryWand.SymmetryWandItem;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

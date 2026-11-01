@@ -6,17 +6,17 @@ import com.google.common.collect.ImmutableList;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.blocks.portable_energy_interface.PortableEnergyManager;
 import com.mrh0.createaddition.index.CAItems;
-import com.simibubi.create.content.trains.entity.Carriage;
-import com.simibubi.create.content.trains.entity.Train;
-import com.simibubi.create.content.trains.schedule.condition.CargoThresholdCondition;
-import com.simibubi.create.foundation.gui.ModularGuiLineBuilder;
-import com.simibubi.create.foundation.utility.CreateLang;
+import com.zurrtum.create.content.trains.entity.Carriage;
+import com.zurrtum.create.content.trains.entity.Train;
+import com.zurrtum.create.content.trains.schedule.condition.CargoThresholdCondition;
+import com.zurrtum.create.client.foundation.gui.ModularGuiLineBuilder;
+import com.zurrtum.create.client.foundation.utility.CreateLang;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -77,7 +77,7 @@ public class EnergyThresholdCondition extends CargoThresholdCondition {
     }
 
     @Override
-    public ResourceLocation getId() {
+    public Identifier getId() {
         return CreateAddition.asResource("energy_threshold");
     }
 

@@ -6,19 +6,19 @@ import com.mrh0.createaddition.index.CASounds;
 import com.mrh0.createaddition.network.*;
 import com.mrh0.createaddition.ponder.CAPonderPlugin;
 import com.mrh0.createaddition.trains.schedule.CASchedule;
-import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
-import com.simibubi.create.foundation.item.ItemDescription;
-import com.simibubi.create.foundation.item.KineticStats;
-import net.createmod.catnip.lang.FontHelper;
+import com.zurrtum.create.content.processing.burner.BlazeBurnerBlock;
+import com.zurrtum.create.client.foundation.item.ItemDescription;
+import com.zurrtum.create.client.foundation.item.KineticStats;
+import com.zurrtum.create.client.catnip.lang.FontHelper;
 import net.createmod.catnip.platform.CatnipServices;
-import net.createmod.ponder.foundation.PonderIndex;
+import com.zurrtum.create.client.ponder.foundation.PonderIndex;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.level.ItemLike;
@@ -38,7 +38,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
 import net.neoforged.neoforge.network.registration.HandlerThread;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
-import net.neoforged.neoforge.registries.DeferredHolder;
+import com.mrh0.createaddition.port.porting_lib.util.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import org.apache.logging.log4j.LogManager;
@@ -48,9 +48,9 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mrh0.createaddition.commands.CCApiCommand;
 import com.mrh0.createaddition.commands.WireGraphCommand;
 import com.mrh0.createaddition.compat.sable.CreateAdditionSable;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.foundation.item.TooltipModifier;
-import com.simibubi.create.api.boiler.BoilerHeater;
+import com.mrh0.createaddition.port.create.foundation.data.CreateRegistrate;
+import com.zurrtum.create.client.foundation.item.TooltipModifier;
+import com.zurrtum.create.api.boiler.BoilerHeater;
 
 @Mod(CreateAddition.MODID)
 public class CreateAddition {
@@ -219,7 +219,7 @@ public class CreateAddition {
         );
     }
 
-    public static ResourceLocation asResource(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    public static Identifier asResource(String path) {
+        return Identifier.fromNamespaceAndPath(MODID, path);
     }
 }

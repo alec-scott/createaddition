@@ -26,9 +26,9 @@ import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.blocks.alternator.*;
 import com.mrh0.createaddition.blocks.rolling_mill.*;
 import com.mrh0.createaddition.blocks.redstone_relay.*;
-import com.simibubi.create.AllPartialModels;
-import com.simibubi.create.content.kinetics.base.OrientedRotatingVisual;
-import com.tterrag.registrate.util.entry.BlockEntityEntry;
+import com.zurrtum.create.client.AllPartialModels;
+import com.zurrtum.create.client.content.kinetics.base.OrientedRotatingVisual;
+import com.mrh0.createaddition.port.registrate.util.entry.BlockEntityEntry;
 
 public class CABlockEntities {
 	public static final BlockEntityEntry<ElectricMotorBlockEntity> ELECTRIC_MOTOR = CreateAddition.REGISTRATE

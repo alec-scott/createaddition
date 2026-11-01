@@ -2,8 +2,8 @@ package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.blocks.digital_adapter.DigitalAdapterDisplaySource;
 import com.mrh0.createaddition.blocks.modular_accumulator.ModularAccumulatorDisplaySource;
-import com.simibubi.create.api.behaviour.display.DisplaySource;
-import com.tterrag.registrate.util.entry.RegistryEntry;
+import com.zurrtum.create.api.behaviour.display.DisplaySource;
+import com.mrh0.createaddition.port.registrate.util.entry.RegistryEntry;
 
 import static com.mrh0.createaddition.CreateAddition.REGISTRATE;
 

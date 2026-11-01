@@ -4,12 +4,12 @@ import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.datagen.TagProvider.CATagRegister;
 import com.mrh0.createaddition.index.CABlocks;
 import com.mrh0.createaddition.index.CAItems;
-import com.simibubi.create.AllBlocks;
-import com.simibubi.create.AllItems;
+import com.zurrtum.create.AllBlocks;
+import com.zurrtum.create.AllItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -19,7 +19,7 @@ import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.ModLoadedCondition;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.CompletableFuture;
 
 import static net.minecraft.data.recipes.RecipeBuilder.getDefaultRecipeId;
@@ -36,7 +36,7 @@ public class CACraftingRecipeProvider extends RecipeProvider {
                 unpackedName,
                 modId
         );
-//        .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(modId,unpackedName));
+//        .save(recipeOutput, Identifier.fromNamespaceAndPath(modId,unpackedName));
         saveUtility.saveToFolder(
                 ShapedRecipeBuilder.shaped(packedCategory, packed).define('#', unpacked).pattern("###").pattern("###").pattern("###").group(packedGroup).unlockedBy(getHasName(unpacked), has(unpacked)),
                 "crafting",
@@ -132,7 +132,7 @@ public class CACraftingRecipeProvider extends RecipeProvider {
                 new ModLoadedCondition("computercraft")
         )).saveToCraftingFolder(
                 ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, CABlocks.DIGITAL_ADAPTER.asItem())
-                        .requires(ItemTags.create(ResourceLocation.fromNamespaceAndPath("computercraft","wired_modem")))
+                        .requires(ItemTags.create(Identifier.fromNamespaceAndPath("computercraft","wired_modem")))
                         .requires(CATagRegister.Items.commonTags("plates/brass"))
                         .requires(Items.REDSTONE_TORCH)
                         .unlockedBy("has_redstone_torch", has(Items.REDSTONE_TORCH))
@@ -311,7 +311,7 @@ public class CACraftingRecipeProvider extends RecipeProvider {
                 )
                 .unlockedBy("has_cake_base", has(CAItems.CAKE_BASE))
                 .unlockedBy("has_cake_base_baked", has(CAItems.CAKE_BASE_BAKED))
-                .save(recipeOutput, ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID,"smoking/cake_base_baked"));
+                .save(recipeOutput, Identifier.fromNamespaceAndPath(CreateAddition.MODID,"smoking/cake_base_baked"));
     }
 
     public class SaveUtility{
@@ -342,7 +342,7 @@ public class CACraftingRecipeProvider extends RecipeProvider {
         }
 
         private void saveToPath( RecipeBuilder recipeBuilder, String path, String modId) {
-            recipeBuilder.save(this.output, ResourceLocation.fromNamespaceAndPath(modId, path));
+            recipeBuilder.save(this.output, Identifier.fromNamespaceAndPath(modId, path));
         }
 
         @SuppressWarnings("unused")

@@ -2,15 +2,15 @@ package com.mrh0.createaddition.blocks.modular_accumulator;
 
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.index.CABlockEntities;
-import com.simibubi.create.content.equipment.wrench.IWrenchable;
-import com.simibubi.create.foundation.block.IBE;
-import com.simibubi.create.foundation.blockEntity.ComparatorUtil;
+import com.zurrtum.create.content.equipment.wrench.IWrenchable;
+import com.zurrtum.create.foundation.block.IBE;
+import com.zurrtum.create.foundation.blockEntity.ComparatorUtil;
 
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.mrh0.createaddition.port.registrate.providers.DataGenContext;
+import com.mrh0.createaddition.port.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -30,9 +30,9 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProvider;
+import com.mrh0.createaddition.port.porting_lib.models.generators.ModelFile;
+import com.mrh0.createaddition.port.porting_lib.models.generators.MultiPartBlockStateBuilder;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 
 public class ModularAccumulatorBlock extends Block implements IWrenchable, IBE<ModularAccumulatorBlockEntity> {
@@ -152,10 +152,10 @@ public class ModularAccumulatorBlock extends Block implements IWrenchable, IBE<M
 		String basePath = "block/modular_accumulator/block_";
 		MultiPartBlockStateBuilder builder = provider.getMultipartBuilder(ctx.get());
 
-		ModelFile.ExistingModelFile middle = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "middle"));
-		ModelFile.ExistingModelFile bottom = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "bottom"));
-		ModelFile.ExistingModelFile top = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "top"));
-		ModelFile.ExistingModelFile single = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "single"));
+		ModelFile.ExistingModelFile middle = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "middle"));
+		ModelFile.ExistingModelFile bottom = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "bottom"));
+		ModelFile.ExistingModelFile top = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "top"));
+		ModelFile.ExistingModelFile single = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "single"));
 
 		builder.part()
 				.modelFile(middle)

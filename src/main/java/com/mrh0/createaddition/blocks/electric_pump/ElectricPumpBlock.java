@@ -2,11 +2,11 @@ package com.mrh0.createaddition.blocks.electric_pump;
 
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
-import com.simibubi.create.content.fluids.pump.PumpBlock;
-import com.simibubi.create.content.fluids.pump.PumpBlockEntity;
-import com.simibubi.create.foundation.advancement.AdvancementBehaviour;
+import com.zurrtum.create.content.fluids.pump.PumpBlock;
+import com.zurrtum.create.content.fluids.pump.PumpBlockEntity;
+import com.zurrtum.create.foundation.advancement.AdvancementBehaviour;
 
-import net.createmod.catnip.math.VoxelShaper;
+import com.zurrtum.create.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;

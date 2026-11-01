@@ -3,13 +3,13 @@ package com.mrh0.createaddition.blocks.barbed_wire;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.index.CADamageTypes;
-import com.simibubi.create.content.equipment.wrench.IWrenchable;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
+import com.zurrtum.create.content.equipment.wrench.IWrenchable;
+import com.mrh0.createaddition.port.registrate.providers.DataGenContext;
+import com.mrh0.createaddition.port.registrate.providers.RegistrateBlockstateProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -26,10 +26,10 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProvider;
+import com.mrh0.createaddition.port.porting_lib.models.generators.ConfiguredModel;
+import com.mrh0.createaddition.port.porting_lib.models.generators.ModelFile;
+import com.mrh0.createaddition.port.porting_lib.models.generators.VariantBlockStateBuilder;
 import net.neoforged.neoforge.common.IShearable;
 
 public class BarbedWireBlock extends Block implements IShearable, SimpleWaterloggedBlock, IWrenchable {
@@ -85,7 +85,7 @@ public class BarbedWireBlock extends Block implements IShearable, SimpleWaterlog
     public static void makeBlockState(DataGenContext<Block, BarbedWireBlock> ctx, RegistrateBlockstateProvider provider) {
 		BlockModelProvider models = provider.models();
 		String basePath = "block/barbed_wire/block";
-		ModelFile.ExistingModelFile model = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath));
+		ModelFile.ExistingModelFile model = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath));
 		VariantBlockStateBuilder builder = provider.getVariantBuilder(ctx.get());
 		builder.forAllStates(state -> ConfiguredModel.builder()
 				.modelFile(model)

@@ -18,9 +18,9 @@ import com.mrh0.createaddition.network.EnergyNetworkPacketPayload;
 import com.mrh0.createaddition.network.ObservePacketPayload;
 import com.mrh0.createaddition.util.Util;
 import com.mrh0.createaddition.network.IObserveBlockEntity;
-import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
-import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
+import com.zurrtum.create.foundation.blockEntity.SmartBlockEntity;
+import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;

@@ -3,7 +3,7 @@ package com.mrh0.createaddition.item;
 import java.util.function.Consumer;
 
 import com.mrh0.createaddition.config.CommonConfig;
-import com.simibubi.create.content.equipment.sandPaper.SandPaperItem;
+import com.zurrtum.create.content.equipment.sandPaper.SandPaperItem;
 import com.simibubi.create.content.equipment.sandPaper.SandPaperItemRenderer;
 import com.simibubi.create.foundation.item.render.SimpleCustomRenderer;
 

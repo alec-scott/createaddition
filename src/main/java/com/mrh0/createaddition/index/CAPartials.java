@@ -2,8 +2,8 @@ package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.CreateAddition;
 
-import dev.engine_room.flywheel.lib.model.baked.PartialModel;
-import net.minecraft.resources.ResourceLocation;
+import com.zurrtum.create.client.flywheel.lib.model.baked.PartialModel;
+import net.minecraft.resources.Identifier;
 
 public class CAPartials {
 
@@ -17,11 +17,11 @@ public class CAPartials {
 	public static final PartialModel ELECTRIC_PUMP_PARTIAL = block("electric_pump/block_pump_partial");
 
 	private static PartialModel block(String path) {
-		return PartialModel.of(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, "block/" + path));
+		return PartialModel.of(Identifier.fromNamespaceAndPath(CreateAddition.MODID, "block/" + path));
 	}
 
 	private static PartialModel entity(String path) {
-		return PartialModel.of(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, "entity/" + path));
+		return PartialModel.of(Identifier.fromNamespaceAndPath(CreateAddition.MODID, "entity/" + path));
 	}
 
 	public static void init() {

@@ -5,7 +5,7 @@ import com.mrh0.createaddition.blocks.connector.base.AbstractConnectorBlockEntit
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.energy.network.EnergyNetwork;
 import com.mrh0.createaddition.index.CABlockEntities;
-import com.simibubi.create.foundation.blockEntity.behaviour.BlockEntityBehaviour;
+import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

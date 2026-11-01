@@ -3,7 +3,7 @@ package com.mrh0.createaddition.blocks.creative_energy;
 import com.mrh0.createaddition.energy.CreativeEnergyStorage;
 
 import com.mrh0.createaddition.index.CABlockEntities;
-import com.simibubi.create.content.logistics.crate.CrateBlockEntity;
+import com.zurrtum.create.content.logistics.crate.CrateBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;

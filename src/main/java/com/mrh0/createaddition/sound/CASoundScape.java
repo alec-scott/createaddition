@@ -2,9 +2,9 @@ package com.mrh0.createaddition.sound;
 
 
 import com.mrh0.createaddition.CreateAddition;
-import com.simibubi.create.infrastructure.config.AllConfigs;
-import net.createmod.catnip.animation.AnimationTickHolder;
-import net.createmod.catnip.math.VecHelper;
+import com.zurrtum.create.infrastructure.config.AllConfigs;
+import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
+import com.zurrtum.create.catnip.math.VecHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.Sound;
 import net.minecraft.core.BlockPos;

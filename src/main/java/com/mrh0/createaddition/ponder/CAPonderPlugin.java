@@ -2,15 +2,15 @@ package com.mrh0.createaddition.ponder;
 
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.index.CAPonders;
-import com.simibubi.create.foundation.ponder.PonderWorldBlockEntityFix;
+import com.zurrtum.create.client.foundation.ponder.PonderWorldBlockEntityFix;
 
-import net.createmod.ponder.api.level.PonderLevel;
-import net.createmod.ponder.api.registration.IndexExclusionHelper;
-import net.createmod.ponder.api.registration.PonderPlugin;
-import net.createmod.ponder.api.registration.PonderSceneRegistrationHelper;
-import net.createmod.ponder.api.registration.PonderTagRegistrationHelper;
-import net.createmod.ponder.api.registration.SharedTextRegistrationHelper;
-import net.minecraft.resources.ResourceLocation;
+import com.zurrtum.create.client.ponder.api.level.PonderLevel;
+import com.zurrtum.create.client.ponder.api.registration.IndexExclusionHelper;
+import com.zurrtum.create.client.ponder.api.registration.PonderPlugin;
+import com.zurrtum.create.client.ponder.api.registration.PonderSceneRegistrationHelper;
+import com.zurrtum.create.client.ponder.api.registration.PonderTagRegistrationHelper;
+import com.zurrtum.create.client.ponder.api.registration.SharedTextRegistrationHelper;
+import net.minecraft.resources.Identifier;
 
 public class CAPonderPlugin implements PonderPlugin {
 
@@ -20,12 +20,12 @@ public class CAPonderPlugin implements PonderPlugin {
     }
 
     @Override
-    public void registerScenes(PonderSceneRegistrationHelper<ResourceLocation> helper) {
+    public void registerScenes(PonderSceneRegistrationHelper<Identifier> helper) {
         CAPonders.registerScenes(helper);
     }
 
     @Override
-    public void registerTags(PonderTagRegistrationHelper<ResourceLocation> helper) {
+    public void registerTags(PonderTagRegistrationHelper<Identifier> helper) {
         CAPonders.registerTags(helper);
     }
 

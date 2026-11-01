@@ -18,8 +18,8 @@ import com.mrh0.createaddition.network.EnergyNetworkPacketPayload;
 import com.mrh0.createaddition.network.IObserveBlockEntity;
 import com.mrh0.createaddition.network.ObservePacketPayload;
 
-import com.simibubi.create.api.equipment.goggles.IHaveGoggleInformation;
-import com.simibubi.create.foundation.blockEntity.SmartBlockEntity;
+import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
+import com.zurrtum.create.foundation.blockEntity.SmartBlockEntity;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -427,7 +427,7 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 				color = 0xFF00FF;
 			}
 			// ca_ = Create Addition
-			net.createmod.catnip.outliner.Outliner.getInstance().chaseAABB("ca_nodes_" + i, shape.bounds().move(pos)).lineWidth(0.0625F).colored(color);
+			com.zurrtum.create.client.catnip.outliner.Outliner.getInstance().chaseAABB("ca_nodes_" + i, shape.bounds().move(pos)).lineWidth(0.0625F).colored(color);
 		}
 		// Outline connected power
 		BlockPos pos = worldPosition.relative(getBlockState().getValue(AbstractConnectorBlock.FACING));
@@ -437,6 +437,6 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 
 		if (cap == null) return;
 		VoxelShape shape = level.getBlockState(pos).getBlockSupportShape(level, pos);
-		net.createmod.catnip.outliner.Outliner.getInstance().chaseAABB("ca_output", shape.bounds().move(pos)).lineWidth(0.0625F).colored(0x5B5BFF);
+		com.zurrtum.create.client.catnip.outliner.Outliner.getInstance().chaseAABB("ca_output", shape.bounds().move(pos)).lineWidth(0.0625F).colored(0x5B5BFF);
 	}
 }

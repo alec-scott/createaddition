@@ -6,12 +6,12 @@ import com.mrh0.createaddition.blocks.connector.base.ConnectorMode;
 import com.mrh0.createaddition.blocks.connector.base.ConnectorVariant;
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import net.createmod.catnip.math.VoxelShaper;
+import com.mrh0.createaddition.port.registrate.providers.DataGenContext;
+import com.mrh0.createaddition.port.registrate.providers.RegistrateBlockstateProvider;
+import com.zurrtum.create.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -19,9 +19,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProvider;
+import com.mrh0.createaddition.port.porting_lib.models.generators.ModelFile;
+import com.mrh0.createaddition.port.porting_lib.models.generators.MultiPartBlockStateBuilder;
 
 public class SmallConnectorBlock extends AbstractConnectorBlock<SmallConnectorBlockEntity> {
     public static final VoxelShaper CONNECTOR_SHAPE = CAShapes.shape(6, 0, 6, 10, 5, 10).forDirectional();
@@ -55,10 +55,10 @@ public class SmallConnectorBlock extends AbstractConnectorBlock<SmallConnectorBl
         String basePathSmall = basePath + "small/";
         MultiPartBlockStateBuilder builder = provider.getMultipartBuilder(ctx.get());
 
-        ModelFile.ExistingModelFile noneModel = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePathSmall + "none"));
-        ModelFile.ExistingModelFile pushModel = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePathSmall + "push"));
-        ModelFile.ExistingModelFile pullModel = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePathSmall + "pull"));
-        ModelFile.ExistingModelFile girderBaseModel = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "girder_base"));
+        ModelFile.ExistingModelFile noneModel = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePathSmall + "none"));
+        ModelFile.ExistingModelFile pushModel = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePathSmall + "push"));
+        ModelFile.ExistingModelFile pullModel = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePathSmall + "pull"));
+        ModelFile.ExistingModelFile girderBaseModel = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "girder_base"));
 
         for(Direction direction: Direction.values()) {
             int horizontalAngle = direction == Direction.UP ? 180 : direction == Direction.DOWN ? 0 : 90;

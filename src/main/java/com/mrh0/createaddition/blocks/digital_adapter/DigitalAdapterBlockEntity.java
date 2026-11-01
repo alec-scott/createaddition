@@ -1,13 +1,13 @@
 package com.mrh0.createaddition.blocks.digital_adapter;
 
-import com.simibubi.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
-import com.simibubi.create.content.contraptions.elevator.ElevatorPulleyBlockEntity;
-import com.simibubi.create.content.contraptions.piston.MechanicalPistonBlockEntity;
-import com.simibubi.create.content.contraptions.pulley.PulleyBlockEntity;
-import com.simibubi.create.content.fluids.hosePulley.HosePulleyBlockEntity;
-import com.simibubi.create.content.kinetics.gauge.SpeedGaugeBlockEntity;
-import com.simibubi.create.content.kinetics.gauge.StressGaugeBlockEntity;
-import com.simibubi.create.content.kinetics.speedController.SpeedControllerBlockEntity;
+import com.zurrtum.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
+import com.zurrtum.create.content.contraptions.elevator.ElevatorPulleyBlockEntity;
+import com.zurrtum.create.content.contraptions.piston.MechanicalPistonBlockEntity;
+import com.zurrtum.create.content.contraptions.pulley.PulleyBlockEntity;
+import com.zurrtum.create.content.fluids.hosePulley.HosePulleyBlockEntity;
+import com.zurrtum.create.content.kinetics.gauge.SpeedGaugeBlockEntity;
+import com.zurrtum.create.content.kinetics.gauge.StressGaugeBlockEntity;
+import com.zurrtum.create.content.kinetics.speedController.SpeedControllerBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -84,7 +84,7 @@ public class DigitalAdapterBlockEntity extends BlockEntity {
 
     //@Nonnull
     //@Override
-    //public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @javax.annotation.Nullable Direction side) {
+    //public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @org.jetbrains.annotations.Nullable Direction side) {
     //    if (CreateAddition.CC_ACTIVE && Peripherals.isPeripheral(cap)) return this.peripheral.cast();
     //    return super.getCapability(cap, side);
     //}

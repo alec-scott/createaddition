@@ -2,9 +2,9 @@ package com.mrh0.createaddition.blocks.cake;
 
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.datagen.Models.BlockGenHelper;
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import net.minecraft.resources.ResourceLocation;
+import com.mrh0.createaddition.port.registrate.providers.DataGenContext;
+import com.mrh0.createaddition.port.registrate.providers.RegistrateBlockstateProvider;
+import net.minecraft.resources.Identifier;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -15,8 +15,8 @@ import net.minecraft.world.level.block.CakeBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProvider;
+import com.mrh0.createaddition.port.porting_lib.models.generators.MultiPartBlockStateBuilder;
 
 public class CACakeBlock extends CakeBlock {
 
@@ -56,14 +56,14 @@ public class CACakeBlock extends CakeBlock {
 		for(Integer bytes: BITES.getPossibleValues()) {
 			if(bytes == 0) {
 				builder.part()
-						.modelFile(models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "cake")))
+						.modelFile(models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "cake")))
 						.addModel()
 						.condition(BITES, 0)
 						.end();
 			}
 			else {
 				builder.part()
-						.modelFile(models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, basePath + "slice" + bytes)))
+						.modelFile(models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, basePath + "slice" + bytes)))
 						.addModel()
 						.condition(BITES, bytes)
 						.end();

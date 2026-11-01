@@ -3,15 +3,15 @@ package com.mrh0.createaddition.blocks.tesla_coil;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
-import com.simibubi.create.content.equipment.wrench.IWrenchable;
-import com.simibubi.create.foundation.block.IBE;
+import com.zurrtum.create.content.equipment.wrench.IWrenchable;
+import com.zurrtum.create.foundation.block.IBE;
 
-import com.tterrag.registrate.providers.DataGenContext;
-import com.tterrag.registrate.providers.RegistrateBlockstateProvider;
-import net.createmod.catnip.math.VoxelShaper;
+import com.mrh0.createaddition.port.registrate.providers.DataGenContext;
+import com.mrh0.createaddition.port.registrate.providers.RegistrateBlockstateProvider;
+import com.zurrtum.create.catnip.math.VoxelShaper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -25,10 +25,10 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.client.model.generators.BlockModelProvider;
-import net.neoforged.neoforge.client.model.generators.ConfiguredModel;
-import net.neoforged.neoforge.client.model.generators.ModelFile;
-import net.neoforged.neoforge.client.model.generators.VariantBlockStateBuilder;
+import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProvider;
+import com.mrh0.createaddition.port.porting_lib.models.generators.ConfiguredModel;
+import com.mrh0.createaddition.port.porting_lib.models.generators.ModelFile;
+import com.mrh0.createaddition.port.porting_lib.models.generators.VariantBlockStateBuilder;
 import org.jetbrains.annotations.Nullable;
 
 public class TeslaCoilBlock extends Block implements IBE<TeslaCoilBlockEntity>, IWrenchable {
@@ -82,8 +82,8 @@ public class TeslaCoilBlock extends Block implements IBE<TeslaCoilBlockEntity>, 
 
     public static void makeBlockState(DataGenContext<Block, TeslaCoilBlock> ctx, RegistrateBlockstateProvider provider) {
 		BlockModelProvider models = provider.models();
-		ModelFile.ExistingModelFile modelFile = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, "block/tesla_coil/block"));
-		ModelFile.ExistingModelFile modelFilePowered = models.getExistingFile(ResourceLocation.fromNamespaceAndPath(CreateAddition.MODID, "block/tesla_coil/powered"));
+		ModelFile.ExistingModelFile modelFile = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, "block/tesla_coil/block"));
+		ModelFile.ExistingModelFile modelFilePowered = models.getExistingFile(Identifier.fromNamespaceAndPath(CreateAddition.MODID, "block/tesla_coil/powered"));
 
 		VariantBlockStateBuilder builder = provider.getVariantBuilder(ctx.get());
 		builder.forAllStates(state -> {

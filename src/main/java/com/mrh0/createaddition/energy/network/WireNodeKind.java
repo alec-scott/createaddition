@@ -6,7 +6,7 @@ import java.util.Map;
 
 import com.mrh0.createaddition.index.CABlockEntities;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -17,7 +17,7 @@ public enum WireNodeKind {
 	// Nodes 0-3 are the input port, 4-7 the output port. Moves energy from input to output while powered.
 	RELAY;
 
-	private static Map<ResourceLocation, WireNodeKind> byBlockEntityId;
+	private static Map<Identifier, WireNodeKind> byBlockEntityId;
 
 	public int portOf(int node) {
 		return this == RELAY && node >= 4 ? 1 : 0;
@@ -49,14 +49,14 @@ public enum WireNodeKind {
 	@Nullable
 	public static WireNodeKind fromBlockEntityId(String id) {
 		if (byBlockEntityId == null) {
-			Map<ResourceLocation, WireNodeKind> map = new HashMap<>();
+			Map<Identifier, WireNodeKind> map = new HashMap<>();
 			map.put(BlockEntityType.getKey(CABlockEntities.SMALL_CONNECTOR.get()), CONNECTOR);
 			map.put(BlockEntityType.getKey(CABlockEntities.SMALL_LIGHT_CONNECTOR.get()), CONNECTOR);
 			map.put(BlockEntityType.getKey(CABlockEntities.LARGE_CONNECTOR.get()), CONNECTOR);
 			map.put(BlockEntityType.getKey(CABlockEntities.REDSTONE_RELAY.get()), RELAY);
 			byBlockEntityId = map;
 		}
-		ResourceLocation key = ResourceLocation.tryParse(id);
+		Identifier key = Identifier.tryParse(id);
 		return key == null ? null : byBlockEntityId.get(key);
 	}
 }
