@@ -1,84 +1,71 @@
 package com.mrh0.createaddition.blocks.portable_energy_interface;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-
-import com.mrh0.createaddition.index.CABlocks;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mrh0.createaddition.index.CAPartials;
-import com.zurrtum.create.content.contraptions.behaviour.MovementContext;
-import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
-import com.simibubi.create.foundation.blockEntity.renderer.SafeBlockEntityRenderer;
-import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
-import com.zurrtum.create.client.catnip.render.CachedBuffers;
-import com.zurrtum.create.client.foundation.virtualWorld.VirtualRenderWorld;
-import com.zurrtum.create.client.flywheel.lib.model.baked.PartialModel;
-import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
-import com.zurrtum.create.catnip.animation.LerpedFloat;
 import com.zurrtum.create.catnip.math.AngleHelper;
+import com.zurrtum.create.client.catnip.render.CachedBuffers;
 import com.zurrtum.create.client.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import com.zurrtum.create.client.catnip.render.SuperByteBufferRenderState;
+import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
+import com.zurrtum.create.client.flywheel.lib.model.baked.PartialModel;
+import com.zurrtum.create.client.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
+import com.zurrtum.create.content.contraptions.behaviour.MovementContext;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-import java.util.function.Consumer;
-
-public class PortableEnergyInterfaceRenderer extends SafeBlockEntityRenderer<PortableEnergyInterfaceBlockEntity> {
+/**
+ * PORT-NOTE(26.1): extract/submit for the placed block (non-Flywheel only, as before).
+ * TODO(26.1): rendering on contraptions (was renderInContraption) needs a Create Fly MovementRenderBehaviour.
+ */
+public class PortableEnergyInterfaceRenderer implements BlockEntityRenderer<PortableEnergyInterfaceBlockEntity, PortableEnergyInterfaceRenderer.PEIRenderState> {
 
 	public PortableEnergyInterfaceRenderer(BlockEntityRendererProvider.Context context) {
 	}
 
 	@Override
-	protected void renderSafe(PortableEnergyInterfaceBlockEntity be, float partialTicks, PoseStack ms,
-							  MultiBufferSource buffer, int light, int overlay) {
+	public PEIRenderState createRenderState() {
+		return new PEIRenderState();
+	}
+
+	@Override
+	public void extractRenderState(PortableEnergyInterfaceBlockEntity be, PEIRenderState state, float partialTicks,
+								   Vec3 cameraPos, @Nullable CrumblingOverlay crumblingOverlay) {
+		state.middle = null;
+		state.top = null;
 		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
-
-		BlockState blockState = be.getBlockState();
+		SmartBlockEntityRenderer.extractBase(be, state, crumblingOverlay);
+		BlockState blockState = state.blockState;
 		float progress = be.getExtensionDistance(partialTicks);
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
-		render(blockState, be.isConnected(), progress, null, sbb -> sbb.light(light)
-				.renderInto(ms, vb));
-	}
-
-	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
-										   ContraptionMatrices matrices, MultiBufferSource buffer) {
-		BlockState blockState = context.state;
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
-		float renderPartialTicks = AnimationTickHolder.getPartialTicks();
-
-		LerpedFloat animation = PortableEnergyInterfaceMovement.getAnimation(context);
-		float progress = animation.getValue(renderPartialTicks);
-		boolean lit = animation.settled();
-		render(blockState, lit, progress, matrices.getModel(),
-				sbb -> sbb.light(LevelRenderer.getLightColor(renderWorld, context.localPos))
-						.useLevelLight(context.world, matrices.getWorld())
-						.renderInto(matrices.getViewProjection(), vb));
-	}
-
-	private static void render(BlockState blockState, boolean lit, float progress,@Nullable PoseStack local,
-							   Consumer<SuperByteBuffer> drawCallback) {
-		SuperByteBuffer middle = CachedBuffers.partial(getMiddleForState(blockState, lit), blockState);
+		SuperByteBuffer middle = CachedBuffers.partial(getMiddleForState(blockState, be.isConnected()), blockState);
 		SuperByteBuffer top = CachedBuffers.partial(getTopForState(blockState), blockState);
-
-		if (local != null) {
-			middle.transform(local);
-			top.transform(local);
-		}
 		Direction facing = blockState.getValue(PortableEnergyInterfaceBlock.FACING);
 		rotateToFacing(middle, facing);
 		rotateToFacing(top, facing);
 		middle.translate(0, progress * 0.5f + 0.375f, 0);
 		top.translate(0, progress, 0);
+		state.middle = middle.light(state.lightCoords).extractRenderState();
+		state.top = top.light(state.lightCoords).extractRenderState();
+	}
 
-		drawCallback.accept(middle);
-		drawCallback.accept(top);
+	@Override
+	public void submit(PEIRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState camera) {
+		if (state.middle != null) state.middle.submit(matrices, queue);
+		if (state.top != null) state.top.submit(matrices, queue);
+	}
+
+	public static class PEIRenderState extends BlockEntityRenderState {
+		public @Nullable SuperByteBufferRenderState middle;
+		public @Nullable SuperByteBufferRenderState top;
 	}
 
 	private static void rotateToFacing(SuperByteBuffer buffer, Direction facing) {
@@ -102,8 +89,7 @@ public class PortableEnergyInterfaceRenderer extends SafeBlockEntityRenderer<Por
 	}
 
 	static PartialModel getMiddleForState(BlockState state, boolean lit) {
-        CABlocks.PORTABLE_ENERGY_INTERFACE.has(state);
-        return lit ? CAPartials.PORTABLE_ENERGY_INTERFACE_MIDDLE_POWERED
+		return lit ? CAPartials.PORTABLE_ENERGY_INTERFACE_MIDDLE_POWERED
 				: CAPartials.PORTABLE_ENERGY_INTERFACE_MIDDLE;
 	}
 

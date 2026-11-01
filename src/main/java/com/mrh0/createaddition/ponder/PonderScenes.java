@@ -16,7 +16,7 @@ import com.zurrtum.create.AllItems;
 import com.zurrtum.create.content.fluids.pump.PumpBlock;
 import com.zurrtum.create.content.processing.burner.BlazeBurnerBlock;
 import com.zurrtum.create.content.redstone.analogLever.AnalogLeverBlockEntity;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerScrollValueBehaviour;
 import com.zurrtum.create.client.foundation.ponder.CreateSceneBuilder;
 import com.zurrtum.create.catnip.math.Pointing;
 import com.zurrtum.create.client.ponder.api.PonderPalette;
@@ -276,7 +276,7 @@ public class PonderScenes {
 			.pointAt(topOf);
 		scene.idle(60);
 
-		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(AllItems.CHROMATIC_COMPOUND));
+		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(AllItems.BRASS_INGOT) /* PORT-NOTE(26.1): chromatic compound is gone from Create 6 */);
 		scene.idle(10);
 		scene.world().setBlock(util.grid().at(2, 3, 2), CABlocks.TESLA_COIL.getDefaultState().setValue(TeslaCoilBlock.FACING, Direction.UP).setValue(TeslaCoilBlock.POWERED, true), false);
 		scene.overlay().showText(70)
@@ -636,7 +636,7 @@ public class PonderScenes {
 		scene.idle(15);
 		scene.world().setKineticSpeed(pump, 64);
 		scene.world().modifyBlockEntity(pumpPos, ElectricPumpBlockEntity.class, be -> {
-			be.getBehaviour(ScrollValueBehaviour.TYPE).setValue(64);
+			be.getBehaviour(ServerScrollValueBehaviour.TYPE).setValue(64);
 			be.setActive(true);
 		});
 		scene.world().propagatePipeChange(pumpPos);

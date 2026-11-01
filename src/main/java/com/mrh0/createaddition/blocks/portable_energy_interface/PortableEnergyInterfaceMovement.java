@@ -95,7 +95,7 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 			if (psi == null) return false;
 			else if (psi.isPowered()) return false;
 			else {
-				context.data.put(_workingPos_, NbtUtils.writeBlockPos(psi.getBlockPos()));
+				context.data.store(_workingPos_, BlockPos.CODEC, psi.getBlockPos());
 				if (!context.world.isClientSide()) {
 					Vec3 diff = VecHelper.getCenterOf(psi.getBlockPos()).subtract(context.position);
 					diff = VecHelper.project(diff, Vec3.atLowerCornerOf(currentFacing.getUnitVec3i()));

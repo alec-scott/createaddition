@@ -309,6 +309,12 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 		}
 	}
 
+	// PORT-NOTE(26.1): the wires' bounds (was WireNodeRenderer.getRenderBoundingBox); recomputed as wires change
+	@Override
+	public net.minecraft.world.phys.AABB getRenderBoundingBox() {
+		return com.mrh0.createaddition.rendering.WireNodeRenderer.wireBounds(this);
+	}
+
 	@Override
 	public void onLoad() {
 		WireGraph.nodeLoaded(level, this);

@@ -1,7 +1,6 @@
 package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.ponder.DebugScenes;
 import com.mrh0.createaddition.ponder.PonderScenes;
 import com.zurrtum.create.AllBlocks;
 
@@ -12,8 +11,7 @@ import com.zurrtum.create.client.ponder.api.registration.PonderSceneRegistration
 import com.zurrtum.create.client.ponder.api.registration.PonderTagRegistrationHelper;
 import net.minecraft.resources.Identifier;
 import com.mrh0.createaddition.port.registrate.util.entry.RegistryEntry;
-import net.neoforged.fml.loading.FMLEnvironment;
-import net.neoforged.neoforge.data.loading.DatagenModLoader;
+import net.minecraft.core.registries.BuiltInRegistries;
 
 public class CAPonders {
 	public static final Identifier ELECTRIC = CreateAddition.asResource("electric");
@@ -66,7 +64,7 @@ public class CAPonders {
 		HELPER.addStoryBoard(CABlocks.TESLA_COIL, "tesla_coil", PonderScenes::teslaCoil, ELECTRIC);
 		HELPER.addStoryBoard(CABlocks.TESLA_COIL, "tesla_coil_hurt", PonderScenes::teslaCoilHurt, ELECTRIC);
 		HELPER.addStoryBoard(CAItems.STRAW, "liquid_blaze_burner", PonderScenes::liquidBlazeBurner, AllCreatePonderTags.FLUIDS);
-		HELPER.addStoryBoard(AllBlocks.BLAZE_BURNER, "liquid_blaze_burner", PonderScenes::liquidBlazeBurner, AllCreatePonderTags.LOGISTICS);
+		helper.addStoryBoard(BuiltInRegistries.ITEM.getKey(AllBlocks.BLAZE_BURNER.asItem()), "liquid_blaze_burner", PonderScenes::liquidBlazeBurner, AllCreatePonderTags.LOGISTICS);
 		HELPER.addStoryBoard(CABlocks.MODULAR_ACCUMULATOR, "accumulator", PonderScenes::modularAccumulator, ELECTRIC);
 		HELPER.addStoryBoard(CABlocks.PORTABLE_ENERGY_INTERFACE, "pei_transfer", PonderScenes::peiTransfer, AllCreatePonderTags.CONTRAPTION_ACTOR, ELECTRIC);
 		HELPER.addStoryBoard(CABlocks.PORTABLE_ENERGY_INTERFACE, "pei_redstone", PonderScenes::peiRedstone, AllCreatePonderTags.CONTRAPTION_ACTOR, ELECTRIC);
@@ -79,7 +77,6 @@ public class CAPonders {
 		if(CreateAddition.CC_ACTIVE)
 			HELPER.addStoryBoard(CABlocks.ELECTRIC_MOTOR, "cc_electric_motor", PonderScenes::ccMotor, AllCreatePonderTags.KINETIC_SOURCES, ELECTRIC);
 
-		if(!FMLEnvironment.production && !DatagenModLoader.isRunningDataGen())
-			HELPER.addStoryBoard(AllItems.WRENCH,"debug/fluidtank", DebugScenes::controllerBEDebug);
+		// PORT-NOTE(26.1): the dev-only debug fluid tank scene (DebugScenes) is not ported
 	}
 }
