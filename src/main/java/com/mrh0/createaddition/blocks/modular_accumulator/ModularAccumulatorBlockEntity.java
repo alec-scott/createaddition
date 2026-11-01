@@ -25,7 +25,6 @@ import com.zurrtum.create.foundation.blockEntity.SmartBlockEntity;
 import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
 import com.zurrtum.create.catnip.animation.LerpedFloat;
 import com.zurrtum.create.client.catnip.outliner.Outliner;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -168,11 +167,10 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 
 		if (level == null) return;
 		if (level.isClientSide()) {
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::tickAudio);
 			gauge.tickChaser();
 			float current = gauge.getValue(1);
-			if (current > 1 && Create.RANDOM.nextFloat() < 1 / 2f)
-				gauge.setValueNoUpdate(current + Math.min(-(current - 1) * Create.RANDOM.nextFloat(), 0));
+			if (current > 1 && level.getRandom().nextFloat() < 1 / 2f)
+				gauge.setValueNoUpdate(current + Math.min(-(current - 1) * level.getRandom().nextFloat(), 0));
 		}
 	}
 
@@ -195,6 +193,14 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 		int rec = ies.receiveEnergy(ext, false);
 	}
 
+	// PORT-NOTE(26.1): was ModularAccumulatorBlock.onRemove (as Create Fly's FluidTankBlockEntity)
+	@Override
+	public void preRemoveSideEffects(BlockPos pos, BlockState oldState) {
+		super.preRemoveSideEffects(pos, oldState);
+		CAConnectivityHandler.splitMulti(this);
+	}
+
+	// PORT-NOTE(26.1): called by a client behaviour (CABlockEntityBehaviours)
 	public void tickAudio() {
 		if (energyChangeTick == 0) return;
 		int sizeInBlocks = getTotalAccumulatorSize();
@@ -326,7 +332,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 
 	void refreshCapability() {
 		energyCapability = handlerForCapability();
-		invalidateCapabilities();
+		// PORT-NOTE(26.1): no capability invalidation on Fabric (lookups are live)
 	}
 
 	private InternalEnergyStorage handlerForCapability() {
@@ -362,8 +368,8 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 		controller = null;
 		lastKnownPos = null;
 
-		if (CAValueIO.contains(tag, "LastKnownPos")) lastKnownPos = NbtUtils.readBlockPos(tag, "LastKnownPos").orElse(BlockPos.ZERO);
-		if (CAValueIO.contains(tag, "Controller")) controller = NbtUtils.readBlockPos(tag, "Controller").orElse(BlockPos.ZERO);
+		if (CAValueIO.contains(tag, "LastKnownPos")) lastKnownPos = tag.read("LastKnownPos", BlockPos.CODEC).orElse(BlockPos.ZERO);
+		if (CAValueIO.contains(tag, "Controller")) controller = tag.read("Controller", BlockPos.CODEC).orElse(BlockPos.ZERO);
 
 		if (isController()) {
 			width = tag.getIntOr("Size", 0);
@@ -394,8 +400,8 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 	@Override
 	public void write(ValueOutput tag, boolean clientPacket) {
 		if (updateConnectivity) tag.putBoolean("Uninitialized", true);
-		if (lastKnownPos != null) CAValueIO.put(tag, "LastKnownPos", NbtUtils.writeBlockPos(lastKnownPos));
-		if (!isController()) CAValueIO.put(tag, "Controller", NbtUtils.writeBlockPos(controller));
+		if (lastKnownPos != null) tag.store("LastKnownPos", BlockPos.CODEC, lastKnownPos);
+		if (!isController()) tag.store("Controller", BlockPos.CODEC, controller);
 		if (isController()) {
 			CAValueIO.put(tag, "EnergyContent", energyCapability.write(new CompoundTag()));
 			// Used by contraptions.

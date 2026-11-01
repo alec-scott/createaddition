@@ -41,7 +41,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import com.mrh0.createaddition.port.porting_lib.models.generators.BlockModelProvider;
 import com.mrh0.createaddition.port.porting_lib.models.generators.ModelFile;
 import com.mrh0.createaddition.port.porting_lib.models.generators.MultiPartBlockStateBuilder;
-import net.neoforged.neoforge.common.util.DeferredSoundType;
 
 public class ModularAccumulatorBlock extends Block implements IWrenchable, IBE<ModularAccumulatorBlockEntity> {
 
@@ -95,27 +94,9 @@ public class ModularAccumulatorBlock extends Block implements IWrenchable, IBE<M
 		return pState;
 	}
 
-	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.hasBlockEntity() && (state.getBlock() != newState.getBlock() || !newState.hasBlockEntity())) {
-			BlockEntity be = level.getBlockEntity(pos);
-			if (!(be instanceof ModularAccumulatorBlockEntity acc)) return;
-            level.removeBlockEntity(pos);
-			CAConnectivityHandler.splitMulti(acc);
-		}
-	}
-
-	// Blocks are less noisy when placed in batch
-	public static final SoundType SILENCED_METAL =
-		new DeferredSoundType(0.1F, 1.5F, () -> SoundEvents.METAL_BREAK, () -> SoundEvents.METAL_STEP,
-			() -> SoundEvents.METAL_PLACE, () -> SoundEvents.METAL_HIT, () -> SoundEvents.METAL_FALL);
-
-	@Override
-	public SoundType getSoundType(BlockState state, LevelReader world, BlockPos pos, Entity entity) {
-		SoundType soundType = super.getSoundType(state, world, pos, entity);
-		if (entity != null && entity.getPersistentData().contains("SilenceTankSound")) return SILENCED_METAL;
-		return soundType;
-	}
+	// PORT-NOTE(26.1): onRemove -> ModularAccumulatorBlockEntity.preRemoveSideEffects (as Create Fly's fluid tank). The
+	// batch-placement sound silencing is dropped (entity-aware getSoundType and persistent data are NeoForge-only;
+	// Create Fly dropped it for tanks and vaults too).
 
 	@Override
 	public boolean hasAnalogOutputSignal(BlockState state) {

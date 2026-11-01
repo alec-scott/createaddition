@@ -93,7 +93,7 @@ public class PortableEnergyInterfaceRenderer extends SafeBlockEntityRenderer<Por
 		String _workingPos_ = PortableEnergyInterfaceMovement._workingPos_;
 		if (!context.data.contains(_workingPos_)) return null;
 
-		BlockPos pos = NbtUtils.readBlockPos(context.data, _workingPos_).orElse(BlockPos.ZERO); // Should never else
+		BlockPos pos = context.data.read(_workingPos_, BlockPos.CODEC).orElse(BlockPos.ZERO); // Should never else
 		BlockEntity blockEntity = context.world.getBlockEntity(pos);
 		if (!(blockEntity instanceof PortableEnergyInterfaceBlockEntity psi)) return null;
 

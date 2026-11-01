@@ -215,11 +215,7 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IOnLoa
 	@Override
 	protected void read(ValueInput tag, boolean clientPacket) {
 		super.read(tag, clientPacket);
-		// Convert old nbt data. x0, y0, z0, node0 & type0 etc.
-		if (!clientPacket && CAValueIO.contains(tag, "node0")) {
-			convertOldNbt(tag);
-			setChanged();
-		}
+		// PORT-NOTE(26.1): the pre-1.21 node0..node7 NBT conversion is not ported (CompoundTag-only)
 
 		// Read the nodes.
 		invalidateLocalNodes();

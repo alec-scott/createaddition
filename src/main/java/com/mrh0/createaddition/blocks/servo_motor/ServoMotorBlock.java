@@ -121,7 +121,7 @@ public class ServoMotorBlock extends DirectionalKineticBlock implements IBE<Serv
 	}
 
 	@Override
-	public VoxelShape getOcclusionShape(BlockState state, BlockGetter world, BlockPos pos) {
+	protected VoxelShape getOcclusionShape(BlockState state) {
 		return OCCLUSION_SHAPE.get(state.getValue(FACING));
 	}
 

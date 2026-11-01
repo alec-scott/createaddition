@@ -14,9 +14,7 @@ import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
 import com.zurrtum.create.content.kinetics.belt.behaviour.BeltProcessingBehaviour;
 import com.zurrtum.create.content.kinetics.belt.behaviour.TransportedItemStackHandlerBehaviour;
 import com.zurrtum.create.content.kinetics.belt.transport.TransportedItemStack;
-import com.zurrtum.create.content.processing.sequenced.SequencedAssemblyRecipe;
 import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
-import net.createmod.catnip.platform.CatnipServices;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -36,8 +34,9 @@ import net.minecraft.world.phys.AABB;
 import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
 import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,13 +47,13 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 
 	private Optional<RecipeHolder<ChargingRecipe>> recipeCache = Optional.empty();
 
-	private final ItemStackHandler inputInv;
+	// PORT-NOTE(26.1): the last stack looked up (was a one-slot ItemStackHandler wrapped for recipe lookup)
+	private ItemStack lastInput = ItemStack.EMPTY;
 	private int chargeAccumulator;
 	protected int poweredTimer = 0;
 
 	public TeslaCoilBlockEntity(BlockEntityType<?> tileEntityTypeIn, BlockPos pos, BlockState state) {
 		super(tileEntityTypeIn, pos, state);
-		inputInv = new ItemStackHandler(1);
 	}
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -123,7 +122,9 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 			if(e == null) return;
 
 			boolean allChain = true;
-			for(ItemStack armor : e.getArmorSlots()) {
+			for(EquipmentSlot slot : EquipmentSlot.values()) {
+				if(slot.getType() != EquipmentSlot.Type.HUMANOID_ARMOR) continue;
+				ItemStack armor = e.getItemBySlot(slot);
 				if(armor.is(Items.CHAINMAIL_BOOTS)) continue;
 				if(armor.is(Items.CHAINMAIL_LEGGINGS)) continue;
 				if(armor.is(Items.CHAINMAIL_CHESTPLATE)) continue;
@@ -141,7 +142,7 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 			}
 
 			if(dmg > 0) {
-				e.hurt(CADamageTypes.teslaCoil(level), dmg);
+				if (level instanceof ServerLevel serverLevel) e.hurtServer(serverLevel, CADamageTypes.teslaCoil(level), dmg);
 				if (!zapped) {
 					if (CommonConfig.AUDIO_ENABLED.get()) level.playSound(null, worldPosition, CASounds.LOUD_ZAP.get(), SoundSource.BLOCKS, 0.6f, 1f);
 					zapped = true;
@@ -159,10 +160,8 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 		super.tick();
 		if(level == null) return;
 
-		if (level.isClientSide()) {
-			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::tickAudio);
-			return;
-		}
+		// PORT-NOTE(26.1): client audio is a client behaviour (CABlockEntityBehaviours) calling tickAudio
+		if (level.isClientSide()) return;
 		int signal = level.getBestNeighborSignal(getBlockPos());
 		if(signal > 0 && localEnergy.getEnergyStored() >= CommonConfig.TESLA_COIL_HURT_ENERGY_REQUIRED.get()) poweredTimer = 10;
 
@@ -222,9 +221,9 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 	private boolean chargeRecipe(ItemStack stack, TransportedItemStack transported, TransportedItemStackHandlerBehaviour handler) {
 		if(this.getLevel() == null) return false;
 		// Compare components too, every sequenced assembly step uses the same transitional item
-		if(!ItemStack.isSameItemSameComponents(inputInv.getStackInSlot(0), stack)) {
-			inputInv.setStackInSlot(0, stack);
-			recipeCache = find(stack, new RecipeWrapper(inputInv), this.getLevel());
+		if(!ItemStack.isSameItemSameComponents(lastInput, stack)) {
+			lastInput = stack.copy();
+			recipeCache = find(stack, this.getLevel());
 			chargeAccumulator = 0;
 			Arrays.fill(chargeRateHistory, 0);
 			chargeRateIndex = 0;
@@ -240,11 +239,11 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 			if(chargeAccumulator >= recipe.getEnergy()) {
 				// Sequenced assembly steps are shared recipe instances whose next result is bound to the
 				// last stack looked up, possibly by another machine, so look it up again for this stack.
-				recipe = find(stack, new RecipeWrapper(inputInv), this.getLevel()).map(RecipeHolder::value).orElse(recipe);
+				recipe = find(stack, this.getLevel()).map(RecipeHolder::value).orElse(recipe);
 				TransportedItemStack remainingStack = transported.copy();
 				remainingStack.stack.shrink(1);
 				List<TransportedItemStack> outList = new ArrayList<>();
-				for(ItemStack out : recipe.rollResults(this.getLevel().getRandom())) {
+				for(ItemStack out : recipe.assemble(new SingleRecipeInput(stack), this.getLevel().getRandom())) {
 					TransportedItemStack result = transported.copy();
 					result.stack = out;
 					outList.add(result);
@@ -259,11 +258,10 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 		return false;
 	}
 
-	public Optional<RecipeHolder<ChargingRecipe>> find(ItemStack stack, RecipeWrapper wrapper, Level level) {
-		Optional<RecipeHolder<ChargingRecipe>> assemblyRecipe =
-				SequencedAssemblyRecipe.getRecipe(level, stack, CARecipes.CHARGING_TYPE, ChargingRecipe.class);
-		if(assemblyRecipe.isPresent()) return assemblyRecipe;
-		return level.getRecipeManager().getRecipeFor(CARecipes.CHARGING_TYPE, wrapper, level);
+	// PORT-NOTE(26.1): Create Fly registers sequenced assembly steps as ordinary recipes of their type
+	public Optional<RecipeHolder<ChargingRecipe>> find(ItemStack stack, Level level) {
+		if (!(level instanceof ServerLevel serverLevel)) return Optional.empty();
+		return serverLevel.recipeAccess().getRecipeFor(CARecipes.CHARGING_TYPE, new SingleRecipeInput(stack), level);
 	}
 
 	@Override

@@ -180,11 +180,7 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 	@Override
 	public void read(ValueInput nbt, boolean clientPacket) {
 		super.read(nbt, clientPacket);
-		// Convert old nbt data. x0, y0, z0, node0 & type0 etc.
-		if (!clientPacket && CAValueIO.contains(nbt, "node0")) {
-			convertOldNbt(nbt);
-			setChanged();
-		}
+		// PORT-NOTE(26.1): the pre-1.21 node0..node7 NBT conversion is not ported (CompoundTag-only)
 
 		// Read the nodes.
 		invalidateLocalNodes();

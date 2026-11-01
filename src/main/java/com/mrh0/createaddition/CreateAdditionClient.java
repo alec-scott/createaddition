@@ -3,6 +3,7 @@ package com.mrh0.createaddition;
 import com.mrh0.createaddition.client.CABlockEntityBehaviours;
 import com.mrh0.createaddition.event.ClientEventHandler;
 import com.mrh0.createaddition.index.CAPartials;
+import com.mrh0.createaddition.index.CADisplaySources;
 import com.mrh0.createaddition.network.ClientPayloadHandler;
 import com.mrh0.createaddition.ponder.CAPonderPlugin;
 import com.mrh0.createaddition.trains.schedule.CASchedule;
@@ -33,6 +34,11 @@ public class CreateAdditionClient implements ClientModInitializer {
         PonderIndex.addPlugin(new CAPonderPlugin());
         registerTooltips();
         CASchedule.registerRenders();
+        // Display source configuration UIs (Create Fly's AllDisplaySourceRenders)
+        com.zurrtum.create.client.AllDisplaySourceRenders.register(CADisplaySources.MODULAR_ACCUMULATOR.get(),
+                com.mrh0.createaddition.client.ModularAccumulatorDisplaySourceRender::new);
+        com.zurrtum.create.client.AllDisplaySourceRenders.register(CADisplaySources.DIGITAL_ADAPTER.get(),
+                com.zurrtum.create.client.content.redstone.displayLink.source.SingleLineDisplaySourceRender::new);
     }
 
     // Was REGISTRATE.setTooltipModifierFactory in common code; Create Fly's tooltip classes are client only

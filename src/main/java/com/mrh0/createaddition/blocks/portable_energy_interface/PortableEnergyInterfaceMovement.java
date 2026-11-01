@@ -1,17 +1,11 @@
 package com.mrh0.createaddition.blocks.portable_energy_interface;
 
-import com.zurrtum.create.client.content.contraptions.render.ActorVisual;
-import com.zurrtum.create.client.foundation.virtualWorld.VirtualRenderWorld;
 import com.zurrtum.create.api.behaviour.movement.MovementBehaviour;
 import com.zurrtum.create.content.contraptions.Contraption;
 import com.zurrtum.create.content.contraptions.behaviour.MovementContext;
-import com.simibubi.create.content.contraptions.render.ContraptionMatrices;
 import com.zurrtum.create.content.trains.entity.CarriageContraption;
-import com.zurrtum.create.client.flywheel.api.visualization.VisualizationContext;
-import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
 import com.zurrtum.create.catnip.animation.LerpedFloat;
 import com.zurrtum.create.catnip.math.VecHelper;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.NbtUtils;
@@ -30,7 +24,7 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 
 	@Override
 	public Vec3 getActiveAreaOffset(MovementContext context) {
-		return Vec3.atLowerCornerOf(context.state.getValue(PortableEnergyInterfaceBlock.FACING).getNormal()).scale(1.850000023841858D);
+		return Vec3.atLowerCornerOf(context.state.getValue(PortableEnergyInterfaceBlock.FACING).getUnitVec3i()).scale(1.850000023841858D);
 	}
 
 	//@Override
@@ -38,17 +32,8 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 	//	return true;
 	//}
 
-	@Override
-	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices, MultiBufferSource buffer) {
-		if (!VisualizationManager.supportsVisualization(context.world))
-			PortableEnergyInterfaceRenderer.renderInContraption(context, renderWorld, matrices, buffer);
-	}
-
-	@Override
-	@Nullable
-	public ActorVisual createVisual(VisualizationContext visualizationContext, VirtualRenderWorld simulationWorld, MovementContext movementContext) {
-		return new PEIActorVisual(visualizationContext, simulationWorld, movementContext);
-	}
+	// TODO(26.1): contraption rendering (renderInContraption / createVisual) moves to a client MovementRenderBehaviour
+	// registered with Create Fly's AllMovementRenders (see PortableEnergyInterfaceRenderer, PEIActorVisual).
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
@@ -72,7 +57,7 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 				if (!this.findInterface(context, pos)) this.reset(context);
 
 			} else if (context.data.contains(_workingPos_)) {
-				pos = NbtUtils.readBlockPos(context.data, _workingPos_).orElse(BlockPos.ZERO); // Should never orElse
+				pos = context.data.read(_workingPos_, BlockPos.CODEC).orElse(BlockPos.ZERO); // Should never orElse
 				Vec3 target = VecHelper.getCenterOf(pos);
 				if (!context.stall && !onCarriage && context.position.closerThan(target, target.distanceTo(context.position.add(context.motion)))) {
 					context.stall = true;
@@ -113,11 +98,11 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 				context.data.put(_workingPos_, NbtUtils.writeBlockPos(psi.getBlockPos()));
 				if (!context.world.isClientSide()) {
 					Vec3 diff = VecHelper.getCenterOf(psi.getBlockPos()).subtract(context.position);
-					diff = VecHelper.project(diff, Vec3.atLowerCornerOf(currentFacing.getNormal()));
+					diff = VecHelper.project(diff, Vec3.atLowerCornerOf(currentFacing.getUnitVec3i()));
 					float distance = (float)(diff.length() + 1.850000023841858D - 1.0D);
 					psi.startTransferringTo(context.contraption, distance);
 				} else {
-					context.data.put(_clientPrevPos_, NbtUtils.writeBlockPos(pos));
+					context.data.store(_clientPrevPos_, BlockPos.CODEC, pos);
 					if (context.contraption instanceof CarriageContraption || context.contraption.entity.isStalled() || context.motion.lengthSqr() == 0.0D) {
 						getAnimation(context).chase(psi.getConnectionDistance() / 2.0F, 0.25D, LerpedFloat.Chaser.LINEAR);
 					}
@@ -161,10 +146,10 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 	}
 
 	private Optional<Direction> getCurrentFacingIfValid(MovementContext context) {
-		Vec3 directionVec = Vec3.atLowerCornerOf(context.state.getValue(PortableEnergyInterfaceBlock.FACING).getNormal());
+		Vec3 directionVec = Vec3.atLowerCornerOf(context.state.getValue(PortableEnergyInterfaceBlock.FACING).getUnitVec3i());
 		directionVec = context.rotation.apply(directionVec);
-		Direction facingFromVector = Direction.getNearest(directionVec.x, directionVec.y, directionVec.z);
-		return directionVec.distanceTo(Vec3.atLowerCornerOf(facingFromVector.getNormal())) > 0.5D ? Optional.empty() : Optional.of(facingFromVector);
+		Direction facingFromVector = Direction.getApproximateNearest(directionVec.x, directionVec.y, directionVec.z);
+		return directionVec.distanceTo(Vec3.atLowerCornerOf(facingFromVector.getUnitVec3i())) > 0.5D ? Optional.empty() : Optional.of(facingFromVector);
 	}
 
 	public static LerpedFloat getAnimation(MovementContext context) {

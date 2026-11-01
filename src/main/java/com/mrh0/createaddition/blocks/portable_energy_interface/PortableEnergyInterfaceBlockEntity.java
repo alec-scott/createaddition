@@ -43,10 +43,8 @@ public class PortableEnergyInterfaceBlockEntity extends PortableStorageInterface
 		super.startTransferringTo(contraption, distance);
 	}
 
-	@Override
+	// PORT-NOTE(26.1): no capability invalidation on Fabric (lookups are live); Create Fly dropped the hook
 	protected void invalidateCapability() {
-		if (level == null) return;
-		level.invalidateCapabilities(getBlockPos());
 		// this.capability.invalidate();
 	}
 
@@ -70,7 +68,7 @@ public class PortableEnergyInterfaceBlockEntity extends PortableStorageInterface
 		return this.transferTimer >= 4 && this.transferTimer <= timeUnit + 4;
 	}
 
-	protected float getExtensionDistance(float partialTicks) {
+	public float getExtensionDistance(float partialTicks) {
 		return (float)(Math.pow(this.connectionAnimation.getValue(partialTicks), 2.0D) * (double)this.distance / 2.0D);
 	}
 

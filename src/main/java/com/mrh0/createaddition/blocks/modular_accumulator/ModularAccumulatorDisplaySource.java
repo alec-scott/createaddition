@@ -48,35 +48,19 @@ public class ModularAccumulatorDisplaySource extends PercentOrProgressBarDisplay
 	}
 
 	@Override
-	protected boolean allowsLabeling(DisplayLinkContext context) {
+	public boolean allowsLabeling(DisplayLinkContext context) {
 		return true;
 	}
 
 	@Override
-	protected boolean progressBarActive(DisplayLinkContext context) {
+	public boolean progressBarActive(DisplayLinkContext context) {
 		return getMode(context) == 0;
 	}
 
-	@Override
-	public void initConfigurationWidgets(DisplayLinkContext context, ModularGuiLineBuilder builder,
-		boolean isFirstLine) {
-		super.initConfigurationWidgets(context, builder, isFirstLine);
-		if (isFirstLine)
-			return;
-		builder.addSelectionScrollInput(0, 120,
-			(si, l) -> si
-				.forOptions(List.of(
-							Component.translatable("createaddition.display_source.accumulator.progress_bar"),
-							Component.translatable("createaddition.display_source.accumulator.percent"),
-							Component.translatable("createaddition.display_source.accumulator.current"),
-							Component.translatable("createaddition.display_source.accumulator.max"),
-							Component.translatable("createaddition.display_source.accumulator.remaining")
-						)) // Lang.translatedOptions("display_source.kinetic_stress", "progress_bar", "percent", "current", "max", "remaining")
-				.titled(Component.translatable("createaddition.display_source.accumulator.display")), "Mode");
-	}
+	// PORT-NOTE(26.1): the configuration widgets are client side, ModularAccumulatorDisplaySourceRender
 
 	@Override
-	protected String getTranslationKey() {
+	public String getTranslationKey() {
 		return "modular_accumulator";
 	}
 }

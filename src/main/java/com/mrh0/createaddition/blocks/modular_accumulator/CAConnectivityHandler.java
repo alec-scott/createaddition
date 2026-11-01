@@ -311,9 +311,7 @@ public class CAConnectivityHandler {
 			ienergyBE.getEnergy().setEnergy(toDistribute);
 		}
 
-		if (be instanceof ModularAccumulatorBlockEntity ienergy && ienergy.hasAccumulator()) {
-			be.getLevel().invalidateCapabilities(be.getBlockPos());
-		}
+		// PORT-NOTE(26.1): capability invalidation dropped (Fabric lookups are live)
 
 		if (tryReconnect) formMulti(be.getType(), level, cache == null ? new SearchCache<>() : cache, frontier);
 	}

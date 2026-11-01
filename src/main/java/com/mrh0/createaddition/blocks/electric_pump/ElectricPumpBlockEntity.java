@@ -16,8 +16,7 @@ import com.mrh0.createaddition.sound.CASoundScapes;
 import com.mrh0.createaddition.util.Util;
 import com.zurrtum.create.content.fluids.pump.PumpBlockEntity;
 import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.CenteredSideValueBoxTransform;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerScrollValueBehaviour;
 import com.zurrtum.create.client.foundation.utility.CreateLang;
 
 import net.minecraft.ChatFormatting;
@@ -43,7 +42,7 @@ public class ElectricPumpBlockEntity extends PumpBlockEntity implements IHaveGog
 	public static final float[] PARTIAL_PHASE_OFFSETS = {6f, 0f};
 
 	protected float pumpSpeed;
-	protected ScrollValueBehaviour speedBehaviour;
+	protected ServerScrollValueBehaviour speedBehaviour;
 	protected final InternalEnergyStorage energy;
 	private final IEnergyStorage capability;
 
@@ -69,12 +68,10 @@ public class ElectricPumpBlockEntity extends PumpBlockEntity implements IHaveGog
 	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 		super.addBehaviours(behaviours);
 
-		CenteredSideValueBoxTransform slot =
-				new CenteredSideValueBoxTransform((pump, side) -> side.getAxis() != pump.getValue(ElectricPumpBlock.FACING).getAxis());
-
-		speedBehaviour = new ScrollValueBehaviour(CreateLang.translateDirect("generic.speed"), this, slot);
+		// PORT-NOTE(26.1): server half of the speed setting; the value box is a client behaviour (CABlockEntityBehaviours)
+		speedBehaviour = new ServerScrollValueBehaviour(this);
 		speedBehaviour.between(0, CommonConfig.ELECTRIC_PUMP_RPM_RANGE.get());
-		speedBehaviour.value = 32;
+		speedBehaviour.setValue(32);
 		behaviours.add(speedBehaviour);
 	}
 
@@ -190,7 +187,7 @@ public class ElectricPumpBlockEntity extends PumpBlockEntity implements IHaveGog
 		applySpeed();
 	}
 
-	@Override
+	// PORT-NOTE(26.1): called by the client audio behaviour (CABlockEntityBehaviours)
 	public void tickAudio() {
 		if (!active) return;
 		if (CommonConfig.AUDIO_ENABLED.get())

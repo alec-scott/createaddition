@@ -103,9 +103,7 @@ public class ModularAccumulatorBlockItem extends BlockItem {
 				BlockState blockState = world.getBlockState(offsetPos);
 				if (ModularAccumulatorBlock.isAccumulator(blockState)) continue;
 				BlockPlaceContext context = BlockPlaceContext.at(ctx, offsetPos, face);
-				player.getPersistentData().putBoolean("SilenceTankSound", true);
 				super.place(context);
-				player.getPersistentData().remove("SilenceTankSound");
 			}
 		}
 	}
