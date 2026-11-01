@@ -1,13 +1,9 @@
 {
-  "type": "create:pressing",
-  "ingredients": [
-    {
-      "tag": "c:ingots/electrum"
-    }
-  ],
+  "ingredient": "#c:ingots/electrum",
   "results": [
     {
       "id": "createaddition:electrum_sheet"
     }
-  ]
+  ],
+  "type": "create:pressing"
 }

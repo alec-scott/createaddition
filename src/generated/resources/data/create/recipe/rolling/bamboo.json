@@ -1,13 +1,9 @@
 {
-  "type": "createaddition:rolling",
-  "ingredients": [
-    {
-      "item": "minecraft:bamboo"
-    }
-  ],
+  "ingredient": "minecraft:bamboo",
   "results": [
     {
       "id": "createaddition:straw"
     }
-  ]
+  ],
+  "type": "createaddition:rolling"
 }

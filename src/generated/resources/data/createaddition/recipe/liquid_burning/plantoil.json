@@ -1,12 +1,9 @@
 {
-  "type": "createaddition:liquid_burning",
   "burn_time": 4800,
-  "ingredients": [
-    {
-      "type": "neoforge:tag",
-      "amount": 1000,
-      "tag": "c:plantoil"
-    }
-  ],
-  "results": []
+  "fluid_ingredient": {
+    "amount": 81000,
+    "fluid_tag": "#c:plantoil",
+    "type": "fluid_tag"
+  },
+  "type": "createaddition:liquid_burning"
 }

@@ -1,10 +1,7 @@
 {
-  "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": {
-      "item": "createaddition:biomass_pellet"
-    }
+    "#": "createaddition:biomass_pellet"
   },
   "pattern": [
     "###",
@@ -12,7 +9,7 @@
     "###"
   ],
   "result": {
-    "count": 1,
     "id": "createaddition:biomass_pellet_block"
-  }
+  },
+  "type": "minecraft:crafting_shaped"
 }

@@ -1,23 +1,17 @@
 {
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:not",
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:dusts/diamond"
-      }
-    }
-  ],
-  "type": "create:crushing",
-  "ingredients": [
-    {
-      "item": "minecraft:diamond"
-    }
-  ],
+  "fabric:load_conditions": {
+    "condition": "fabric:tags_populated",
+    "registry": "minecraft:item",
+    "values": [
+      "c:dusts/diamond"
+    ]
+  },
+  "ingredient": "minecraft:diamond",
   "processing_time": 300,
   "results": [
     {
       "id": "createaddition:diamond_grit"
     }
-  ]
+  ],
+  "type": "create:crushing"
 }

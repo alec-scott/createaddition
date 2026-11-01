@@ -1,14 +1,10 @@
 {
-  "type": "createaddition:rolling",
-  "ingredients": [
-    {
-      "tag": "c:ingots/iron"
-    }
-  ],
+  "ingredient": "#c:ingots/iron",
   "results": [
     {
       "count": 2,
       "id": "createaddition:iron_rod"
     }
-  ]
+  ],
+  "type": "createaddition:rolling"
 }

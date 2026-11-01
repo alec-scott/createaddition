@@ -1,13 +1,11 @@
 {
-  "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "createaddition:electrum_ingot"
-    }
+    "createaddition:electrum_ingot"
   ],
   "result": {
     "count": 9,
     "id": "createaddition:electrum_nugget"
-  }
+  },
+  "type": "minecraft:crafting_shapeless"
 }

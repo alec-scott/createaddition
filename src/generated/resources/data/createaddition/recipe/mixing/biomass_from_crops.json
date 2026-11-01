@@ -1,22 +1,20 @@
 {
-  "type": "create:mixing",
+  "fluid_ingredients": [
+    {
+      "amount": 8100,
+      "fluid_tag": "#c:plantoil",
+      "type": "fluid_tag"
+    }
+  ],
   "heat_requirement": "heated",
   "ingredients": [
-    {
-      "tag": "c:crops"
-    },
-    {
-      "tag": "c:crops"
-    },
-    {
-      "type": "neoforge:tag",
-      "amount": 100,
-      "tag": "c:plantoil"
-    }
+    "#c:crops",
+    "#c:crops"
   ],
   "results": [
     {
       "id": "createaddition:biomass"
     }
-  ]
+  ],
+  "type": "create:mixing"
 }

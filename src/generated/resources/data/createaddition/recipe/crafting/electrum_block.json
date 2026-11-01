@@ -1,10 +1,7 @@
 {
-  "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "#": {
-      "item": "createaddition:electrum_ingot"
-    }
+    "#": "createaddition:electrum_ingot"
   },
   "pattern": [
     "###",
@@ -12,7 +9,7 @@
     "###"
   ],
   "result": {
-    "count": 1,
     "id": "createaddition:electrum_block"
-  }
+  },
+  "type": "minecraft:crafting_shaped"
 }

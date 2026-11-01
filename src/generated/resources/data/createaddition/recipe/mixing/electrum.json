@@ -1,27 +1,21 @@
 {
-  "neoforge:conditions": [
-    {
-      "type": "neoforge:not",
-      "value": {
-        "type": "neoforge:tag_empty",
-        "tag": "c:ingots/silver"
-      }
-    }
-  ],
-  "type": "create:mixing",
+  "fabric:load_conditions": {
+    "condition": "fabric:tags_populated",
+    "registry": "minecraft:item",
+    "values": [
+      "c:ingots/silver"
+    ]
+  },
   "heat_requirement": "heated",
   "ingredients": [
-    {
-      "tag": "c:ingots/gold"
-    },
-    {
-      "tag": "c:ingots/silver"
-    }
+    "#c:ingots/gold",
+    "#c:ingots/silver"
   ],
   "results": [
     {
       "count": 2,
       "id": "createaddition:electrum_ingot"
     }
-  ]
+  ],
+  "type": "create:mixing"
 }

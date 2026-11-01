@@ -1,18 +1,12 @@
 {
-  "type": "create:filling",
-  "ingredients": [
-    {
-      "item": "createaddition:cake_base_baked"
-    },
-    {
-      "type": "neoforge:tag",
-      "amount": 1000,
-      "tag": "c:milk"
-    }
-  ],
-  "results": [
-    {
-      "id": "minecraft:cake"
-    }
-  ]
+  "fluid_ingredient": {
+    "amount": 81000,
+    "fluid_tag": "#c:milk",
+    "type": "fluid_tag"
+  },
+  "ingredient": "createaddition:cake_base_baked",
+  "result": {
+    "id": "minecraft:cake"
+  },
+  "type": "create:filling"
 }

@@ -1,13 +1,11 @@
 {
-  "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "createaddition:biomass_pellet_block"
-    }
+    "createaddition:biomass_pellet_block"
   ],
   "result": {
     "count": 9,
     "id": "createaddition:biomass_pellet"
-  }
+  },
+  "type": "minecraft:crafting_shapeless"
 }

@@ -1,10 +1,5 @@
 {
-  "type": "create:crushing",
-  "ingredients": [
-    {
-      "item": "create:ochrum"
-    }
-  ],
+  "ingredient": "create:ochrum",
   "processing_time": 250,
   "results": [
     {
@@ -19,5 +14,6 @@
       "chance": 0.2,
       "id": "createaddition:electrum_nugget"
     }
-  ]
+  ],
+  "type": "create:crushing"
 }

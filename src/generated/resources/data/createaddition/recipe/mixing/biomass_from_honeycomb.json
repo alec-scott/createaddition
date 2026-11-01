@@ -1,19 +1,19 @@
 {
-  "type": "create:mixing",
+  "fluid_ingredients": [
+    {
+      "amount": 8100,
+      "fluid_tag": "#c:plantoil",
+      "type": "fluid_tag"
+    }
+  ],
   "heat_requirement": "heated",
   "ingredients": [
-    {
-      "item": "minecraft:honeycomb"
-    },
-    {
-      "type": "neoforge:tag",
-      "amount": 100,
-      "tag": "c:plantoil"
-    }
+    "minecraft:honeycomb"
   ],
   "results": [
     {
       "id": "createaddition:biomass"
     }
-  ]
+  ],
+  "type": "create:mixing"
 }

@@ -1,25 +1,21 @@
 {
-  "type": "create:mixing",
+  "fluid_ingredients": [
+    {
+      "amount": 8100,
+      "fluid_tag": "#c:plantoil",
+      "type": "fluid_tag"
+    }
+  ],
   "heat_requirement": "heated",
   "ingredients": [
-    {
-      "tag": "minecraft:leaves"
-    },
-    {
-      "tag": "minecraft:leaves"
-    },
-    {
-      "tag": "minecraft:leaves"
-    },
-    {
-      "type": "neoforge:tag",
-      "amount": 100,
-      "tag": "c:plantoil"
-    }
+    "#minecraft:leaves",
+    "#minecraft:leaves",
+    "#minecraft:leaves"
   ],
   "results": [
     {
       "id": "createaddition:biomass"
     }
-  ]
+  ],
+  "type": "create:mixing"
 }

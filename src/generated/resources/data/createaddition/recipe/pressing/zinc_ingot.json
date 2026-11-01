@@ -1,13 +1,9 @@
 {
-  "type": "create:pressing",
-  "ingredients": [
-    {
-      "tag": "c:ingots/zinc"
-    }
-  ],
+  "ingredient": "#c:ingots/zinc",
   "results": [
     {
       "id": "createaddition:zinc_sheet"
     }
-  ]
+  ],
+  "type": "create:pressing"
 }

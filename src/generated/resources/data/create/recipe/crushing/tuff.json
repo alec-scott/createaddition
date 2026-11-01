@@ -1,10 +1,5 @@
 {
-  "type": "create:crushing",
-  "ingredients": [
-    {
-      "item": "minecraft:tuff"
-    }
-  ],
+  "ingredient": "minecraft:tuff",
   "processing_time": 350,
   "results": [
     {
@@ -31,5 +26,6 @@
       "chance": 0.1,
       "id": "createaddition:electrum_nugget"
     }
-  ]
+  ],
+  "type": "create:crushing"
 }

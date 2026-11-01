@@ -1,12 +1,9 @@
 {
-  "type": "createaddition:liquid_burning",
   "burn_time": 20000,
-  "ingredients": [
-    {
-      "type": "neoforge:tag",
-      "amount": 1000,
-      "tag": "minecraft:lava"
-    }
-  ],
-  "results": []
+  "fluid_ingredient": {
+    "amount": 81000,
+    "fluid_tag": "#minecraft:lava",
+    "type": "fluid_tag"
+  },
+  "type": "createaddition:liquid_burning"
 }
