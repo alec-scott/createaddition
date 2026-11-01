@@ -1,5 +1,6 @@
 package com.mrh0.createaddition.blocks.alternator;
 
+import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.minecraft.world.level.storage.ValueInput;
@@ -39,7 +40,7 @@ import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 import org.jetbrains.annotations.Nullable;
 
-public class AlternatorBlockEntity extends KineticBlockEntity implements IEnergyProvider {
+public class AlternatorBlockEntity extends KineticBlockEntity implements IEnergyProvider , IHaveGoggleInformation {
 
 	protected final InternalEnergyStorage energy;
 	private final IEnergyStorage capability;
@@ -61,9 +62,9 @@ public class AlternatorBlockEntity extends KineticBlockEntity implements IEnergy
 		);
 	}
 
+	// PORT-NOTE(26.1): called by the client tooltip behaviour (CABlockEntityBehaviours) after Create Fly's kinetic stats
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-        super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 		// CALang.builder().add(Component.translatable(CreateAddition.MODID + ".tooltip.alternator.info").withStyle(ChatFormatting.WHITE)).forGoggles(tooltip);
 		CALang.builder().add(Component.translatable(CreateAddition.MODID + ".tooltip.energy.production").withStyle(ChatFormatting.GRAY)).forGoggles(tooltip);
 		CALang.builder().add(Component.literal(" " + Util.format(getEnergyProductionRate((int) (isSpeedRequirementFulfilled() ? getSpeed() : 0))) + "⚡/t ")
@@ -119,9 +120,8 @@ public class AlternatorBlockEntity extends KineticBlockEntity implements IEnergy
 			ies.receiveEnergy(ext, false);
 		}
 	}
-	@Override
+	// PORT-NOTE(26.1): called by the client audio behaviour (CABlockEntityBehaviours) after Create Fly's kinetic audio
 	public void tickAudio() {
-		super.tickAudio();
 
 		float componentSpeed = Math.abs(getSpeed());
 		if (componentSpeed == 0 || !isSpeedRequirementFulfilled())

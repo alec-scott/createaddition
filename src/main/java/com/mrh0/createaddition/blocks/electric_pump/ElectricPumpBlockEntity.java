@@ -1,5 +1,6 @@
 package com.mrh0.createaddition.blocks.electric_pump;
 
+import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.minecraft.world.level.storage.ValueInput;
@@ -33,7 +34,7 @@ import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEv
 import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import org.joml.Quaternionf;
 
-public class ElectricPumpBlockEntity extends PumpBlockEntity {
+public class ElectricPumpBlockEntity extends PumpBlockEntity implements IHaveGoggleInformation {
 	public static final float[][] PARTIAL_OFFSETS = {
 			{8 / 16f, 4 / 16f, 8 / 16f},  // bottom face at y=2
 			{8 / 16f, 12 / 16f, 8 / 16f}  // bottom face at y=10
@@ -48,8 +49,9 @@ public class ElectricPumpBlockEntity extends PumpBlockEntity {
 
 	private boolean active = false;
 
-	public ElectricPumpBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-		super(type, pos, state);
+	// PORT-NOTE(26.1): Create Fly's PumpBlockEntity hardwires its type; CABlockEntities passes ours through BETypeOverride
+	public ElectricPumpBlockEntity(BlockPos pos, BlockState state) {
+		super(pos, state);
 		energy = new InternalEnergyStorage(CommonConfig.ELECTRIC_PUMP_CAPACITY.get(), CommonConfig.ELECTRIC_PUMP_MAX_INPUT.get(), 0);
 		capability = energy;
 		setLazyTickRate(20);
@@ -110,9 +112,9 @@ public class ElectricPumpBlockEntity extends PumpBlockEntity {
 		return 0f;
 	}
 
+	// PORT-NOTE(26.1): called by the client tooltip behaviour (CABlockEntityBehaviours) after Create Fly's kinetic stats
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 		CALang.builder().add(Component.translatable(CreateAddition.MODID + ".tooltip.energy.consumption").withStyle(ChatFormatting.GRAY)).forGoggles(tooltip);
 		CALang.builder().add(Component.literal(" " + Util.format(getEnergyConsumptionRate(pumpSpeed)) + "⚡/t ")
 				.withStyle(ChatFormatting.AQUA).append(CreateLang.translateDirect("gui.goggles.at_current_speed").withStyle(ChatFormatting.DARK_GRAY))).forGoggles(tooltip);

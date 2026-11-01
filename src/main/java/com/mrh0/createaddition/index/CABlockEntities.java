@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.index;
 
+import com.mrh0.createaddition.port.create.BETypeOverride;
+
 import com.mrh0.createaddition.blocks.alternator.AlternatorBlockEntity;
 import com.mrh0.createaddition.blocks.alternator.AlternatorVisual;
 import com.mrh0.createaddition.blocks.connector.LargeConnectorBlockEntity;
@@ -39,7 +41,7 @@ public class CABlockEntities {
 			.register();
 	
 	public static final BlockEntityEntry<ElectricPumpBlockEntity> ELECTRIC_PUMP = CreateAddition.REGISTRATE
-			.blockEntity("electric_pump", ElectricPumpBlockEntity::new)
+			.blockEntity("electric_pump", BETypeOverride.of(ElectricPumpBlockEntity::new))
 			.visual(() -> ElectricPumpVisual::new)
 			.validBlocks(CABlocks.ELECTRIC_PUMP)
 			.renderer(() -> ElectricPumpRenderer::new)

@@ -28,7 +28,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.items.ItemStackHandler;
+import net.minecraft.world.Container;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -50,21 +50,18 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 		if (level.isClientSide()) return InteractionResult.SUCCESS;
 		withBlockEntityDo(level, pos, rollingMill -> {
 			boolean emptyOutput = true;
-			ItemStackHandler inv = rollingMill.outputInv;
-			for (int slot = 0; slot < inv.getSlots(); slot++) {
-				ItemStack stackInSlot = inv.getStackInSlot(slot);
-				if (!stackInSlot.isEmpty())
-					emptyOutput = false;
+			Container inv = rollingMill.capability;
+			for (int slot = 1; slot < inv.getContainerSize(); slot++) {
+				ItemStack stackInSlot = inv.getItem(slot);
+				if (stackInSlot.isEmpty()) continue;
+				emptyOutput = false;
 				player.getInventory().placeItemBackInInventory(stackInSlot);
-				inv.setStackInSlot(slot, ItemStack.EMPTY);
+				inv.setItem(slot, ItemStack.EMPTY);
 			}
 
 			if (emptyOutput) {
-				inv = rollingMill.inputInv;
-				for (int slot = 0; slot < inv.getSlots(); slot++) {
-					player.getInventory().placeItemBackInInventory(inv.getStackInSlot(slot));
-					inv.setStackInSlot(slot, ItemStack.EMPTY);
-				}
+				player.getInventory().placeItemBackInInventory(inv.getItem(0));
+				inv.setItem(0, ItemStack.EMPTY);
 			}
 
 			rollingMill.setChanged();
@@ -81,8 +78,8 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 	}
 
 	@Override
-	public void updateEntityAfterFallOn(BlockGetter getter, Entity entityIn) {
-		super.updateEntityAfterFallOn(getter, entityIn);
+	public void updateEntityMovementAfterFallOn(BlockGetter getter, Entity entityIn) {
+		super.updateEntityMovementAfterFallOn(getter, entityIn);
 
         if (entityIn.level().isClientSide()) return;
 		if (!(entityIn instanceof ItemEntity itemEntity)) return;
@@ -90,7 +87,7 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 
 		RollingMillBlockEntity rollingMill = null;
 		for (BlockPos pos : Iterate.hereAndBelow(entityIn.blockPosition())) {
-			rollingMill = getBlockEntity(getter, pos);
+			if (rollingMill == null) rollingMill = getBlockEntity(getter, pos);
 		}
 		if (rollingMill == null) return;
 
@@ -99,22 +96,13 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 
 		if (capability == null) return;
 
-		ItemStack remainder = capability.insertItem(0, itemEntity.getItem(), false);
-		if (remainder.isEmpty())
-			itemEntity.remove(RemovalReason.KILLED);
-		if (remainder.getCount() < itemEntity.getItem().getCount())
-			itemEntity.setItem(remainder);
-	}
-
-	@Override
-	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if (state.hasBlockEntity() && state.getBlock() != newState.getBlock()) {
-			withBlockEntityDo(level, pos, be -> {
-				ItemHelper.dropContents(level, pos, be.inputInv);
-				ItemHelper.dropContents(level, pos, be.outputInv);
-			});
-
-			level.removeBlockEntity(pos);
+		ItemStack stack = itemEntity.getItem();
+		int insert = capability.insert(stack);
+		if (insert == stack.getCount()) {
+			itemEntity.discard();
+		} else if (insert != 0) {
+			stack.shrink(insert);
+			itemEntity.setItem(stack);
 		}
 	}
 

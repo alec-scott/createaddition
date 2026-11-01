@@ -1,5 +1,6 @@
 package com.mrh0.createaddition.blocks.servo_motor;
 
+import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
 import com.mrh0.createaddition.port.minecraft.CAValueIO;
 
 import net.minecraft.world.level.storage.ValueOutput;
@@ -22,19 +23,17 @@ import com.zurrtum.create.AllSoundEvents;
 import com.zurrtum.create.content.contraptions.AssemblyException;
 import com.zurrtum.create.content.contraptions.ControlledContraptionEntity;
 import com.zurrtum.create.content.contraptions.bearing.BearingContraption;
-import com.zurrtum.create.client.content.contraptions.DirectionalExtenderScrollOptionSlot;
 import com.zurrtum.create.content.contraptions.bearing.MechanicalBearingBlockEntity;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.KineticScrollValueBehaviour;
 import com.zurrtum.create.AllAdvancements;
 import com.zurrtum.create.foundation.blockEntity.SmartBlockEntity;
 import com.zurrtum.create.foundation.blockEntity.behaviour.BehaviourType;
+import com.zurrtum.create.foundation.blockEntity.behaviour.ValueSettingsHandleBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerKineticScrollValueBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerScrollOptionBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerScrollValueBehaviour;
+import com.mrh0.createaddition.util.IMultiValueSettings;
+import org.jetbrains.annotations.Nullable;
 import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.CenteredSideValueBoxTransform;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.ValueBoxTransform;
-import com.zurrtum.create.client.foundation.blockEntity.ValueSettingsBoard;
-import com.zurrtum.create.client.foundation.blockEntity.ValueSettingsFormatter;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.ScrollOptionBehaviour;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
 import com.zurrtum.create.client.foundation.utility.CreateLang;
 
 import net.minecraft.core.Direction.Axis;
@@ -54,17 +53,17 @@ import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
 import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
-public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
+public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity implements IHaveGoggleInformation, IMultiValueSettings {
 
 	static final BehaviourType<ServoMovementMode> MOVEMENT_MODE_TYPE = new BehaviourType<>();
 
-	// ScrollOptionBehaviour and KineticScrollValueBehaviour both inherit ScrollValueBehaviour.TYPE,
-	// so they'd overwrite each other in SmartBlockEntity's BehaviourType→Behaviour map. This
-	// subclass gets its own type, a distinct NBT key, and a distinct netId three separate
-	// conflicts that all need to be resolved for two scroll behaviours to coexist.
-	static class ServoMovementMode extends ScrollOptionBehaviour<RotationMode> {
-		ServoMovementMode(Component label, SmartBlockEntity be, ValueBoxTransform slot) {
-			super(RotationMode.class, label, be, slot);
+	// PORT-NOTE(26.1): server halves of the four value settings (Create Fly splits scroll behaviours into a server
+	// behaviour and a client value box, see the client CABlockEntityBehaviours). Each needs its own BehaviourType (the
+	// SmartBlockEntity map is keyed by type), NBT key and netId. Create Fly only routes ValueSettingsPackets to the
+	// ServerScrollValueBehaviour.TYPE behaviour; IMultiValueSettings + AllHandleMixin route the others by netId.
+	public static class ServoMovementMode extends ServerScrollOptionBehaviour<RotationMode> {
+		ServoMovementMode(SmartBlockEntity be) {
+			super(RotationMode.class, be);
 		}
 
 		@Override
@@ -72,7 +71,6 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 			return MOVEMENT_MODE_TYPE;
 		}
 
-		// ValueSettingsPacket matches behaviours by netId(); generatedSpeed uses 0 (default).
 		@Override
 		public int netId() {
 			return 1;
@@ -92,19 +90,17 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 	static final BehaviourType<ServoAngleLimit> MIN_ANGLE_TYPE = new BehaviourType<>();
 	static final BehaviourType<ServoAngleLimit> MAX_ANGLE_TYPE = new BehaviourType<>();
 
-	// Same three-conflict pattern as ServoMovementMode: distinct BehaviourType, distinct NBT key,
-	// distinct netId. The negated flag controls whether the angle is treated as negative
-	// (min side, 0 to -180) or positive (max side, 0 to +180).
-	static class ServoAngleLimit extends ScrollValueBehaviour {
+	// The negated flag controls whether the angle is treated as negative (min side, 0 to -180) or positive
+	// (max side, 0 to +180).
+	public static class ServoAngleLimit extends ServerScrollValueBehaviour {
 		private final BehaviourType<ServoAngleLimit> myType;
 		private final int myNetId;
 		private final String nbtKey;
 		private final int defaultVal;
-		private final boolean negated;
+		public final boolean negated;
 
-		ServoAngleLimit(Component label, SmartBlockEntity be, ValueBoxTransform slot,
-				BehaviourType<ServoAngleLimit> type, int netId, String nbtKey, int defaultVal, boolean negated) {
-			super(label, be, slot);
+		ServoAngleLimit(SmartBlockEntity be, BehaviourType<ServoAngleLimit> type, int netId, String nbtKey, int defaultVal, boolean negated) {
+			super(be);
 			this.myType = type;
 			this.myNetId = netId;
 			this.nbtKey = nbtKey;
@@ -119,18 +115,15 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 			return negated ? -value : value;
 		}
 
+		void setRaw(int value) {
+			this.value = value;
+		}
+
 		@Override
 		public BehaviourType<?> getType() { return myType; }
 
 		@Override
 		public int netId() { return myNetId; }
-
-		@Override
-		public ValueSettingsBoard createBoard(Player player, BlockHitResult hitResult) {
-			ValueSettingsFormatter fmt = new ValueSettingsFormatter(
-				vs -> Component.literal((negated ? -vs.value() : vs.value()) + "°"));
-			return new ValueSettingsBoard(label, 180, 5, ImmutableList.of(Component.literal("°")), fmt);
-		}
 
 		@Override
 		public void write(ValueOutput nbt, boolean clientPacket) {
@@ -139,13 +132,23 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 
 		@Override
 		public void read(ValueInput nbt, boolean clientPacket) {
-			// nbt.getInt() returns 0 for a missing key fall back to the constructor default.
-			value = CAValueIO.contains(nbt, nbtKey) ? nbt.getInt(nbtKey) : defaultVal;
+			value = nbt.getIntOr(nbtKey, defaultVal);
 		}
 	}
 
+	@Override
+	public @Nullable ValueSettingsHandleBehaviour getValueSettingsBehaviour(int netId) {
+		return switch (netId) {
+			case 0 -> generatedSpeed;
+			case 1 -> (ServoMovementMode) movementMode;
+			case 2 -> maxAngle;
+			case 3 -> minAngle;
+			default -> null;
+		};
+	}
+
 	protected float motorSpeed;
-	protected ScrollValueBehaviour generatedSpeed;
+	protected ServerScrollValueBehaviour generatedSpeed;
 	protected ServoAngleLimit minAngle;
 	protected ServoAngleLimit maxAngle;
 	protected final InternalEnergyStorage energy;
@@ -174,23 +177,18 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 
 	// Max angle on the top side, min angle opposite it, movement mode on the remaining two sides.
 	// Which side is the top depends on FACING and ROLL, see ServoMotorBlock.getTop.
-	private static boolean isModeSide(BlockState state, Direction d) {
+	public static boolean isModeSide(BlockState state, Direction d) {
 		Axis dAxis = d.getAxis();
 		return dAxis != state.getValue(ServoMotorBlock.FACING).getAxis()
 				&& dAxis != ServoMotorBlock.getTop(state).getAxis();
 	}
 
-	private static boolean isMaxAngleSide(BlockState state, Direction d) {
+	public static boolean isMaxAngleSide(BlockState state, Direction d) {
 		return d == ServoMotorBlock.getTop(state);
 	}
 
-	private static boolean isMinAngleSide(BlockState state, Direction d) {
+	public static boolean isMinAngleSide(BlockState state, Direction d) {
 		return d == ServoMotorBlock.getTop(state).getOpposite();
-	}
-
-	@Override
-	public ValueBoxTransform getMovementModeSlot() {
-		return new DirectionalExtenderScrollOptionSlot(ServoMotorBlockEntity::isModeSide);
 	}
 
 	@Override
@@ -202,20 +200,16 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 		// Replace it in-place with our ServoMovementMode that has its own distinct type.
 		for (int i = 0; i < behaviours.size(); i++) {
 			if (behaviours.get(i) == movementMode) {
-				movementMode = new ServoMovementMode(
-						CreateLang.translateDirect("contraptions.movement_mode"), this, getMovementModeSlot());
+				movementMode = new ServoMovementMode(this);
 				behaviours.set(i, movementMode);
 				break;
 			}
 		}
 
-		CenteredSideValueBoxTransform slot = new CenteredSideValueBoxTransform(
-				(motor, side) -> motor.getValue(ServoMotorBlock.FACING) == side.getOpposite());
-
-		generatedSpeed = new KineticScrollValueBehaviour(CreateLang.translateDirect("generic.speed"), this, slot);
+		generatedSpeed = new ServerKineticScrollValueBehaviour(this);
 		generatedSpeed.between(-CommonConfig.ELECTRIC_MOTOR_RPM_RANGE.get(),
 				CommonConfig.ELECTRIC_MOTOR_RPM_RANGE.get());
-		generatedSpeed.value = 32;
+		generatedSpeed.setValue(32);
 		generatedSpeed.withCallback(rpm -> {
 			motorSpeed = rpm;
 			updateGeneratedRotation();
@@ -223,15 +217,11 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 		behaviours.add(generatedSpeed);
 
 		// Max angle: 0 to +180°, shown on the top side. Default 90°.
-		maxAngle = new ServoAngleLimit(Component.literal("Max Angle"), this,
-				new DirectionalExtenderScrollOptionSlot(ServoMotorBlockEntity::isMaxAngleSide),
-				MAX_ANGLE_TYPE, 2, "MaxAngle", 90, false);
+		maxAngle = new ServoAngleLimit(this, MAX_ANGLE_TYPE, 2, "MaxAngle", 90, false);
 		behaviours.add(maxAngle);
 
 		// Min angle: 0 to -180°, shown opposite the top side. Default -90° (stored as 90).
-		minAngle = new ServoAngleLimit(Component.literal("Min Angle"), this,
-				new DirectionalExtenderScrollOptionSlot(ServoMotorBlockEntity::isMinAngleSide),
-				MIN_ANGLE_TYPE, 3, "MinAngle", 90, true);
+		minAngle = new ServoAngleLimit(this, MIN_ANGLE_TYPE, 3, "MinAngle", 90, true);
 		behaviours.add(minAngle);
 	}
 
@@ -415,17 +405,16 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 		}
 	}
 
-	@Override
+	// PORT-NOTE(26.1): called by the client audio behaviour (CABlockEntityBehaviours) after Create Fly's kinetic audio
 	public void tickAudio() {
-		super.tickAudio();
 		if (!active || !running || getAngularSpeed() == 0) return;
 		if (CommonConfig.AUDIO_ENABLED.get())
 			CASoundScapes.play(CASoundScapes.AmbienceGroup.DYNAMO, worldPosition, 1);
 	}
 
+	// PORT-NOTE(26.1): called by the client tooltip behaviour (CABlockEntityBehaviours) after Create Fly's kinetic stats
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 		CALang.builder()
 				.add(Component.translatable(CreateAddition.MODID + ".tooltip.energy.consumption")
 						.withStyle(ChatFormatting.GRAY))
@@ -497,7 +486,7 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 	}
 
 	public void setMinAngleDegrees(int degrees) {
-		minAngle.value = Math.max(0, Math.min(180, Math.abs(degrees)));
+		minAngle.setRaw(Math.max(0, Math.min(180, Math.abs(degrees))));
 		sendData();
 	}
 
@@ -506,7 +495,7 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 	}
 
 	public void setMaxAngleDegrees(int degrees) {
-		maxAngle.value = Math.max(0, Math.min(180, Math.abs(degrees)));
+		maxAngle.setRaw(Math.max(0, Math.min(180, Math.abs(degrees))));
 		sendData();
 	}
 

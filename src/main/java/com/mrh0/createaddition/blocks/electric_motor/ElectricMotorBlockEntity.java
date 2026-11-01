@@ -1,5 +1,6 @@
 package com.mrh0.createaddition.blocks.electric_motor;
 
+import com.zurrtum.create.client.api.goggles.IHaveGoggleInformation;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import net.minecraft.world.level.storage.ValueInput;
@@ -16,10 +17,9 @@ import com.mrh0.createaddition.index.CALang;
 import com.mrh0.createaddition.sound.CASoundScapes;
 import com.mrh0.createaddition.util.Util;
 import com.zurrtum.create.content.kinetics.base.GeneratingKineticBlockEntity;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.KineticScrollValueBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerKineticScrollValueBehaviour;
 import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.CenteredSideValueBoxTransform;
-import com.zurrtum.create.client.foundation.blockEntity.behaviour.scrollValue.ScrollValueBehaviour;
+import com.zurrtum.create.foundation.blockEntity.behaviour.scrollValue.ServerScrollValueBehaviour;
 import com.zurrtum.create.client.foundation.utility.CreateLang;
 
 import net.minecraft.ChatFormatting;
@@ -34,9 +34,9 @@ import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
 import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
-public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity {
+public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity implements IHaveGoggleInformation {
 	protected float motorSpeed;
-	protected ScrollValueBehaviour generatedSpeed;
+	protected ServerScrollValueBehaviour generatedSpeed;
 	protected final InternalEnergyStorage energy;
 	private final IEnergyStorage capability;
 	//private LazyOptional<ElectricMotorPeripheral> lazyPeripheral = null;
@@ -70,31 +70,14 @@ public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity {
 	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 		super.addBehaviours(behaviours);
 
-		CenteredSideValueBoxTransform slot =
-			new CenteredSideValueBoxTransform((motor, side) -> motor.getValue(ElectricMotorBlock.FACING) == side.getOpposite());
-
-		generatedSpeed = new KineticScrollValueBehaviour(CreateLang.translateDirect("generic.speed"), this, slot);
+		// PORT-NOTE(26.1): server half of the speed setting; the value box is a client behaviour (CABlockEntityBehaviours)
+		generatedSpeed = new ServerKineticScrollValueBehaviour(this);
 		generatedSpeed.between(-CommonConfig.ELECTRIC_MOTOR_RPM_RANGE.get(), CommonConfig.ELECTRIC_MOTOR_RPM_RANGE.get());
-		generatedSpeed.value = 32;
+		generatedSpeed.setValue(32);
 		//generatedSpeed.withUnit(i -> Lang.translateDirect("generic.unit.rpm"));
 		generatedSpeed.withCallback(this::updateGeneratedRotation);
 		//generatedSpeed.withStepFunction(ElectricMotorTileEntity::step);
 		behaviours.add(generatedSpeed);
-	}
-
-	public static int step(ScrollValueBehaviour.StepContext context) {
-		int current = context.currentValue;
-		int step = 1;
-
-		if (!context.shift) {
-			int magnitude = Math.abs(current) - (context.forward == current > 0 ? 0 : 1);
-
-			if (magnitude >= 4) step *= 4;
-			if (magnitude >= 32) step *= 4;
-			if (magnitude >= 128) step *= 4;
-		}
-
-		return step;
 	}
 
     @Override
@@ -104,9 +87,9 @@ public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity {
 		return capacity;
 	}
 
+	// PORT-NOTE(26.1): called by the client tooltip behaviour (CABlockEntityBehaviours) after Create Fly's kinetic stats
 	@Override
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
-		super.addToGoggleTooltip(tooltip, isPlayerSneaking);
 		CALang.builder().add(Component.translatable(CreateAddition.MODID + ".tooltip.energy.consumption").withStyle(ChatFormatting.GRAY)).forGoggles(tooltip);
 		CALang.builder().add(Component.literal(" " + Util.format(getEnergyConsumptionRate(generatedSpeed.getValue())) + "⚡/t ")
 				.withStyle(ChatFormatting.AQUA).append(CreateLang.translateDirect("gui.goggles.at_current_speed").withStyle(ChatFormatting.DARK_GRAY))).forGoggles(tooltip);
@@ -199,9 +182,8 @@ public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity {
 		}
 	}
 
-	@Override
+	// PORT-NOTE(26.1): called by the client audio behaviour (CABlockEntityBehaviours) after Create Fly's kinetic audio
 	public void tickAudio() {
-		super.tickAudio();
 		if (!active) return;
 		if (CommonConfig.AUDIO_ENABLED.get()) CASoundScapes.play(CASoundScapes.AmbienceGroup.DYNAMO, worldPosition, 1);
 	}

@@ -1,58 +1,55 @@
 package com.mrh0.createaddition.blocks.rolling_mill;
 
-import com.mrh0.createaddition.port.minecraft.CAValueIO;
-
-import net.minecraft.world.level.storage.ValueOutput;
-
+import com.mrh0.createaddition.config.CommonConfig;
+import com.mrh0.createaddition.index.CABlockEntities;
+import com.mrh0.createaddition.index.CARecipes;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
+import com.mrh0.createaddition.recipe.rolling.RollingRecipe;
+import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
+import com.zurrtum.create.catnip.math.VecHelper;
+import com.zurrtum.create.content.kinetics.base.KineticBlockEntity;
+import com.zurrtum.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
+import com.zurrtum.create.infrastructure.items.SidedItemInventory;
+import com.zurrtum.create.infrastructure.transfer.SlotRangeCache;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
+import net.minecraft.world.Clearable;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
 
-import com.mrh0.createaddition.config.CommonConfig;
-import com.mrh0.createaddition.index.CABlockEntities;
-import com.mrh0.createaddition.index.CARecipes;
-import com.mrh0.createaddition.recipe.rolling.RollingRecipe;
-import com.zurrtum.create.content.kinetics.base.KineticBlockEntity;
-import com.zurrtum.create.content.kinetics.belt.behaviour.DirectBeltInputBehaviour;
-import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
-
-import com.zurrtum.create.foundation.item.ItemHelper;
-import com.zurrtum.create.client.foundation.sound.SoundScapes;
-import com.zurrtum.create.catnip.math.VecHelper;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.particles.ItemParticleOption;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
-import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
-import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.IItemHandler;
-import net.neoforged.neoforge.items.ItemHandlerHelper;
-import net.neoforged.neoforge.items.ItemStackHandler;
-import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-
-public class RollingMillBlockEntity extends KineticBlockEntity {
-	public ItemStackHandler inputInv;
-	public ItemStackHandler outputInv;
-	public IItemHandler capability;
+/**
+ * PORT-NOTE(26.1): follows Create Fly's MillstoneBlockEntity: one 10-slot sided vanilla inventory (slot 0 input,
+ * 1-9 output) instead of NeoForge ItemStackHandlers + CombinedInvWrapper, single-stack recipe input.
+ */
+public class RollingMillBlockEntity extends KineticBlockEntity implements Clearable {
+	public static final int SIZE = 10;
+	public RollingMillInventory capability;
 	public int timer;
-	private RollingRecipe lastRecipe;
+	private @Nullable RollingRecipe lastRecipe;
 
 	public RollingMillBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
-		inputInv = new ItemStackHandler(1);
-		outputInv = new ItemStackHandler(9);
-		capability = new MillstoneInventoryHandler();
+		capability = new RollingMillInventory();
 	}
 
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -69,15 +66,8 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 		super.addBehaviours(behaviours);
 	}
 
-	@Override
-	public void tickAudio() {
-		super.tickAudio();
-
-		if (getSpeed() == 0) return;
-		if (inputInv.getStackInSlot(0).isEmpty()) return;
-
-		float pitch = Mth.clamp((Math.abs(getSpeed()) / 256f) + .45f, .85f, 1f);
-		SoundScapes.play(SoundScapes.AmbienceGroup.MILLING, worldPosition, pitch);
+	public ItemStack getInput() {
+		return capability.getItem(0);
 	}
 
 	@Override
@@ -85,10 +75,10 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 		super.tick();
 
 		if (getSpeed() == 0) return;
-		for (int i = 0; i < outputInv.getSlots(); i++)
-			if (outputInv.getStackInSlot(i)
-					.getCount() == outputInv.getSlotLimit(i))
-				return;
+		for (int i = 1; i < SIZE; i++) {
+			ItemStack stack = capability.getItem(i);
+			if (!stack.isEmpty() && stack.getCount() == capability.getMaxStackSize(stack)) return;
+		}
 
 		if (timer > 0) {
 			timer -= getProcessingSpeed();
@@ -99,13 +89,16 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 			}
 			if (timer <= 0) process();
 			return;
+		} else if (level.isClientSide()) {
+			return;
 		}
 
-		if (inputInv.getStackInSlot(0).isEmpty()) return;
+		ItemStack stack = getInput();
+		if (stack.isEmpty()) return;
 
-		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
-		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
-			Optional<RecipeHolder<RollingRecipe>> recipe = find(inventoryIn, level);
+		SingleRecipeInput input = new SingleRecipeInput(stack);
+		if (lastRecipe == null || !lastRecipe.matches(input, level)) {
+			Optional<RecipeHolder<RollingRecipe>> recipe = find(input, level);
 			if (recipe.isEmpty()) {
 				timer = 100;
 				sendData();
@@ -122,41 +115,46 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	@Override
-	public void invalidate() {
-		super.invalidate();
-		invalidateCapabilities();
+	public void clearContent() {
+		capability.clearContent();
 	}
 
 	@Override
 	public void destroy() {
 		super.destroy();
-		ItemHelper.dropContents(level, worldPosition, inputInv);
-		ItemHelper.dropContents(level, worldPosition, outputInv);
+		Containers.dropContents(level, worldPosition, capability);
 	}
 
 	private void process() {
-		RecipeWrapper inventoryIn = new RecipeWrapper(inputInv);
+		ItemStack stack = getInput();
+		SingleRecipeInput input = new SingleRecipeInput(stack);
 
-		if (lastRecipe == null || !lastRecipe.matches(inventoryIn, level)) {
-			Optional<RecipeHolder<RollingRecipe>> recipe = find(inventoryIn, level);
+		if (lastRecipe == null || !lastRecipe.matches(input, level)) {
+			Optional<RecipeHolder<RollingRecipe>> recipe = find(input, level);
 			if (recipe.isEmpty()) return;
 			lastRecipe = recipe.get().value();
 		}
 
-		ItemStack stackInSlot = inputInv.getStackInSlot(0);
-		stackInSlot.shrink(1);
-		inputInv.setStackInSlot(0, stackInSlot);
-		ItemHandlerHelper.insertItemStacked(outputInv, lastRecipe.getResultStack().copy(), false);
+		int count = stack.getCount();
+		if (count == 1) {
+			capability.setItem(0, ItemStack.EMPTY);
+		} else {
+			stack.setCount(count - 1);
+			capability.setItem(0, stack);
+		}
+		capability.outputAllowInsertion();
+		capability.insert(lastRecipe.getResultStack().copy());
+		capability.outputForbidInsertion();
 
 		sendData();
 		setChanged();
 	}
 
 	public void spawnParticles() {
-		ItemStack stackInSlot = inputInv.getStackInSlot(0);
+		ItemStack stackInSlot = getInput();
 		if (stackInSlot.isEmpty()) return;
 
-		ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, stackInSlot);
+		ItemParticleOption data = new ItemParticleOption(ParticleTypes.ITEM, ItemStackTemplate.fromNonEmptyStack(stackInSlot));
 		float angle = level.getRandom().nextFloat() * 360;
 		Vec3 offset = new Vec3(0, 0, 0.5f);
 		offset = VecHelper.rotate(offset, angle, Axis.Y);
@@ -168,19 +166,17 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	@Override
-	public void write(ValueOutput compound, boolean clientPacket) {
-		compound.putInt("Timer", timer);
-		CAValueIO.put(compound, "InputInventory", inputInv.serializeNBT(registries));
-		CAValueIO.put(compound, "OutputInventory", outputInv.serializeNBT(registries));
-		super.write(compound, clientPacket);
+	public void write(ValueOutput view, boolean clientPacket) {
+		view.putInt("Timer", timer);
+		capability.write(view);
+		super.write(view, clientPacket);
 	}
 
 	@Override
-	protected void read(ValueInput compound, boolean clientPacket) {
-		timer = compound.getIntOr("Timer", 0);
-		inputInv.deserializeNBT(registries, CAValueIO.getCompound(compound, "InputInventory"));
-		outputInv.deserializeNBT(registries, CAValueIO.getCompound(compound, "OutputInventory"));
-		super.read(compound, clientPacket);
+	protected void read(ValueInput view, boolean clientPacket) {
+		timer = view.getIntOr("Timer", 0);
+		capability.read(view);
+		super.read(view, clientPacket);
 	}
 
 	public int getProcessingSpeed() {
@@ -188,52 +184,92 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	private boolean canProcess(ItemStack stack) {
-		ItemStackHandler tester = new ItemStackHandler(1);
-		tester.setStackInSlot(0, stack);
-		RecipeWrapper inventoryIn = new RecipeWrapper(tester);
-
-		if (lastRecipe != null && lastRecipe.matches(inventoryIn, level))
-			return true;
-		return find(inventoryIn, level).isPresent();
+		SingleRecipeInput input = new SingleRecipeInput(stack);
+		if (lastRecipe != null && lastRecipe.matches(input, level)) return true;
+		Optional<RecipeHolder<RollingRecipe>> recipe = find(input, level);
+		if (recipe.isEmpty()) return false;
+		lastRecipe = recipe.get().value();
+		return true;
 	}
 
-	private class MillstoneInventoryHandler extends CombinedInvWrapper {
+	public Optional<RecipeHolder<RollingRecipe>> find(SingleRecipeInput input, Level level) {
+		if (!(level instanceof ServerLevel serverLevel)) return Optional.empty();
+		return serverLevel.recipeAccess().getRecipeFor(CARecipes.ROLLING_TYPE, input, level);
+	}
 
-		public MillstoneInventoryHandler() {
-			super(inputInv, outputInv);
+	public class RollingMillInventory implements SidedItemInventory {
+		private static final int[] SLOTS = SlotRangeCache.get(SIZE);
+		private final NonNullList<ItemStack> stacks = NonNullList.withSize(SIZE, ItemStack.EMPTY);
+		private boolean check = true;
+
+		public void outputAllowInsertion() {
+			check = false;
+		}
+
+		public void outputForbidInsertion() {
+			check = true;
 		}
 
 		@Override
-		public boolean isItemValid(int slot, ItemStack stack) {
-			if (outputInv == getHandlerFromIndex(getIndexForSlot(slot)))
-				return false;
-			return canProcess(stack) && super.isItemValid(slot, stack);
+		public int getContainerSize() {
+			return SIZE;
 		}
 
 		@Override
-		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-			if (outputInv == getHandlerFromIndex(getIndexForSlot(slot)))
-				return stack;
-			if (!isItemValid(slot, stack))
-				return stack;
-			return super.insertItem(slot, stack, simulate);
+		public int[] getSlotsForFace(Direction side) {
+			return SLOTS;
 		}
 
 		@Override
-		public ItemStack extractItem(int slot, int amount, boolean simulate) {
-			if (inputInv == getHandlerFromIndex(getIndexForSlot(slot)))
-				return ItemStack.EMPTY;
-			return super.extractItem(slot, amount, simulate);
+		public boolean canPlaceItem(int slot, ItemStack stack) {
+			return !check || (level != null && !level.isClientSide() && canProcess(stack));
 		}
 
-	}
-
-	public Optional<RecipeHolder<RollingRecipe>> find(RecipeWrapper inv, Level level) {
-		var recipe = level.getRecipeManager().getRecipeFor(CARecipes.ROLLING_TYPE, inv, level);
-		if(recipe.isPresent()) {
-			return recipe;
+		@Override
+		public boolean canPlaceItemThroughFace(int slot, ItemStack stack, @Nullable Direction dir) {
+			return check ? slot == 0 : slot > 0;
 		}
-		return level.getRecipeManager().getRecipeFor(CARecipes.ROLLING_TYPE, inv, level);
-	}
 
+		@Override
+		public boolean canTakeItemThroughFace(int slot, ItemStack stack, Direction dir) {
+			return slot != 0;
+		}
+
+		@Override
+		public ItemStack getItem(int slot) {
+			if (slot >= SIZE) return ItemStack.EMPTY;
+			return stacks.get(slot);
+		}
+
+		@Override
+		public void setItem(int slot, ItemStack stack) {
+			if (slot >= SIZE) return;
+			stacks.set(slot, stack);
+		}
+
+		@Override
+		public void setChanged() {
+			RollingMillBlockEntity.this.setChanged();
+		}
+
+		public void write(ValueOutput view) {
+			ValueOutput.TypedOutputList<ItemStack> list = view.list("Inventory", ItemStack.OPTIONAL_CODEC);
+			list.add(stacks.getFirst());
+			for (int i = 1; i < SIZE; i++) {
+				ItemStack stack = stacks.get(i);
+				if (stack.isEmpty()) continue;
+				list.add(stack);
+			}
+		}
+
+		public void read(ValueInput view) {
+			List<ItemStack> list = view.listOrEmpty("Inventory", ItemStack.OPTIONAL_CODEC).stream().toList();
+			int i = 0;
+			for (ItemStack itemStack : list) {
+				if (i >= SIZE) break;
+				stacks.set(i++, itemStack);
+			}
+			for (; i < SIZE; i++) setItem(i, ItemStack.EMPTY);
+		}
+	}
 }
