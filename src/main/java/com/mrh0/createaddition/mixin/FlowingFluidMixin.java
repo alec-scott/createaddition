@@ -23,20 +23,21 @@ import org.spongepowered.asm.mixin.injection.At;
 @Mixin(FlowingFluid.class)
 public class FlowingFluidMixin {
     @WrapMethod(
-            method = "canSpreadTo(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/material/FluidState;Lnet/minecraft/world/level/material/Fluid;)Z"
+            // PORT-NOTE(26.1): canSpreadTo became canPassThrough (fluid moved to the second parameter)
+            method = "canPassThrough(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/level/material/Fluid;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/core/Direction;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/material/FluidState;)Z"
     )
     private boolean protectFire(
             BlockGetter level,
+            Fluid fluid,
             BlockPos fromPos,
             BlockState fromBlockState,
             Direction direction,
             BlockPos toPos,
             BlockState toBlockState,
             FluidState toFluidState,
-            Fluid fluid,
             Operation<Boolean> original
     ) {
-        boolean canSpreadTo = original.call(level, fromPos, fromBlockState, direction, toPos, toBlockState, toFluidState, fluid);
+        boolean canSpreadTo = original.call(level, fluid, fromPos, fromBlockState, direction, toPos, toBlockState, toFluidState);
         if (!canSpreadTo) {
             return false;
         }

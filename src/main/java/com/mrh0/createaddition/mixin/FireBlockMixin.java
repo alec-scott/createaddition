@@ -19,15 +19,18 @@ import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(FireBlock.class)
 public class FireBlockMixin {
+    // PORT-NOTE(26.1): NeoForge's canCatchFire/isFlammable -> vanilla isValidFireLocation/canBurn (per neighbour)
     @WrapOperation(
-            method = "canCatchFire(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z",
+            method = "isValidFireLocation(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;)Z",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/level/block/state/BlockState;isFlammable(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z"
+                    target = "Lnet/minecraft/world/level/block/FireBlock;canBurn(Lnet/minecraft/world/level/block/state/BlockState;)Z"
             )
     )
-    private static boolean igniteFluid(BlockState instance, BlockGetter level, BlockPos blockPos, Direction direction, Operation<Boolean> original) {
-        boolean isFlammableBlock = original.call(instance, level, blockPos, direction);
+    private boolean igniteFluid(FireBlock instance, BlockState state, Operation<Boolean> original,
+                                @Local(argsOnly = true) BlockGetter level, @Local(argsOnly = true) BlockPos pos, @Local Direction direction) {
+        BlockPos blockPos = pos.relative(direction);
+        boolean isFlammableBlock = original.call(instance, state);
         if (isFlammableBlock) {
             return true;
         }
@@ -61,10 +64,11 @@ public class FireBlockMixin {
     }
 
     @ModifyExpressionValue(
-            method = "checkBurnOut(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;ILnet/minecraft/util/RandomSource;ILnet/minecraft/core/Direction;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;getFlammability(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)I")
+            // PORT-NOTE(26.1): NeoForge's getFlammability -> vanilla getBurnOdds; checkBurnOut has no Direction parameter
+            method = "checkBurnOut(Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;ILnet/minecraft/util/RandomSource;I)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/FireBlock;getBurnOdds(Lnet/minecraft/world/level/block/state/BlockState;)I")
     )
-    private int considerFluidFlammability(int original, Level level, BlockPos pos) {
+    private int considerFluidFlammability(int original, @Local(argsOnly = true) Level level, @Local(argsOnly = true) BlockPos pos) {
         FluidState fluidState = level.getFluidState(pos);
         if (fluidState.isEmpty()) {
             return original;
@@ -84,7 +88,8 @@ public class FireBlockMixin {
 
     @ModifyExpressionValue(
             method = "tick(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/core/BlockPos;Lnet/minecraft/util/RandomSource;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;isFireSource(Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)Z")
+            // PORT-NOTE(26.1): NeoForge's isFireSource -> the vanilla infiniburn tag check (first BlockState.is(TagKey) in tick)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;is(Lnet/minecraft/tags/TagKey;)Z", ordinal = 0)
     )
     private boolean keepFire(
             boolean original,
