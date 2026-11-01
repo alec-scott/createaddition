@@ -19,8 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
@@ -41,7 +39,6 @@ public class PortableEnergyInterfaceMovement implements MovementBehaviour {
 	//}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld, ContraptionMatrices matrices, MultiBufferSource buffer) {
 		if (!VisualizationManager.supportsVisualization(context.world))
 			PortableEnergyInterfaceRenderer.renderInContraption(context, renderWorld, matrices, buffer);

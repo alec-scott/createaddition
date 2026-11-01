@@ -48,12 +48,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.FluidActionResult;
-import net.neoforged.neoforge.fluids.FluidStack;
+import com.zurrtum.create.infrastructure.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import org.jetbrains.annotations.Nullable;
@@ -131,8 +129,8 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 
 	public Optional<RecipeHolder<LiquidBurningRecipe>> find(@Nullable FluidStack stack,@Nullable Level level) {
 		if (stack == null || level == null) return Optional.empty();
-		if (CARecipes.LIQUID_BURNING_TYPE.get() == null) return Optional.empty();
-		return level.getRecipeManager().getRecipeFor(CARecipes.LIQUID_BURNING_TYPE.get(), new FluidRecipeWrapper(new FluidStack(stack.getFluid(), 1000)), level);
+		if (CARecipes.LIQUID_BURNING_TYPE == null) return Optional.empty();
+		return level.getRecipeManager().getRecipeFor(CARecipes.LIQUID_BURNING_TYPE, new FluidRecipeWrapper(new FluidStack(stack.getFluid(), 1000)), level);
 	}
 
 	public boolean first = true;
@@ -221,8 +219,6 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 	public void lazyTick() {
 		super.lazyTick();
 	}
-
-	@OnlyIn(Dist.CLIENT)
     void tickAnimation() {
 		var serverHeatLevel = getHeatLevelForRender();
 		boolean active = serverHeatLevel.isAtLeast(BlazeBurnerBlock.HeatLevel.FADING) && isValidBlockAbove();
@@ -472,7 +468,7 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		if (level == null) return false;
 		ObservePacketPayload.send(worldPosition, 0);
-		containedFluidTooltip(tooltip, isPlayerSneaking, level.getCapability(Capabilities.FluidHandler.BLOCK, getBlockPos(), null));
+		containedFluidTooltip(tooltip, isPlayerSneaking, Capabilities.getCapability(level, Capabilities.FluidHandler.BLOCK, getBlockPos(), null));
 		if (TimeRemainingPacketPayload.clientTimeRemaining > 20) CALang.builder().add(Component.literal(" ").append(Component.translatable(CreateAddition.MODID + ".tooltip.liquid_burning.time_remaining").withStyle(ChatFormatting.GRAY))
 				.append(Component.literal(" " + Util.formatTime(TimeRemainingPacketPayload.clientTimeRemaining)).withStyle(ChatFormatting.AQUA))).forGoggles(tooltip);
 		return true;

@@ -12,7 +12,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -28,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,8 +46,8 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 	}
 
 	@Override
-	protected @NotNull ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		if (level.isClientSide) return ItemInteractionResult.SUCCESS;
+	protected @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+		if (level.isClientSide) return InteractionResult.SUCCESS;
 		withBlockEntityDo(level, pos, rollingMill -> {
 			boolean emptyOutput = true;
 			ItemStackHandler inv = rollingMill.outputInv;
@@ -72,7 +71,7 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 			rollingMill.sendData();
 		});
 
-		return ItemInteractionResult.SUCCESS;
+		return InteractionResult.SUCCESS;
 	}
 
 	@Override
@@ -96,7 +95,7 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 		if (rollingMill == null) return;
 
 		if (rollingMill.getLevel() == null) return;
-		var capability = rollingMill.getLevel().getCapability(Capabilities.ItemHandler.BLOCK, rollingMill.getBlockPos(), null);
+		var capability = Capabilities.getCapability(rollingMill.getLevel(), Capabilities.ItemHandler.BLOCK, rollingMill.getBlockPos(), null);
 
 		if (capability == null) return;
 

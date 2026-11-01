@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 public class CreativeEnergyStorage implements IEnergyStorage {
 

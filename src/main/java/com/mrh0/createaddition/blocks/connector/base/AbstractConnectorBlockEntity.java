@@ -34,9 +34,9 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.capabilities.BlockCapabilityCache;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
 public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity implements IWireNode, IObserveBlockEntity, IHaveGoggleInformation, IDebugDrawer, IEnergyProvider, ISableRender {
@@ -432,7 +432,7 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 		// Outline connected power
 		BlockPos pos = worldPosition.relative(getBlockState().getValue(AbstractConnectorBlock.FACING));
 
-		var cap = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, getBlockState().getValue(AbstractConnectorBlock.FACING).getOpposite());
+		var cap = Capabilities.getCapability(level, Capabilities.EnergyStorage.BLOCK, pos, getBlockState().getValue(AbstractConnectorBlock.FACING).getOpposite());
 		//if(ignoreCapSide() && !cap.isPresent()) cap = te.getCapability(ForgeCapabilities.ENERGY);
 
 		if (cap == null) return;

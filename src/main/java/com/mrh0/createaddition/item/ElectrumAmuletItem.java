@@ -11,8 +11,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 public class ElectrumAmuletItem extends Item {
     private static int CHARGE_CHANCE = 300;
@@ -35,7 +35,7 @@ public class ElectrumAmuletItem extends Item {
         else if (offHand == stack) toCharge = mainHand;
         else return;
 
-        IEnergyStorage es = toCharge.getCapability(Capabilities.EnergyStorage.ITEM);
+        IEnergyStorage es = Capabilities.getCapability(toCharge, Capabilities.EnergyStorage.ITEM);
         boolean canCharge = es != null && es.receiveEnergy(1, true) > 0;
 
         if (canCharge && level.random.nextInt(CHARGE_CHANCE) == 0) {

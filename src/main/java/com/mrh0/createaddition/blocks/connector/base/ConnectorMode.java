@@ -7,8 +7,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 public enum ConnectorMode implements StringRepresentable {
 	Push("push"),
@@ -54,8 +54,8 @@ public enum ConnectorMode implements StringRepresentable {
 	public static ConnectorMode test(Level level, BlockPos pos, Direction face) {
 		BlockEntity be = level.getBlockEntity(pos);
 		if(be == null) return None;
-		IEnergyStorage energy = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, face);
-		if (energy == null) energy = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, null);
+		IEnergyStorage energy = Capabilities.getCapability(level, Capabilities.EnergyStorage.BLOCK, pos, face);
+		if (energy == null) energy = Capabilities.getCapability(level, Capabilities.EnergyStorage.BLOCK, pos, null);
 		if (energy == null) return None;
 
 		// if(e.canExtract() && e.canReceive()) return Passive;

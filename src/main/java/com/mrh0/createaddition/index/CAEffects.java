@@ -7,9 +7,8 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.effect.ShockingEffect;
-import net.neoforged.bus.api.IEventBus;
 import com.mrh0.createaddition.port.porting_lib.util.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.mrh0.createaddition.port.porting_lib.util.DeferredRegister;
 
 
 public class CAEffects {
@@ -17,7 +16,7 @@ public class CAEffects {
 	public static final DeferredHolder<MobEffect, MobEffect> SHOCKING = EFFECTS.register("shocking", () -> new ShockingEffect()
 			.addAttributeModifier(Attributes.MOVEMENT_SPEED, CreateAddition.asResource("shocking"), (double)-100f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
 	
-	public static void register(IEventBus bus) {
-		EFFECTS.register(bus);
+	public static void register() {
+		// PORT-NOTE(26.1): entries register on class load (see port DeferredRegister)
 	}
 }

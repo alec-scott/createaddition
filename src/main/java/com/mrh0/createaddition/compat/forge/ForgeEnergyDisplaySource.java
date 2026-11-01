@@ -13,11 +13,9 @@ import com.zurrtum.create.client.foundation.gui.ModularGuiLineBuilder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 public class ForgeEnergyDisplaySource extends PercentOrProgressBarDisplaySource {
 	public final static ForgeEnergyDisplaySource INSTANCE = new ForgeEnergyDisplaySource();
@@ -70,7 +68,6 @@ public class ForgeEnergyDisplaySource extends PercentOrProgressBarDisplaySource 
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void initConfigurationWidgets(DisplayLinkContext context, ModularGuiLineBuilder builder,
 		boolean isFirstLine) {
 		super.initConfigurationWidgets(context, builder, isFirstLine);

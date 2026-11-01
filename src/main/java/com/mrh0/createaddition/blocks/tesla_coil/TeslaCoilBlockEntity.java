@@ -33,11 +33,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
 
@@ -183,8 +181,6 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 		}
 		else if(isPoweredState()) CABlocks.TESLA_COIL.get().setPowered(level, getBlockPos(), false);
 	}
-
-	@OnlyIn(Dist.CLIENT)
 	public void tickAudio() {
 		if (!isPoweredState()) return;
 		if (CommonConfig.AUDIO_ENABLED.get()) CASoundScapes.play(CASoundScapes.AmbienceGroup.TESLA, worldPosition, 1f);
@@ -210,7 +206,7 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 	}
 
 	protected boolean chargeStack(ItemStack stack, TransportedItemStack transported, TransportedItemStackHandlerBehaviour handler) {
-		IEnergyStorage es = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+		IEnergyStorage es = Capabilities.getCapability(stack, Capabilities.EnergyStorage.ITEM);
 		if (es == null) return false;
 		if(es.receiveEnergy(1, true) != 1) return false;
 		if(localEnergy.getEnergyStored() < stack.getCount()) return false;
@@ -265,9 +261,9 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 
 	public Optional<RecipeHolder<ChargingRecipe>> find(ItemStack stack, RecipeWrapper wrapper, Level level) {
 		Optional<RecipeHolder<ChargingRecipe>> assemblyRecipe =
-				SequencedAssemblyRecipe.getRecipe(level, stack, CARecipes.CHARGING_TYPE.get(), ChargingRecipe.class);
+				SequencedAssemblyRecipe.getRecipe(level, stack, CARecipes.CHARGING_TYPE, ChargingRecipe.class);
 		if(assemblyRecipe.isPresent()) return assemblyRecipe;
-		return level.getRecipeManager().getRecipeFor(CARecipes.CHARGING_TYPE.get(), wrapper, level);
+		return level.getRecipeManager().getRecipeFor(CARecipes.CHARGING_TYPE, wrapper, level);
 	}
 
 	@Override

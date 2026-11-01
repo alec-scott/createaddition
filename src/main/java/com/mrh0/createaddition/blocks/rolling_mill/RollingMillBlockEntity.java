@@ -27,10 +27,8 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -66,7 +64,6 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void tickAudio() {
 		super.tickAudio();
 
@@ -226,11 +223,11 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	public Optional<RecipeHolder<RollingRecipe>> find(RecipeWrapper inv, Level level) {
-		var recipe = level.getRecipeManager().getRecipeFor(CARecipes.ROLLING_TYPE.get(), inv, level);
+		var recipe = level.getRecipeManager().getRecipeFor(CARecipes.ROLLING_TYPE, inv, level);
 		if(recipe.isPresent()) {
 			return recipe;
 		}
-		return level.getRecipeManager().getRecipeFor(CARecipes.ROLLING_TYPE.get(), inv, level);
+		return level.getRecipeManager().getRecipeFor(CARecipes.ROLLING_TYPE, inv, level);
 	}
 
 }

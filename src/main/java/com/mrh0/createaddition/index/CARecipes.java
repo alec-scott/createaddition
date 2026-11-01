@@ -1,54 +1,45 @@
 package com.mrh0.createaddition.index;
 
-import com.mojang.serialization.MapCodec;
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.recipe.charging.ChargingRecipe;
-//import com.mrh0.createaddition.recipe.charging.DeoxidizingRecipe;
-import com.mrh0.createaddition.recipe.conditions.HasFluidTagCondition;
 import com.mrh0.createaddition.recipe.liquid_burning.LiquidBurningRecipe;
 import com.mrh0.createaddition.recipe.rolling.RollingRecipe;
-import com.simibubi.create.content.processing.recipe.StandardProcessingRecipe;
+import com.zurrtum.create.AllAssemblyRecipeNames;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.neoforged.bus.api.IEventBus;
-import com.mrh0.createaddition.port.porting_lib.conditions.ICondition;
-import com.mrh0.createaddition.port.porting_lib.util.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
-import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
-import java.util.function.Supplier;
-
+/**
+ * PORT-NOTE(26.1): plain registry fields, as Create Fly's AllRecipeTypes/AllRecipeSerializers. The NeoForge
+ * {@code has_fluid_tag} condition is gone (the JSON uses {@code fabric:tags_populated}).
+ */
 public class CARecipes {
-	public static final DeferredRegister<RecipeSerializer<?>> SERIALIZERS =
-            DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, CreateAddition.MODID);
-	public static final DeferredRegister<RecipeType<?>> RECIPE_TYPES = DeferredRegister.create(BuiltInRegistries.RECIPE_TYPE, CreateAddition.MODID);
-	public static final DeferredRegister<MapCodec<? extends ICondition>> CONDITION_CODECS = DeferredRegister.create(NeoForgeRegistries.CONDITION_SERIALIZERS, CreateAddition.MODID);
+	public static final RecipeType<RollingRecipe> ROLLING_TYPE = registerType("rolling");
+	public static final RecipeSerializer<RollingRecipe> ROLLING = registerSerializer("rolling", RollingRecipe.SERIALIZER);
 
-	private static <T extends Recipe<?>> Supplier<RecipeType<T>> registerRecipeType(String id) {
-		return RECIPE_TYPES.register(id, () -> new RecipeType<T>() {
-			public String toString() { return id; }
+	public static final RecipeType<ChargingRecipe> CHARGING_TYPE = registerType("charging");
+	public static final RecipeSerializer<ChargingRecipe> CHARGING = registerSerializer("charging", ChargingRecipe.SERIALIZER);
+
+	public static final RecipeType<LiquidBurningRecipe> LIQUID_BURNING_TYPE = registerType("liquid_burning");
+	public static final RecipeSerializer<LiquidBurningRecipe> LIQUID_BURNING = registerSerializer("liquid_burning", LiquidBurningRecipe.SERIALIZER);
+
+	private static <T extends Recipe<?>> RecipeType<T> registerType(String id) {
+		String name = CreateAddition.MODID + ":" + id;
+		return Registry.register(BuiltInRegistries.RECIPE_TYPE, CreateAddition.asResource(id), new RecipeType<T>() {
+			@Override
+			public String toString() {
+				return name;
+			}
 		});
 	}
 
-	public static final Supplier<RecipeType<RollingRecipe>> ROLLING_TYPE = registerRecipeType("rolling");
-	public static DeferredHolder<RecipeSerializer<?>, RecipeSerializer<RollingRecipe>> ROLLING = SERIALIZERS.register("rolling", () -> new StandardProcessingRecipe.Serializer<>(RollingRecipe::new));
+	private static <T extends Recipe<?>> RecipeSerializer<T> registerSerializer(String id, RecipeSerializer<T> serializer) {
+		return Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, CreateAddition.asResource(id), serializer);
+	}
 
-	public static final Supplier<RecipeType<ChargingRecipe>> CHARGING_TYPE = registerRecipeType("charging");
-	public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<ChargingRecipe>> CHARGING = SERIALIZERS.register("charging", () -> new ChargingRecipe.Serializer<>(ChargingRecipe::new));
-	//public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DeoxidizingRecipe>> DEOXIDIZING = SERIALIZERS.register("deoxidizing", DeoxidizingRecipe.Serializer::new);
-
-	public static final Supplier<RecipeType<LiquidBurningRecipe>> LIQUID_BURNING_TYPE = registerRecipeType("liquid_burning");
-	public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<LiquidBurningRecipe>> LIQUID_BURNING = SERIALIZERS.register("liquid_burning", () -> new LiquidBurningRecipe.Serializer<>(LiquidBurningRecipe::new));
-
-	public static final Supplier<MapCodec<HasFluidTagCondition>> HAS_FLUID_TAG_CONDITION =
-			CONDITION_CODECS.register("has_fluid_tag", () -> HasFluidTagCondition.CODEC);
-
-    public static void register(IEventBus event) {
-    	SERIALIZERS.register(event);
-		RECIPE_TYPES.register(event);
-
-		CONDITION_CODECS.register(event);
-    }
+	public static void register() {
+		AllAssemblyRecipeNames.register(CHARGING_TYPE, ChargingRecipe::getDescriptionForAssembly);
+	}
 }

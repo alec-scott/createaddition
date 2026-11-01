@@ -1,82 +1,48 @@
 package com.mrh0.createaddition.recipe.charging;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.compat.jei.ChargingAssemblySubCategory;
-import com.mrh0.createaddition.index.CABlocks;
 import com.mrh0.createaddition.index.CARecipes;
 import com.mrh0.createaddition.util.Util;
-import com.simibubi.create.compat.jei.category.sequencedAssembly.SequencedAssemblySubCategory;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipe;
-import com.simibubi.create.content.processing.recipe.ProcessingRecipeBuilder;
-import com.simibubi.create.content.processing.sequenced.IAssemblyRecipe;
-import com.simibubi.create.foundation.recipe.IRecipeTypeInfo;
-import net.minecraft.core.HolderLookup;
+import com.zurrtum.create.content.processing.recipe.ProcessingOutput;
+import com.zurrtum.create.foundation.recipe.CreateSingleStackRollableRecipe;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.ItemLike;
-import net.minecraft.world.level.Level;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.items.wrapper.RecipeWrapper;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
-import java.util.Set;
-import java.util.function.Supplier;
 
-public class ChargingRecipe extends ProcessingRecipe<RecipeWrapper, ChargingRecipeParams> implements IAssemblyRecipe {
-    public static final IRecipeTypeInfo TYPE_INFO = new IRecipeTypeInfo() {
-        @Override
-        public Identifier getId() {
-            return CARecipes.CHARGING.getId();
-        }
-
-        @Override
-        public <T extends RecipeSerializer<?>> T getSerializer() {
-            return (T) CARecipes.CHARGING.get();
-        }
-
-        @Override
-        public <V extends RecipeInput, R extends Recipe<V>> RecipeType<R> getType() {
-            return (RecipeType<R>) CARecipes.CHARGING_TYPE.get();
-        }
-    };
-
-    public int energy;
-    public int maxChargeRate;
-
-    public ChargingRecipe(ChargingRecipeParams params) {
-        super(TYPE_INFO, params);
-        this.energy = params.getEnergy();
-        this.maxChargeRate = params.getMaxChargeRate();
-    }
-
-    @Override
-    public boolean matches(@NotNull RecipeWrapper wrapper, @NotNull Level world) {
-        if (ingredients.get(0) == null) return false;
-        return ingredients.get(0).test(wrapper.getItem(0));
-    }
-
-    @Override
-    protected int getMaxInputCount() {
-        return 1;
-    }
-
-    @Override
-    protected int getMaxOutputCount() {
-        return 1;
-    }
+/**
+ * PORT-NOTE(26.1): Create Fly's single-ingredient recipe style, {@code {ingredient, results, energy, max_charge_rate}}.
+ * Sequenced assembly steps are plain recipes in Create Fly; the step name comes from
+ * {@link #getDescriptionForAssembly}, registered with {@code AllAssemblyRecipeNames} in {@link CARecipes#register()}.
+ */
+public record ChargingRecipe(List<ProcessingOutput> results, Ingredient ingredient, int energy, int maxChargeRate)
+        implements CreateSingleStackRollableRecipe {
+    public static final MapCodec<ChargingRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ProcessingOutput.CODEC.listOf(1, 1).fieldOf("results").forGetter(ChargingRecipe::results),
+            Ingredient.CODEC.fieldOf("ingredient").forGetter(ChargingRecipe::ingredient),
+            Codec.INT.fieldOf("energy").forGetter(ChargingRecipe::energy),
+            Codec.INT.fieldOf("max_charge_rate").forGetter(ChargingRecipe::maxChargeRate)
+    ).apply(instance, ChargingRecipe::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ChargingRecipe> STREAM_CODEC = StreamCodec.composite(
+            ProcessingOutput.STREAM_CODEC.apply(ByteBufCodecs.list()), ChargingRecipe::results,
+            Ingredient.CONTENTS_STREAM_CODEC, ChargingRecipe::ingredient,
+            ByteBufCodecs.VAR_INT, ChargingRecipe::energy,
+            ByteBufCodecs.VAR_INT, ChargingRecipe::maxChargeRate,
+            ChargingRecipe::new
+    );
+    public static final RecipeSerializer<ChargingRecipe> SERIALIZER = new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
 
     public int getEnergy() {
         return energy;
@@ -87,82 +53,21 @@ public class ChargingRecipe extends ProcessingRecipe<RecipeWrapper, ChargingReci
     }
 
     public ItemStack getResultStack() {
-        return  getRollableResults().getFirst().getStack();
+        return results.getFirst().create();
     }
 
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public Component getDescriptionForAssembly() {
+    public static Component getDescriptionForAssembly(DynamicOps<JsonElement> ops, JsonObject json) {
+        int energy = json.has("energy") ? json.get("energy").getAsInt() : 0;
         return Component.translatable(CreateAddition.MODID + ".recipe.charging.sequence", Util.format(energy));
     }
 
     @Override
-    public void addRequiredMachines(Set<ItemLike> list) {
-        list.add(CABlocks.TESLA_COIL.get());
+    public RecipeSerializer<ChargingRecipe> getSerializer() {
+        return CARecipes.CHARGING;
     }
 
     @Override
-    public void addAssemblyIngredients(List<Ingredient> list) {}
-
-    @Override
-    public Supplier<Supplier<SequencedAssemblySubCategory>> getJEISubCategory() {
-        return () -> ChargingAssemblySubCategory::new;
+    public RecipeType<ChargingRecipe> getType() {
+        return CARecipes.CHARGING_TYPE;
     }
-
-    @FunctionalInterface
-    public interface Factory<R extends ChargingRecipe> extends ProcessingRecipe.Factory<ChargingRecipeParams, R> {
-        R create(ChargingRecipeParams params);
-    }
-
-    public static class Builder<R extends ChargingRecipe> extends ProcessingRecipeBuilder<ChargingRecipeParams, R, ChargingRecipe.Builder<R>> {
-        public Builder(ChargingRecipe.Factory<R> factory, Identifier recipeId) {
-            super(factory, recipeId);
-        }
-
-        @Override
-        protected ChargingRecipeParams createParams() {
-            return new ChargingRecipeParams();
-        }
-
-        @Override
-        public ChargingRecipe.Builder<R> self() {
-            return this;
-        }
-
-        public ChargingRecipe.Builder<R> enchantedOutput(ItemStack item, ResourceKey<Enchantment> enchantmentKey, HolderLookup.Provider provider) {
-            item.enchant(provider.holderOrThrow(enchantmentKey),1);
-            return output(item);
-        }
-
-        public ChargingRecipe.Builder<R> energy(int energy) {
-            params.energy = energy;
-            return this;
-        }
-
-        public ChargingRecipe.Builder<R> maxChargeRate(int maxChargeRate) {
-            params.maxChargeRate = maxChargeRate;
-            return this;
-        }
-    }
-
-    public static class Serializer<R extends ChargingRecipe> implements RecipeSerializer<R> {
-        private final MapCodec<R> codec;
-        private final StreamCodec<RegistryFriendlyByteBuf, R> streamCodec;
-
-        public Serializer(ProcessingRecipe.Factory<ChargingRecipeParams, R> factory) {
-            this.codec = ProcessingRecipe.codec(factory, ChargingRecipeParams.CODEC);
-            this.streamCodec = ProcessingRecipe.streamCodec(factory, ChargingRecipeParams.STREAM_CODEC);
-        }
-
-        @Override
-        public MapCodec<R> codec() {
-            return codec;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, R> streamCodec() {
-            return streamCodec;
-        }
-    }
-
 }

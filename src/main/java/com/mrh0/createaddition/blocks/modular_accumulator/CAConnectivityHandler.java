@@ -23,7 +23,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.neoforged.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 
 public class CAConnectivityHandler {
 

@@ -1,16 +1,9 @@
 package com.mrh0.createaddition.config;
 
-import com.electronwill.nightconfig.core.file.CommentedFileConfig;
-import com.electronwill.nightconfig.core.io.WritingMode;
 
 import com.mrh0.createaddition.CreateAddition;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.config.ModConfigEvent;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
-@EventBusSubscriber(modid = CreateAddition.MODID,bus = EventBusSubscriber.Bus.MOD)
 public class CommonConfig {
 	public static final String CATAGORY_GENERAL = "general";
 	public static final String CATAGORY_ELECTRIC_MOTOR = "electric_motor";
@@ -298,20 +291,6 @@ public class CommonConfig {
 		COMMON_CONFIG = COMMON_BUILDER.build();
 	}
 
-	// What does this do? Just Load? If yes why not use onLoad event
-	public static void loadConfig(ModConfigSpec spec, java.nio.file.Path path) {
-		final CommentedFileConfig configData = CommentedFileConfig.builder(path)
-			.sync()
-			.autosave()
-			.writingMode(WritingMode.REPLACE)
-			.build();
-		configData.load();
-		spec.correct(configData);
-	}
-
-	@SubscribeEvent
-	public static void onLoad(ModConfigEvent.Loading event) {
-		CommonConfig.loadConfig(CommonConfig.COMMON_CONFIG, FMLPaths.CONFIGDIR.get().resolve("createaddition-common.toml"));
-	}
-
+	// PORT-NOTE(26.1): the manual file load on ModConfigEvent.Loading is gone; Forge Config API Port loads the
+	// spec registered in CreateAddition.onInitialize.
 }

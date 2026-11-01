@@ -4,9 +4,8 @@ import com.mrh0.createaddition.CreateAddition;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
-import net.neoforged.bus.api.IEventBus;
 import com.mrh0.createaddition.port.porting_lib.util.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import com.mrh0.createaddition.port.porting_lib.util.DeferredRegister;
 
 public class CASounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
@@ -23,7 +22,7 @@ public class CASounds {
         return SOUND_EVENTS.register(name, () -> SoundEvent.createVariableRangeEvent(id));
     }
 
-    public static void register(IEventBus eventBus) {
-        SOUND_EVENTS.register(eventBus);
-    }
+    public static void register() {
+		// PORT-NOTE(26.1): entries register on class load (see port DeferredRegister)
+	}
 }

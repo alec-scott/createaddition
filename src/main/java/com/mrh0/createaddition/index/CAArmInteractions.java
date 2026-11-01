@@ -2,7 +2,7 @@ package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.blocks.liquid_blaze_burner.LiquidBlazeBurnerBlock;
-import com.simibubi.create.api.registry.CreateBuiltInRegistries;
+import com.zurrtum.create.api.registry.CreateRegistries;
 import com.zurrtum.create.content.kinetics.mechanicalArm.AllArmInteractionPointTypes;
 import com.zurrtum.create.content.kinetics.mechanicalArm.ArmBlockEntity;
 import com.zurrtum.create.content.kinetics.mechanicalArm.ArmInteractionPoint;
@@ -23,7 +23,7 @@ public class CAArmInteractions {
     //}
 
     private static <T extends ArmInteractionPointType> void register(String name, T type) {
-        Registry.register(CreateBuiltInRegistries.ARM_INTERACTION_POINT_TYPE, CreateAddition.asResource(name), type);
+        Registry.register(CreateRegistries.ARM_INTERACTION_POINT_TYPE, CreateAddition.asResource(name), type);
     }
 
     static {

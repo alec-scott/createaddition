@@ -9,8 +9,6 @@ import com.zurrtum.create.client.foundation.gui.ModularGuiLineBuilder;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import org.jetbrains.annotations.Nullable;
 
 public class ModularAccumulatorDisplaySource extends PercentOrProgressBarDisplaySource {
@@ -60,7 +58,6 @@ public class ModularAccumulatorDisplaySource extends PercentOrProgressBarDisplay
 	}
 
 	@Override
-	@OnlyIn(Dist.CLIENT)
 	public void initConfigurationWidgets(DisplayLinkContext context, ModularGuiLineBuilder builder,
 		boolean isFirstLine) {
 		super.initConfigurationWidgets(context, builder, isFirstLine);

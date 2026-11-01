@@ -6,7 +6,7 @@ import com.zurrtum.create.client.foundation.ponder.CreateSceneBuilder;
 import com.zurrtum.create.client.ponder.api.scene.SceneBuilder;
 import com.zurrtum.create.client.ponder.api.scene.SceneBuildingUtil;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.fluids.FluidStack;
+import com.zurrtum.create.infrastructure.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class DebugScenes {

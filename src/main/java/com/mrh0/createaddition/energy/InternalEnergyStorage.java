@@ -4,9 +4,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
+import com.mrh0.createaddition.port.neoforge.energy.EnergyStorage;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 public class InternalEnergyStorage extends EnergyStorage {
 	public InternalEnergyStorage(int capacity) {
@@ -79,7 +79,7 @@ public class InternalEnergyStorage extends EnergyStorage {
     
     @Deprecated
     public void outputToSide(Level level, BlockPos pos, Direction side, int max) {
-		IEnergyStorage ies = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, side.getOpposite());
+		IEnergyStorage ies = Capabilities.getCapability(level, Capabilities.EnergyStorage.BLOCK, pos, side.getOpposite());
 		if(ies == null) return;
 		int ext = this.extractEnergy(max, false);
 		this.receiveEnergy(ext - ies.receiveEnergy(ext, false), false);

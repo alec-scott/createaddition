@@ -20,7 +20,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,9 +35,7 @@ import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.common.util.FakePlayer;
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.neoforged.neoforge.fluids.FluidActionResult;
 
 import static com.zurrtum.create.content.processing.burner.BlazeBurnerBlock.HEAT_LEVEL;
@@ -107,24 +104,24 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
 		ItemStack heldItem = player.getItemInHand(hand);
 		BlazeBurnerBlock.HeatLevel heat = state.getValue(HEAT_LEVEL);
 
 		if (AllItems.GOGGLES.isIn(heldItem) && heat != BlazeBurnerBlock.HeatLevel.NONE)
 			return onBlockEntityUseItemOn(level, pos, be -> {
-				if (be.goggles) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				if (be.goggles) return InteractionResult.TRY_WITH_EMPTY_HAND;
 				be.goggles = true;
 				be.notifyUpdate();
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			});
 
 		if (heldItem.isEmpty() && heat != BlazeBurnerBlock.HeatLevel.NONE)
 			return onBlockEntityUseItemOn(level, pos, be -> {
-				if (!be.goggles) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+				if (!be.goggles) return InteractionResult.TRY_WITH_EMPTY_HAND;
 				be.goggles = false;
 				be.notifyUpdate();
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			});
 
 		boolean doNotConsume = player.isCreative();
@@ -142,7 +139,7 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 			}
 		}
 
-		return res.getResult() == InteractionResult.SUCCESS ? ItemInteractionResult.SUCCESS : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return res.getResult() == InteractionResult.SUCCESS ? InteractionResult.SUCCESS : InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	public static InteractionResultHolder<ItemStack> tryInsert(BlockState state, Level level, BlockPos pos,
@@ -202,8 +199,6 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 	protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
 		return false;
 	}
-
-	@OnlyIn(Dist.CLIENT)
 	public void animateTick(BlockState state, Level world, BlockPos pos, Random random) {
 		if (random.nextInt(10) != 0) return;
 		if (!state.getValue(HEAT_LEVEL).isAtLeast(BlazeBurnerBlock.HeatLevel.SMOULDERING)) return;

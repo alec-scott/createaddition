@@ -5,7 +5,7 @@ import com.zurrtum.create.content.contraptions.Contraption;
 import com.zurrtum.create.content.contraptions.behaviour.MovementContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

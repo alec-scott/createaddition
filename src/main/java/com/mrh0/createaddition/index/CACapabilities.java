@@ -15,13 +15,13 @@ import com.mrh0.createaddition.blocks.modular_accumulator.ModularAccumulatorBloc
 import com.mrh0.createaddition.blocks.portable_energy_interface.PortableEnergyInterfaceBlockEntity;
 import com.mrh0.createaddition.blocks.rolling_mill.RollingMillBlockEntity;
 import com.mrh0.createaddition.blocks.tesla_coil.TeslaCoilBlockEntity;
-import com.mrh0.createaddition.compat.computercraft.Peripherals;
-import com.mrh0.createaddition.compat.simulated.SIMCapabilities;
 
-import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import com.mrh0.createaddition.port.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 public class CACapabilities {
-    public static void register(RegisterCapabilitiesEvent event) {
+    // PORT-NOTE(26.1): called from CreateAddition.onInitialize (was a mod-bus RegisterCapabilitiesEvent listener)
+    public static void register() {
+        RegisterCapabilitiesEvent event = RegisterCapabilitiesEvent.INSTANCE;
         AlternatorBlockEntity.registerCapabilities(event);
         LargeConnectorBlockEntity.registerCapabilities(event);
         SmallConnectorBlockEntity.registerCapabilities(event);
@@ -36,13 +36,6 @@ public class CACapabilities {
         RollingMillBlockEntity.registerCapabilities(event);
         LiquidBlazeBurnerBlockEntity.registerCapability(event);
         CapacitorItem.registerCapabilities(event);
-
-        if(CreateAddition.CC_ACTIVE) {
-            Peripherals.registerPeripheralCapabilities(event);
-        }
-
-        if(CreateAddition.SIM_ACTIVE) {
-            SIMCapabilities.registerBECapabilities(event);
-        }
+        // PORT-NOTE(26.1): ComputerCraft peripherals and Simulated capabilities are excluded for now
     }
 }

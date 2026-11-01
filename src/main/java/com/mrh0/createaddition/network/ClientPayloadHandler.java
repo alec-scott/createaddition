@@ -1,17 +1,13 @@
 package com.mrh0.createaddition.network;
 
-import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 
+/** PORT-NOTE(26.1): Fabric client receivers; payload types are registered in {@link ServerPayloadHandler#register()}. */
 public class ClientPayloadHandler {
-    public static void handleObservePayload(final ObservePacketPayload pkt, final IPayloadContext ctx) {
-
-    }
-
-    public static void handleEnergyNetworkPayload(final EnergyNetworkPacketPayload pkt, final IPayloadContext ctx) {
-        EnergyNetworkPacketPayload.updateClientCache(pkt.pos(), pkt.demand(), pkt.buff());
-    }
-
-    public static void handleTimeRemainingPayload(final TimeRemainingPacketPayload pkt, final IPayloadContext ctx) {
-        TimeRemainingPacketPayload.updateClientCache(pkt.timeRemaining());
+    public static void register() {
+        ClientPlayNetworking.registerGlobalReceiver(EnergyNetworkPacketPayload.TYPE,
+                (pkt, ctx) -> EnergyNetworkPacketPayload.updateClientCache(pkt.pos(), pkt.demand(), pkt.buff()));
+        ClientPlayNetworking.registerGlobalReceiver(TimeRemainingPacketPayload.TYPE,
+                (pkt, ctx) -> TimeRemainingPacketPayload.updateClientCache(pkt.timeRemaining()));
     }
 }

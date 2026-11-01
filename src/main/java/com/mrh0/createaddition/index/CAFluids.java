@@ -1,77 +1,37 @@
 package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.CreateAddition;
-import com.zurrtum.create.AllFluids;
-
+import com.mrh0.createaddition.port.registrate.fabric.SimpleFlowableFluid;
 import com.mrh0.createaddition.port.registrate.util.entry.FluidEntry;
-import net.minecraft.core.BlockPos;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.material.FluidState;
-import net.neoforged.neoforge.fluids.BaseFlowingFluid;
-import net.neoforged.neoforge.fluids.FluidStack;
 
+/**
+ * PORT-NOTE(26.1): NeoForge's {@code BaseFlowingFluid}/{@code FluidType} are replaced by the port Registrate's Fabric
+ * fluid builder (as CBC's port does). Viscosity/density have no Fabric equivalent; the "no tint" fluid type is the
+ * builder's default untinted renderer.
+ */
 public class CAFluids {
 	static {
 		CreateAddition.REGISTRATE.setCreativeTab(CreateAddition.MAIN_TAB);
 	}
 
-	public static FluidEntry<BaseFlowingFluid.Flowing> SEED_OIL;
-	public static FluidEntry<BaseFlowingFluid.Flowing> BIOETHANOL;
+	public static FluidEntry<SimpleFlowableFluid.Flowing> SEED_OIL;
+	public static FluidEntry<SimpleFlowableFluid.Flowing> BIOETHANOL;
 
-
-	/**
-	 * (From Create)
-	 * Removing alpha from tint prevents optifine from forcibly applying biome
-	 * colors to modded fluids (Makes translucent fluids disappear)
-	 */
-	private static class NoColorFluidAttributes extends AllFluids.TintedFluidType {
-
-		public NoColorFluidAttributes(Properties properties, Identifier stillTexture,
-			Identifier flowingTexture) {
-			super(properties, stillTexture, flowingTexture);
-		}
-
-		@Override
-		protected int getTintColor(FluidStack stack) {
-			return NO_TINT;
-		}
-
-		@Override
-		public int getTintColor(FluidState state, BlockAndTintGetter world, BlockPos pos) {
-			return 0x00ffffff;
-		}
-
+	private static FluidEntry<SimpleFlowableFluid.Flowing> fluid(String name) {
+		return CreateAddition.REGISTRATE.fluid(name, CreateAddition.asResource("fluid/" + name + "_still"), CreateAddition.asResource("fluid/" + name + "_flow"))
+				.fluidProperties(p -> p.levelDecreasePerBlock(2)
+						.tickRate(15)
+						.flowSpeed(6)
+						.blastResistance(100f))
+				.source(SimpleFlowableFluid.Source::new)
+				.bucket()
+				.properties(p -> p.stacksTo(1))
+				.build()
+				.register();
 	}
 
 	public static void register() {
-		var seedOil = CreateAddition.REGISTRATE.fluid("seed_oil", CreateAddition.asResource("fluid/seed_oil_still"), CreateAddition.asResource("fluid/seed_oil_flow"),
-				NoColorFluidAttributes::new)
-				.properties(b -> b.viscosity(2000)
-						.density(1400))
-				.fluidProperties(p -> p.levelDecreasePerBlock(2)
-						.tickRate(15)
-						.slopeFindDistance(6)
-						.explosionResistance(100f))
-				.source(BaseFlowingFluid.Flowing.Source::new);
-
-		seedOil.bucket()
-			.properties(p -> p.stacksTo(1))
-			.register();
-		SEED_OIL = seedOil.register();
-
-		var bioethanol = CreateAddition.REGISTRATE.fluid("bioethanol", CreateAddition.asResource("fluid/bioethanol_still"), CreateAddition.asResource("fluid/bioethanol_flow"),
-				NoColorFluidAttributes::new)
-				.properties(b -> b.viscosity(2500)
-						.density(1600))
-				.fluidProperties(p -> p.levelDecreasePerBlock(2)
-						.tickRate(15)
-						.slopeFindDistance(6)
-						.explosionResistance(100f))
-				.source(BaseFlowingFluid.Flowing.Source::new);
-		bioethanol.bucket()
-			.properties(p -> p.stacksTo(1))
-			.register();
-		BIOETHANOL = bioethanol.register();
+		SEED_OIL = fluid("seed_oil");
+		BIOETHANOL = fluid("bioethanol");
 	}
 }

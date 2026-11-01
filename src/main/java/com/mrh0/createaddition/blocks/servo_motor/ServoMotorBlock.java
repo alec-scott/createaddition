@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.servo_motor;
 
+import net.minecraft.world.InteractionResult;
+
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
 import com.zurrtum.create.api.contraption.transformable.TransformableBlock;
@@ -15,7 +17,6 @@ import net.minecraft.core.Direction.Axis;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -143,15 +144,15 @@ public class ServoMotorBlock extends DirectionalKineticBlock implements IBE<Serv
 	}
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos,
 			Player player, InteractionHand hand, BlockHitResult hitResult) {
 		if (!player.mayBuild())
-			return ItemInteractionResult.FAIL;
+			return InteractionResult.FAIL;
 		if (player.isShiftKeyDown())
-			return ItemInteractionResult.FAIL;
+			return InteractionResult.FAIL;
 		if (stack.isEmpty()) {
 			if (level.isClientSide)
-				return ItemInteractionResult.SUCCESS;
+				return InteractionResult.SUCCESS;
 			withBlockEntityDo(level, pos, be -> {
 				if (be.isRunning()) {
 					be.disassemble();
@@ -159,9 +160,9 @@ public class ServoMotorBlock extends DirectionalKineticBlock implements IBE<Serv
 				}
 				be.triggerAssemble();
 			});
-			return ItemInteractionResult.SUCCESS;
+			return InteractionResult.SUCCESS;
 		}
-		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		return InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
 	public void setPowered(Level world, BlockPos pos, boolean powered) {

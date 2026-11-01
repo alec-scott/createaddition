@@ -1,7 +1,7 @@
 package com.mrh0.createaddition.energy;
 
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 
 import org.jetbrains.annotations.Nullable;
 

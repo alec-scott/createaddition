@@ -1,38 +1,36 @@
 package com.mrh0.createaddition.network;
 
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 
+/** PORT-NOTE(26.1): Fabric payloads (was NeoForge's PayloadRegistrar with DirectionalPayloadHandler). */
 public class ServerPayloadHandler {
-    public static void handleObservePayload(final ObservePacketPayload pkt, final IPayloadContext ctx) {
-        ctx.enqueueWork(() -> {
-            try {
-                ServerPlayer player = (ServerPlayer) ctx.player();
+    public static void register() {
+        PayloadTypeRegistry.serverboundPlay().register(ObservePacketPayload.TYPE, ObservePacketPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(EnergyNetworkPacketPayload.TYPE, EnergyNetworkPacketPayload.STREAM_CODEC);
+        PayloadTypeRegistry.clientboundPlay().register(TimeRemainingPacketPayload.TYPE, TimeRemainingPacketPayload.STREAM_CODEC);
 
-                sendUpdate(pkt, player);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        ServerPlayNetworking.registerGlobalReceiver(ObservePacketPayload.TYPE, (pkt, ctx) -> handleObservePayload(pkt, ctx.player()));
     }
 
-    private static void sendUpdate(ObservePacketPayload pkt, ServerPlayer player) {
-        BlockEntity be = (BlockEntity) player.level().getBlockEntity(pkt.pos());
-        if (be != null) {
-            if (be instanceof IObserveBlockEntity) {
-                IObserveBlockEntity ote = (IObserveBlockEntity) be;
-                ote.onObserved(player, pkt);
-                Packet<ClientGamePacketListener> supdatepacket = be.getUpdatePacket();
-                if (supdatepacket != null) player.connection.send(supdatepacket);
-            }
+    public static void handleObservePayload(final ObservePacketPayload pkt, final ServerPlayer player) {
+        try {
+            sendUpdate(pkt, player);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    public static void handleEnergyNetworkPayload(final EnergyNetworkPacketPayload pkt, final IPayloadContext ctx) {}
-
-    public static void handleTimeRemainingPayload(final TimeRemainingPacketPayload pkt, final IPayloadContext ctx) {}
+    private static void sendUpdate(ObservePacketPayload pkt, ServerPlayer player) {
+        BlockEntity be = player.level().getBlockEntity(pkt.pos());
+        if (be instanceof IObserveBlockEntity ote) {
+            ote.onObserved(player, pkt);
+            Packet<ClientGamePacketListener> updatePacket = be.getUpdatePacket();
+            if (updatePacket != null) player.connection.send(updatePacket);
+        }
+    }
 }
