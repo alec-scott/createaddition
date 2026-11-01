@@ -33,6 +33,8 @@ export JAVA_HOME=/c/Users/akrsc/AppData/Roaming/PrismLauncher/java/java-runtime-
 
 Error triage: `perl porting-tools/errs_summary.pl build.txt` (one line per error with the missing symbol) and
 `perl porting-tools/errs_by_file.pl build.txt` (counts per file; each error is counted twice, gradle repeats them).
+Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompileClasspath -DcpOutDir=<dir>`, then
+`MIXIN_MODULES=. perl porting-tools/check_mixin_targets.pl . $JAVA_HOME/bin/javap <dir>/cp-createaddition.txt`.
 
 ## Decisions
 
@@ -133,19 +135,34 @@ Error triage: `perl porting-tools/errs_summary.pl build.txt` (one line per error
   `fix_item_methods.pl`, `fix_valueio.pl`, `fix_optional.pl`) plus `fix_valueio_calls.pl` (new).
 - Wire graph saved data, verifier chunk reads (ChunkPos/PalettedContainer/Strategy API), liquid blaze burner fluids,
   rolling mill, electric motor/servo/pump behaviours, client entrypoint and client behaviours.
-- End of session: 110 errors in 49 files (symbol pass; attribution of method bodies will add more, as in S&R).
-  Remaining: renderers/visuals (extract/submit; `SafeBlockEntityRenderer`, `RenderType`, `LightTexture`,
-  `ContraptionMatrices`), ponder scenes/`CAPonders` (FMLEnvironment/DatagenModLoader), tesla coil (belt processing,
-  item charging), PEI movement + contraption storage, modular accumulator (CT, connectivity, display source),
-  `EnergyThresholdCondition` (Create Fly schedule API), `DiamondGritSandpaperItem` (sandpaper renderer is client),
-  `WireSpool`, the four mixins (`FlowingFluidMixin`, `FireBlockMixin`, `BaseFireBlockMixin`, retargets), commands
-  (`hasPermission`), `CASoundScapes`.
+- Midway: 110 errors in 49 files (symbol pass). Then: tesla coil (recipe lookup via `recipeAccess`, armor slots,
+  `hurtServer`), accumulator (`preRemoveSideEffects` split like Create Fly's fluid tank, display source config UI
+  to a client `SingleLineDisplaySourceRender`, batch-placement sound silencing dropped), PEI block entity, schedule
+  condition split into data + client render (`EnergyThresholdConditionRender`, registered in Create Fly's
+  `AllScheduleRenders.ALL`), 26.1 block/item signatures, fuels (`FuelValueEvents`), commands (permission checks,
+  click/hover event records), `IOnLoad` + `ServerBlockEntityEvents.BLOCK_ENTITY_LOAD` for NeoForge's `onLoad`.
+- Renderers on extract/submit: kinetic (motor, alternator, rolling mill, servo disc, pump partials), accumulator
+  gauges, PEI (placed block), liquid blaze burner (Create Fly `BlazeBurnerRenderer.getBlazeBurnerRenderData` with
+  the liquid hat), wires (`WireNodeRenderer`: wires extracted per connection, drawn with `submitCustomGeometry` in a
+  QUADS leash pipeline `CARenderType.WIRE`; festive lights as SuperByteBuffer states; render bounds moved to the block
+  entities' `getRenderBoundingBox`). Access widener: `BlockEntityRenderState.blockState`,
+  `RenderPipelines.PIPELINES_BY_LOCATION`.
+- **`compileJava` succeeds (0 errors); `./gradlew build -x test` produces the jar** (TR Energy in `META-INF/jars`).
+  Duplicate lang (`src/main` vs `src/generated`): hand-crafted wins (`DuplicatesStrategy.EXCLUDE`, as upstream).
+- Mixins retargeted: `FireBlockMixin` (NeoForge `canCatchFire`/`isFlammable` → `isValidFireLocation`/`canBurn`,
+  `getFlammability` → `getBurnOdds`, `isFireSource` → infiniburn `BlockState.is(TagKey)` in `tick`),
+  `FlowingFluidMixin` (`canSpreadTo` → `canPassThrough`, fluid is now the 2nd parameter; `doFireTick` →
+  `fireSpreadRadiusAroundPlayer == 0`). New: `AllHandleMixin` (value settings routing), `port.SmartBlockEntityMixin`,
+  `port.SpawnPlacementsAccessor`. `check_mixin_targets.pl` (classpath via S&R's `cp.init.gradle`
+  `printCompileClasspath`): only false positives (commented-out `ContraptionMixin`, inherited `BlockState.is(TagKey)`).
+  Handler parameters / injection points are not checked statically: verify at server boot / in game.
+- Not yet run: dedicated server boot, client.
 
 ## TODO
 
 - [x] Phase 1: build migration, shims copied, imports mapped, entrypoints/registration/configs/networking ported.
 - [x] Phase 2: energy → TR Energy (bridge); capabilities → Fabric transfer API.
-- [ ] Phase 3: compile clean (block/BE APIs, renderers to extract/submit, mixin retargets).
+- [x] Phase 3: compile clean (block/BE APIs, renderers to extract/submit, mixin retargets). Build produces a jar.
 - [x] Resources: item definitions, recipe/data conversion (done by the resources agent, `931d8fd8`).
 - [ ] Restore the `seed_oil` recipe (Create Fly's compacting has no fluid output; needs a CC&A recipe type or a
       Create Fly change).
@@ -154,6 +171,16 @@ Error triage: `perl porting-tools/errs_summary.pl build.txt` (one line per error
       `ValueSettingsInputHandler`/`ScrollValueRenderer` to iterate all value behaviours, or one composite behaviour).
 - [ ] Rolling mill/electric pump: check the CC&A sound scapes and Create Fly audio behaviours together in game.
 - [ ] Check `TREnergy` against other TR mods in game (insert/extract inside nested transactions).
+- [ ] PEI and liquid blaze burner rendering on contraptions (was `renderInContraption`/`createVisual` on the movement
+      behaviours): Create Fly `MovementRenderBehaviour` via `AllMovementRenders`. Check `PEIActorVisual` and the
+      `*Visual` classes (compiled against Create Fly's Flywheel but untested).
+- [ ] Diamond grit sandpaper: animated item renderer (was `IClientItemExtensions`); durability is fixed at the config
+      default (1024) since durability is a component set at registration.
+- [ ] Sable/Simulated: `SableUtil` stub, the sub-level wire/burner render paths and docking connector are gone until the
+      compat pass.
+- [ ] Verify at boot: client-package `IHaveGoggleInformation` on common block entities loads on a dedicated server;
+      `FireBlockMixin`/`FlowingFluidMixin` handler locals (`@Local Direction`, trailing target args on
+      `@ModifyExpressionValue`); `WireGraph` saved data (`createaddition_wires.dat`).
 - [ ] Dedicated server boot (`../railways-test-server`).
 - [ ] Client test (user launches the game).
 - [ ] Compat second pass: JEI, CC:Tweaked, Sable/Simulated (Aeronautics).
