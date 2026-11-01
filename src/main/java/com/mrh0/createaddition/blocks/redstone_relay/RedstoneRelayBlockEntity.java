@@ -1,5 +1,11 @@
 package com.mrh0.createaddition.blocks.redstone_relay;
 
+import com.mrh0.createaddition.port.minecraft.CAValueIO;
+
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -82,7 +88,7 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireN
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> list) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> list) {
 
 	}
 
@@ -206,10 +212,10 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireN
 	}
 
 	@Override
-	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(tag, registries, clientPacket);
+	protected void read(ValueInput tag, boolean clientPacket) {
+		super.read(tag, clientPacket);
 		// Convert old nbt data. x0, y0, z0, node0 & type0 etc.
-		if (!clientPacket && tag.contains("node0")) {
+		if (!clientPacket && CAValueIO.contains(tag, "node0")) {
 			convertOldNbt(tag);
 			setChanged();
 		}
@@ -217,15 +223,15 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireN
 		// Read the nodes.
 		invalidateLocalNodes();
 		invalidateNodeCache();
-		ListTag nodes = tag.getList(LocalNode.NODES, Tag.TAG_COMPOUND);
+		ListTag nodes = CAValueIO.getList(tag, LocalNode.NODES);
 		nodes.forEach(itag -> {
 			LocalNode localNode = new LocalNode(this, (CompoundTag) itag);
 			this.localNodes[localNode.getIndex()] = localNode;
 		});
 
 		// Check if this was a contraption.
-		if (tag.contains("contraption") && !clientPacket) {
-			this.wasContraption = tag.getBoolean("contraption");
+		if (CAValueIO.contains(tag, "contraption") && !clientPacket) {
+			this.wasContraption = tag.getBooleanOr("contraption", false);
 			NodeRotation rotation = getBlockState().getValue(NodeRotation.ROTATION);
 			if (rotation != NodeRotation.NONE)
 				level.setBlock(getBlockPos(), getBlockState().setValue(NodeRotation.ROTATION, NodeRotation.NONE), 0);
@@ -241,8 +247,8 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireN
 	}
 
 	@Override
-	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		super.write(nbt, registries, clientPacket);
+	public void write(ValueOutput nbt, boolean clientPacket) {
+		super.write(nbt, clientPacket);
 		// Write nodes.
 		ListTag nodes = new ListTag();
 		for (int i = 0; i < getNodeCount(); i++) {
@@ -252,7 +258,7 @@ public class RedstoneRelayBlockEntity extends SmartBlockEntity implements IWireN
 			localNode.write(newTag);
 			nodes.add(newTag);
 		}
-		nbt.put(LocalNode.NODES, nodes);
+		CAValueIO.put(nbt, LocalNode.NODES, nodes);
 	}
 
 	/**

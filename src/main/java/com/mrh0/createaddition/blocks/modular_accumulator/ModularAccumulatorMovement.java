@@ -5,7 +5,7 @@ import com.zurrtum.create.api.behaviour.movement.MovementBehaviour;
 import com.zurrtum.create.content.contraptions.behaviour.MovementContext;
 import net.minecraft.nbt.CompoundTag;
 
-public class ModularAccumulatorMovement implements MovementBehaviour {
+public class ModularAccumulatorMovement extends MovementBehaviour {
 
 	/**
 	 * The delay between each tick.

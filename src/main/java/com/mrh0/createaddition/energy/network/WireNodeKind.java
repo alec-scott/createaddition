@@ -7,6 +7,7 @@ import java.util.Map;
 import com.mrh0.createaddition.index.CABlockEntities;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -50,10 +51,10 @@ public enum WireNodeKind {
 	public static WireNodeKind fromBlockEntityId(String id) {
 		if (byBlockEntityId == null) {
 			Map<Identifier, WireNodeKind> map = new HashMap<>();
-			map.put(BlockEntityType.getKey(CABlockEntities.SMALL_CONNECTOR.get()), CONNECTOR);
-			map.put(BlockEntityType.getKey(CABlockEntities.SMALL_LIGHT_CONNECTOR.get()), CONNECTOR);
-			map.put(BlockEntityType.getKey(CABlockEntities.LARGE_CONNECTOR.get()), CONNECTOR);
-			map.put(BlockEntityType.getKey(CABlockEntities.REDSTONE_RELAY.get()), RELAY);
+			map.put(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(CABlockEntities.SMALL_CONNECTOR.get()), CONNECTOR);
+			map.put(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(CABlockEntities.SMALL_LIGHT_CONNECTOR.get()), CONNECTOR);
+			map.put(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(CABlockEntities.LARGE_CONNECTOR.get()), CONNECTOR);
+			map.put(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(CABlockEntities.REDSTONE_RELAY.get()), RELAY);
 			byBlockEntityId = map;
 		}
 		Identifier key = Identifier.tryParse(id);

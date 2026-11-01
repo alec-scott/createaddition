@@ -109,11 +109,11 @@ public class WireSpool extends Item {
     }
 
 	public static BlockPos getPos(CompoundTag nbt){
-        return new BlockPos(nbt.getInt("x"), nbt.getInt("y"), nbt.getInt("z"));
+        return new BlockPos(nbt.getIntOr("x", 0), nbt.getIntOr("y", 0), nbt.getIntOr("z", 0));
     }
 
 	public static int getNode(CompoundTag nbt){
-        return nbt.getInt("node");
+        return nbt.getIntOr("node", 0);
     }
 
 	public static CompoundTag setContent(CompoundTag nbt, BlockPos pos, int node){

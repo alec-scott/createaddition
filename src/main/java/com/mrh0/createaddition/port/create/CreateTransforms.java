@@ -28,6 +28,11 @@ public final class CreateTransforms {
         return b -> b.onRegister(block -> PENDING.add(() -> DisplaySource.BY_BLOCK.add(block, source)));
     }
 
+    /** Lazy variant: the source is a registry entry that is only bound once Registrate has registered it. */
+    public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> displaySource(Supplier<? extends DisplaySource> source) {
+        return b -> b.onRegister(block -> PENDING.add(() -> DisplaySource.BY_BLOCK.add(block, source.get())));
+    }
+
     public static <B extends Block, P> NonNullUnaryOperator<BlockBuilder<B, P>> displayTarget(DisplayTarget target) {
         return b -> b.onRegister(block -> PENDING.add(() -> DisplayTarget.BY_BLOCK.register(block, target)));
     }

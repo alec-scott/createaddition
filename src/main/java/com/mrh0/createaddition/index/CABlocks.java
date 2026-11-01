@@ -1,7 +1,7 @@
 package com.mrh0.createaddition.index;
 
-import static com.zurrtum.create.api.behaviour.display.DisplaySource.displaySource;
-import static com.zurrtum.create.api.behaviour.movement.MovementBehaviour.movementBehaviour;
+import com.mrh0.createaddition.port.create.CreateTransforms;
+import com.zurrtum.create.api.behaviour.movement.MovementBehaviour;
 import static com.mrh0.createaddition.port.create.foundation.data.ModelGen.customItemModel;
 import static com.mrh0.createaddition.port.create.foundation.data.CreateRegistrate.connectedTextures;
 import com.mrh0.createaddition.CreateAddition;
@@ -16,7 +16,6 @@ import com.mrh0.createaddition.blocks.modular_accumulator.*;
 import com.mrh0.createaddition.blocks.portable_energy_interface.PortableEnergyInterfaceBlock;
 import com.mrh0.createaddition.blocks.portable_energy_interface.PortableEnergyInterfaceMovement;
 import com.mrh0.createaddition.config.CommonConfig;
-import com.mrh0.createaddition.datagen.Models.BlockGenHelper;
 import com.mrh0.createaddition.energy.NodeMovementBehaviour;
 import com.mrh0.createaddition.blocks.creative_energy.CreativeEnergyBlock;
 import com.mrh0.createaddition.blocks.electric_motor.ElectricMotorBlock;
@@ -32,17 +31,11 @@ import com.zurrtum.create.api.stress.BlockStressValues;
 import com.zurrtum.create.content.processing.AssemblyOperatorBlockItem;
 import com.mrh0.createaddition.port.create.foundation.data.AssetLookup;
 import com.mrh0.createaddition.port.create.foundation.data.SharedProperties;
-import com.zurrtum.create.client.foundation.item.ItemDescription;
-import com.zurrtum.create.client.foundation.item.KineticStats;
-import com.zurrtum.create.client.foundation.item.TooltipModifier;
 import com.mrh0.createaddition.port.registrate.util.entry.BlockEntry;
 
 import static com.mrh0.createaddition.port.create.foundation.data.TagGen.axeOrPickaxe;
 import static com.mrh0.createaddition.port.create.foundation.data.TagGen.pickaxeOnly;
 
-import com.zurrtum.create.client.catnip.lang.FontHelper;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.block.Block;
@@ -50,11 +43,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.LootTable;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
-import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
 @SuppressWarnings("removal")
 public class CABlocks {
@@ -64,12 +52,10 @@ public class CABlocks {
 	}
 
 	public static final BlockEntry<ElectricMotorBlock> ELECTRIC_MOTOR = CreateAddition.REGISTRATE
-            .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                    .andThen(TooltipModifier.mapNull(KineticStats.create(item))))
             .block("electric_motor", ElectricMotorBlock::new)
 			.initialProperties(SharedProperties::softMetal)
 			.transform(pickaxeOnly())
-            .onRegister(BlockStressValues.setGeneratorSpeed(256, true))
+            .onRegister(b -> BlockStressValues.setGeneratorSpeed(b, 256, true))
             .onRegister((block) -> BlockStressValues.CAPACITIES.register(block, () -> CommonConfig.MAX_STRESS.get()/256f))
 			.item()
 			.transform(customItemModel())
@@ -85,21 +71,17 @@ public class CABlocks {
 			.register();
 
 	public static final BlockEntry<ServoMotorBlock> SERVO_MOTOR = CreateAddition.REGISTRATE
-            .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                    .andThen(TooltipModifier.mapNull(KineticStats.create(item))))
             .block("servo_motor", ServoMotorBlock::new)
 			.initialProperties(SharedProperties::softMetal)
 			.properties(p -> p.noOcclusion())
 			.transform(pickaxeOnly())
-            .onRegister(BlockStressValues.setGeneratorSpeed(256, true))
+            .onRegister(b -> BlockStressValues.setGeneratorSpeed(b, 256, true))
             .onRegister((block) -> BlockStressValues.CAPACITIES.register(block, () -> CommonConfig.MAX_STRESS.get()/256f))
 			.item()
 			.transform(customItemModel())
 			.register();
 
 	public static final BlockEntry<AlternatorBlock> ALTERNATOR = CreateAddition.REGISTRATE
-            .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                    .andThen(TooltipModifier.mapNull(KineticStats.create(item))))
             .block("alternator", AlternatorBlock::new)
 			.initialProperties(SharedProperties::softMetal)
 			.transform(pickaxeOnly())
@@ -109,8 +91,6 @@ public class CABlocks {
 			.register();
 
 	public static final BlockEntry<RollingMillBlock> ROLLING_MILL = CreateAddition.REGISTRATE
-            .setTooltipModifierFactory(item -> new ItemDescription.Modifier(item, FontHelper.Palette.STANDARD_CREATE)
-                    .andThen(TooltipModifier.mapNull(KineticStats.create(item))))
             .block("rolling_mill", RollingMillBlock::new)
 			.initialProperties(SharedProperties::stone)
             .onRegister((block) -> BlockStressValues.IMPACTS.register(block, () -> CommonConfig.ROLLING_MILL_STRESS.get()))
@@ -128,28 +108,28 @@ public class CABlocks {
 
 	public static final BlockEntry<SmallConnectorBlock> SMALL_CONNECTOR = CreateAddition.REGISTRATE.block("connector",  SmallConnectorBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.onRegister(movementBehaviour(new NodeMovementBehaviour()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new NodeMovementBehaviour()))
 			.item()
 			.transform(customItemModel("connector","small","item"))
 			.register();
 
 	public static final BlockEntry<SmallLightConnectorBlock> SMALL_LIGHT_CONNECTOR = CreateAddition.REGISTRATE.block("small_light_connector",  SmallLightConnectorBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.onRegister(movementBehaviour(new NodeMovementBehaviour()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new NodeMovementBehaviour()))
 			.item()
 			.transform(customItemModel("connector","small_light","item"))
 			.register();
 
 	public static final BlockEntry<LargeConnectorBlock> LARGE_CONNECTOR = CreateAddition.REGISTRATE.block("large_connector",  LargeConnectorBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.onRegister(movementBehaviour(new NodeMovementBehaviour()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new NodeMovementBehaviour()))
 			.item()
 			.transform(customItemModel("connector","large","item"))
 			.register();
 
 	/*public static final BlockEntry<AccumulatorBlock> ACCUMULATOR = CreateAddition.REGISTRATE.block("accumulator",  AccumulatorBlock::new)
 			.initialProperties(SharedProperties::softMetal)
-			.onRegister(AllMovementBehaviours.movementBehaviour(new NodeMovementBehaviour()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new NodeMovementBehaviour()))
 			.item()
 			//.tab()
 			.transform(customItemModel())
@@ -157,7 +137,7 @@ public class CABlocks {
 
 	public static final BlockEntry<RedstoneRelayBlock> REDSTONE_RELAY = CreateAddition.REGISTRATE.block("redstone_relay",  RedstoneRelayBlock::new)
 			.initialProperties(SharedProperties::stone)
-			.onRegister(movementBehaviour(new NodeMovementBehaviour()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new NodeMovementBehaviour()))
 			.item()
 			.transform(customItemModel())
 			.register();
@@ -186,7 +166,7 @@ public class CABlocks {
 	public static final BlockEntry<BarbedWireBlock> BARBED_WIRE = CreateAddition.REGISTRATE
 			.block("barbed_wire",  BarbedWireBlock::new)
 			.initialProperties(() -> Blocks.COBWEB)
-			.properties(props -> props.noCollission().requiresCorrectToolForDrops().strength(4.0F))
+			.properties(props -> props.noCollision().requiresCorrectToolForDrops().strength(4.0F))
 			.item()
 			.transform(customItemModel())
 			.register();
@@ -203,9 +183,9 @@ public class CABlocks {
 			.block("modular_accumulator",  ModularAccumulatorBlock::regular)
 			.initialProperties(SharedProperties::softMetal)
 			.properties(BlockBehaviour.Properties::noOcclusion)
-			.onRegister(movementBehaviour(new ModularAccumulatorMovement()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new ModularAccumulatorMovement()))
 			.onRegister(connectedTextures(ModularAccumulatorCTBehaviour::new))
-			.transform(displaySource(CADisplaySources.MODULAR_ACCUMULATOR))
+			.transform(CreateTransforms.displaySource(CADisplaySources.MODULAR_ACCUMULATOR))
 			.item(ModularAccumulatorBlockItem::new)
 			.transform(customItemModel())
 			.register();
@@ -219,7 +199,7 @@ public class CABlocks {
 
 	public static final BlockEntry<PortableEnergyInterfaceBlock> PORTABLE_ENERGY_INTERFACE = CreateAddition.REGISTRATE.block("portable_energy_interface",  PortableEnergyInterfaceBlock::new)
 			.initialProperties(SharedProperties::softMetal)
-			.onRegister(movementBehaviour(new PortableEnergyInterfaceMovement()))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new PortableEnergyInterfaceMovement()))
 			.item()
 			.transform(customItemModel())
 			.register();
@@ -248,7 +228,7 @@ public class CABlocks {
 	public static final BlockEntry<DigitalAdapterBlock> DIGITAL_ADAPTER = CreateAddition.REGISTRATE
 			.block("digital_adapter",  DigitalAdapterBlock::new)
 			.initialProperties(SharedProperties::softMetal)
-			.transform(displaySource(CADisplaySources.DIGITAL_ADAPTER))
+			.transform(CreateTransforms.displaySource(CADisplaySources.DIGITAL_ADAPTER))
 //			.item(DigitalAdapterBlockItem::new)
 			//.transform(customItemModel())
 			.item()

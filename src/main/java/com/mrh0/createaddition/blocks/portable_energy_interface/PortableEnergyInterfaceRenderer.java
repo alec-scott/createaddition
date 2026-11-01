@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.portable_energy_interface;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mrh0.createaddition.index.CABlocks;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -40,7 +42,7 @@ public class PortableEnergyInterfaceRenderer extends SafeBlockEntityRenderer<Por
 
 		BlockState blockState = be.getBlockState();
 		float progress = be.getExtensionDistance(partialTicks);
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
 		render(blockState, be.isConnected(), progress, null, sbb -> sbb.light(light)
 				.renderInto(ms, vb));
 	}
@@ -48,7 +50,7 @@ public class PortableEnergyInterfaceRenderer extends SafeBlockEntityRenderer<Por
 	public static void renderInContraption(MovementContext context, VirtualRenderWorld renderWorld,
 										   ContraptionMatrices matrices, MultiBufferSource buffer) {
 		BlockState blockState = context.state;
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
 		float renderPartialTicks = AnimationTickHolder.getPartialTicks();
 
 		LerpedFloat animation = PortableEnergyInterfaceMovement.getAnimation(context);

@@ -33,6 +33,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.saveddata.SavedData;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -83,11 +85,15 @@ public class WireGraph extends SavedData {
 		if (graph != null) return graph;
 		// Wrapped and simulated levels aren't the real dimension; keep them out of its graph.
 		if (serverLevel.getServer().getLevel(serverLevel.dimension()) != serverLevel) return null;
-		graph = serverLevel.getDataStorage().computeIfAbsent(new SavedData.Factory<>(
-				() -> new WireGraph(serverLevel),
-				(tag, registries) -> load(serverLevel, tag)), DATA_NAME);
+		graph = serverLevel.getDataStorage().computeIfAbsent(type(serverLevel));
 		GRAPHS.put(serverLevel, graph);
 		return graph;
+	}
+
+	// PORT-NOTE(26.1): SavedData is codec-based; the graph needs its level, so each level gets its own type (cached in GRAPHS)
+	private static SavedDataType<WireGraph> type(ServerLevel level) {
+		return new SavedDataType<>(Identifier.withDefaultNamespace(DATA_NAME), () -> new WireGraph(level),
+				CompoundTag.CODEC.xmap(tag -> load(level, tag), graph -> graph.save(new CompoundTag())), null);
 	}
 
 	public static void tick(Level level) {
@@ -200,7 +206,7 @@ public class WireGraph extends SavedData {
 	}
 
 	private void onChunkLoaded(LevelChunk chunk) {
-		LongOpenHashSet expected = watched.get(chunk.getPos().toLong());
+		LongOpenHashSet expected = watched.get(chunk.getPos().pack());
 		if (expected == null) return;
 		Map<BlockPos, BlockEntity> blockEntities = chunk.getBlockEntities();
 		for (long pos : expected.toLongArray()) {
@@ -209,7 +215,7 @@ public class WireGraph extends SavedData {
 			// Still there: it registers itself when it loads.
 			if (be instanceof IWireNode && !be.isRemoved()) continue;
 			CompoundTag pending = chunk.getBlockEntityNbt(blockPos);
-			if (pending != null && WireNodeKind.fromBlockEntityId(pending.getString("id")) != null) continue;
+			if (pending != null && WireNodeKind.fromBlockEntityId(pending.getStringOr("id", "")) != null) continue;
 			// The graph expected a wire node here and the world has none: drop it, which rebuilds its network.
 			markMissing(pos);
 		}
@@ -500,7 +506,7 @@ public class WireGraph extends SavedData {
 	}
 
 	private void updateWatch(long pos) {
-		long chunk = ChunkPos.asLong(SectionPos.blockToSectionCoord(BlockPos.getX(pos)), SectionPos.blockToSectionCoord(BlockPos.getZ(pos)));
+		long chunk = ChunkPos.pack(SectionPos.blockToSectionCoord(BlockPos.getX(pos)), SectionPos.blockToSectionCoord(BlockPos.getZ(pos)));
 		if (vertices.containsKey(pos) || inbound.containsKey(pos)) {
 			positionsAt(watched, chunk).add(pos);
 			return;
@@ -563,8 +569,7 @@ public class WireGraph extends SavedData {
 	}
 
 	// Save
-	@Override
-	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+	public CompoundTag save(CompoundTag tag) {
 		tag.putInt("Version", DATA_VERSION);
 		ListTag list = new ListTag();
 		for (WireVertex vertex : vertices.values()) list.add(vertex.write());
@@ -575,12 +580,12 @@ public class WireGraph extends SavedData {
 
 	private static WireGraph load(ServerLevel level, CompoundTag tag) {
 		WireGraph graph = new WireGraph(level);
-		for (Tag t : tag.getList("Vertices", Tag.TAG_COMPOUND)) {
+		for (Tag t : tag.getListOrEmpty("Vertices")) {
 			WireVertex vertex = WireVertex.read((CompoundTag) t);
 			if (vertex != null) graph.addSavedVertex(vertex);
 		}
 		graph.rebuildNetworks();
-		graph.restoreBuffers(tag.getList("Buffers", Tag.TAG_COMPOUND));
+		graph.restoreBuffers(tag.getListOrEmpty("Buffers"));
 		// Carry on where discovery left off: wires to nodes the graph has never seen.
 		for (WireVertex vertex : graph.vertices.values())
 			for (WireSlot slot : vertex.slots.values())
@@ -615,8 +620,8 @@ public class WireGraph extends SavedData {
 	private void restoreBuffers(ListTag buffers) {
 		for (Tag t : buffers) {
 			CompoundTag buffer = (CompoundTag) t;
-			EnergyNetwork network = networkByPort.get(new PortKey(buffer.getLong("Pos"), buffer.getInt("Port")));
-			if (network != null) network.restore(buffer.getInt("In"), buffer.getInt("Out"));
+			EnergyNetwork network = networkByPort.get(new PortKey(buffer.getLongOr("Pos", 0), buffer.getIntOr("Port", 0)));
+			if (network != null) network.restore(buffer.getIntOr("In", 0), buffer.getIntOr("Out", 0));
 		}
 	}
 }

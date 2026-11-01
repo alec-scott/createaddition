@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.alternator;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.zurrtum.create.client.AllPartialModels;
@@ -26,7 +28,7 @@ public class AlternatorRenderer extends KineticBlockEntityRenderer<AlternatorBlo
 		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
 		BlockState state = be.getBlockState();
 		Direction facing = state.getValue(BlockStateProperties.FACING);
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
 
 		renderRotatingBuffer(be, CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF, state), ms, vb, light);
 		renderRotatingBuffer(be, CachedBuffers.partialFacing(AllPartialModels.SHAFT_HALF,

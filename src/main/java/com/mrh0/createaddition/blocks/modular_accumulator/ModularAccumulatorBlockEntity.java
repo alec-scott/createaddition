@@ -1,5 +1,11 @@
 package com.mrh0.createaddition.blocks.modular_accumulator;
 
+import com.mrh0.createaddition.port.minecraft.CAValueIO;
+
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.debug.IDebugDrawer;
@@ -345,25 +351,25 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 	}
 
 	@Override
-	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(tag, registries, clientPacket);
+	protected void read(ValueInput tag, boolean clientPacket) {
+		super.read(tag, clientPacket);
 
 		BlockPos controllerBefore = controller;
 		int prevSize = width;
 		int prevHeight = height;
 
-		updateConnectivity = tag.contains("Uninitialized");
+		updateConnectivity = CAValueIO.contains(tag, "Uninitialized");
 		controller = null;
 		lastKnownPos = null;
 
-		if (tag.contains("LastKnownPos")) lastKnownPos = NbtUtils.readBlockPos(tag, "LastKnownPos").orElse(BlockPos.ZERO);
-		if (tag.contains("Controller")) controller = NbtUtils.readBlockPos(tag, "Controller").orElse(BlockPos.ZERO);
+		if (CAValueIO.contains(tag, "LastKnownPos")) lastKnownPos = NbtUtils.readBlockPos(tag, "LastKnownPos").orElse(BlockPos.ZERO);
+		if (CAValueIO.contains(tag, "Controller")) controller = NbtUtils.readBlockPos(tag, "Controller").orElse(BlockPos.ZERO);
 
 		if (isController()) {
-			width = tag.getInt("Size");
-			height = tag.getInt("Height");
+			width = tag.getIntOr("Size", 0);
+			height = tag.getIntOr("Height", 0);
 			energyCapability.setCapacity(getTotalAccumulatorSize() * getCapacityMultiplier());
-			energyCapability.read(tag.getCompound("EnergyContent"));
+			energyCapability.read(CAValueIO.getCompound(tag, "EnergyContent"));
 			if (energyCapability.getSpace() < 0) energyCapability.extractEnergy(-energyCapability.getSpace(), true);
 		}
 
@@ -386,26 +392,26 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 	}
 
 	@Override
-	public void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+	public void write(ValueOutput tag, boolean clientPacket) {
 		if (updateConnectivity) tag.putBoolean("Uninitialized", true);
-		if (lastKnownPos != null) tag.put("LastKnownPos", NbtUtils.writeBlockPos(lastKnownPos));
-		if (!isController()) tag.put("Controller", NbtUtils.writeBlockPos(controller));
+		if (lastKnownPos != null) CAValueIO.put(tag, "LastKnownPos", NbtUtils.writeBlockPos(lastKnownPos));
+		if (!isController()) CAValueIO.put(tag, "Controller", NbtUtils.writeBlockPos(controller));
 		if (isController()) {
-			tag.put("EnergyContent", energyCapability.write(new CompoundTag()));
+			CAValueIO.put(tag, "EnergyContent", energyCapability.write(new CompoundTag()));
 			// Used by contraptions.
 			tag.putInt("EnergyCapacity", getTotalAccumulatorSize() * getCapacityMultiplier());
 			tag.putInt("Size", width);
 			tag.putInt("Height", height);
 		}
-		super.writeSafe(tag, registries);
+		super.writeSafe(tag);
 
 		if (!clientPacket) return;
 		if (queuedSync) tag.putBoolean("LazySync", true);
 	}
 
 	@Override
-	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-		super.writeSafe(tag, registries);
+	public void writeSafe(ValueOutput tag) {
+		super.writeSafe(tag);
 		if (isController()) {
 			tag.putInt("Size", width);
 			tag.putInt("Height", height);
@@ -479,7 +485,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 	}
 
 	@Override

@@ -1,5 +1,11 @@
 package com.mrh0.createaddition.blocks.rolling_mill;
 
+import com.mrh0.createaddition.port.minecraft.CAValueIO;
+
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -58,7 +64,7 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 		behaviours.add(new DirectBeltInputBehaviour(this));
 		super.addBehaviours(behaviours);
 	}
@@ -162,19 +168,19 @@ public class RollingMillBlockEntity extends KineticBlockEntity {
 	}
 
 	@Override
-	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
+	public void write(ValueOutput compound, boolean clientPacket) {
 		compound.putInt("Timer", timer);
-		compound.put("InputInventory", inputInv.serializeNBT(registries));
-		compound.put("OutputInventory", outputInv.serializeNBT(registries));
-		super.write(compound, registries, clientPacket);
+		CAValueIO.put(compound, "InputInventory", inputInv.serializeNBT(registries));
+		CAValueIO.put(compound, "OutputInventory", outputInv.serializeNBT(registries));
+		super.write(compound, clientPacket);
 	}
 
 	@Override
-	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		timer = compound.getInt("Timer");
-		inputInv.deserializeNBT(registries, compound.getCompound("InputInventory"));
-		outputInv.deserializeNBT(registries, compound.getCompound("OutputInventory"));
-		super.read(compound, registries, clientPacket);
+	protected void read(ValueInput compound, boolean clientPacket) {
+		timer = compound.getIntOr("Timer", 0);
+		inputInv.deserializeNBT(registries, CAValueIO.getCompound(compound, "InputInventory"));
+		outputInv.deserializeNBT(registries, CAValueIO.getCompound(compound, "OutputInventory"));
+		super.read(compound, clientPacket);
 	}
 
 	public int getProcessingSpeed() {

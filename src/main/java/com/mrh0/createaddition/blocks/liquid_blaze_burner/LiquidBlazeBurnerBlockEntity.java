@@ -1,5 +1,11 @@
 package com.mrh0.createaddition.blocks.liquid_blaze_burner;
 
+import com.mrh0.createaddition.port.minecraft.CAValueIO;
+
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -88,7 +94,7 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> list) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> list) {
 
 	}
 
@@ -254,26 +260,26 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 	}
 
 	@Override
-	public void write(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
+	public void write(ValueOutput tag, boolean clientPacket) {
 		if (!isCreative) {
 			tag.putInt("fuelLevel", activeFuel.ordinal());
 			tag.putInt("burnTimeRemaining", remainingBurnTime);
 		} else tag.putBoolean("isCreative", true);
 		if (goggles) tag.putBoolean("Goggles", true);
 		if (hat) tag.putBoolean("TrainHat", true);
-		tag.put("TankContent", tankInventory.writeToNBT(registries, new CompoundTag()));
-		super.write(tag, registries, clientPacket);
+		CAValueIO.put(tag, "TankContent", tankInventory.writeToNBT(registries, new CompoundTag()));
+		super.write(tag, clientPacket);
 	}
 
 	@Override
-	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		activeFuel = FuelType.values()[tag.getInt("fuelLevel")];
-		remainingBurnTime = tag.getInt("burnTimeRemaining");
-		isCreative = tag.getBoolean("isCreative");
-		goggles = tag.contains("Goggles");
-		hat = tag.contains("TrainHat");
-		tankInventory.readFromNBT(registries, tag.getCompound("TankContent"));
-		super.read(tag, registries, clientPacket);
+	protected void read(ValueInput tag, boolean clientPacket) {
+		activeFuel = FuelType.values()[tag.getIntOr("fuelLevel", 0)];
+		remainingBurnTime = tag.getIntOr("burnTimeRemaining", 0);
+		isCreative = tag.getBooleanOr("isCreative", false);
+		goggles = CAValueIO.contains(tag, "Goggles");
+		hat = CAValueIO.contains(tag, "TrainHat");
+		tankInventory.readFromNBT(registries, CAValueIO.getCompound(tag, "TankContent"));
+		super.read(tag, clientPacket);
 	}
 
 	public BlazeBurnerBlock.HeatLevel getHeatLevelFromBlock() {

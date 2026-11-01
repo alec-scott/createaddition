@@ -145,8 +145,8 @@ public class PortableEnergyManager {
 			CompoundTag energyContent = (CompoundTag)nbt.get("EnergyContent");
 			if (energyContent == null) throw new IllegalArgumentException("EnergyContent is null");
 			this.nbt = nbt;
-			this.capacity = nbt.getInt("EnergyCapacity");
-			this.energy = energyContent.getInt("energy");
+			this.capacity = nbt.getIntOr("EnergyCapacity", 0);
+			this.energy = energyContent.getIntOr("energy", 0);
 		}
 
 		public int receiveEnergy(int energy) {

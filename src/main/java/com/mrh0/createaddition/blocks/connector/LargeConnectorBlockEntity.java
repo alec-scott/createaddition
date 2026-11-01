@@ -37,7 +37,7 @@ public class LargeConnectorBlockEntity extends AbstractConnectorBlockEntity {
     }
 
     @Override
-    public void addBehaviours(List<BlockEntityBehaviour> list) {}
+    public void addBehaviours(List<BlockEntityBehaviour<?>> list) {}
 
     @Override
     public int getMaxIn() {

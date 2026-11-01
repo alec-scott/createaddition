@@ -23,7 +23,7 @@ public class ModularAccumulatorDisplaySource extends PercentOrProgressBarDisplay
 
 	private int getMode(DisplayLinkContext context) {
 		return context.sourceConfig()
-			.getInt("Mode");
+			.getIntOr("Mode", 0);
 	}
 
 	@Nullable

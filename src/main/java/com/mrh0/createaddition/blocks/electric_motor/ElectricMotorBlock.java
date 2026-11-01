@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.electric_motor;
 
+import net.minecraft.world.level.redstone.Orientation;
+
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
 import com.zurrtum.create.content.kinetics.base.DirectionalKineticBlock;
@@ -93,7 +95,7 @@ public class ElectricMotorBlock extends DirectionalKineticBlock implements IBE<E
 
 	/*
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos from, boolean b) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, @Nullable Orientation orientation, boolean b) {
 		if (!world.isClientSide) {
 			boolean flag = state.getValue(POWERED);
 			if (flag != world.hasNeighborSignal(pos)) {
@@ -106,7 +108,7 @@ public class ElectricMotorBlock extends DirectionalKineticBlock implements IBE<E
 	}
 	*/
 
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos from, boolean b) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, @Nullable Orientation orientation, boolean b) {
 		if (!world.isClientSide) {
 			boolean flag = state.getValue(POWERED);
 			if (flag != world.hasNeighborSignal(pos)) {

@@ -82,9 +82,11 @@ public final class Capabilities {
         @Override
         protected void setStack(ItemStack newStack) {
             if (newStack == stack) return;
+            java.util.Set<DataComponentType<?>> kept = new java.util.HashSet<>();
+            for (var entry : newStack.getComponentsPatch().entrySet()) kept.add(entry.getKey());
             List<DataComponentType<?>> stale = new ArrayList<>();
             for (var entry : stack.getComponentsPatch().entrySet()) {
-                if (newStack.getComponentsPatch().get(entry.getKey()) == null) stale.add(entry.getKey());
+                if (!kept.contains(entry.getKey())) stale.add(entry.getKey());
             }
             stale.forEach(stack::remove);
             stack.applyComponents(newStack.getComponentsPatch());

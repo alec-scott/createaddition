@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.servo_motor;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.zurrtum.create.client.AllPartialModels;
 import com.zurrtum.create.client.content.contraptions.bearing.BearingRenderer;
@@ -34,7 +36,7 @@ public class ServoMotorRenderer extends BearingRenderer<ServoMotorBlockEntity> {
 		if (facing.getAxis().isHorizontal())
 			superBuffer.rotateCentered(AngleHelper.rad(AngleHelper.horizontalAngle(facing.getOpposite())), Direction.UP);
 		superBuffer.rotateCentered(AngleHelper.rad(-90 - AngleHelper.verticalAngle(facing)), Direction.EAST);
-		superBuffer.renderInto(ms, buffer.getBuffer(RenderType.solid()));
+		superBuffer.renderInto(ms, buffer.getBuffer(RenderTypes.solid()));
 	}
 
 }

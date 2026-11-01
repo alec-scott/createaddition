@@ -1,9 +1,11 @@
 package com.mrh0.createaddition.blocks.liquid_blaze_burner;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.compat.sable.SableUtil;
+import com.mrh0.createaddition.port.sable.SableUtil;
 import com.mrh0.createaddition.index.CAPartials;
 import com.zurrtum.create.client.AllPartialModels;
 import com.zurrtum.create.client.AllSpriteShifts;
@@ -19,7 +21,7 @@ import com.zurrtum.create.catnip.math.AngleHelper;
 import com.zurrtum.create.client.catnip.render.CachedBuffers;
 import com.zurrtum.create.client.catnip.render.SpriteShiftEntry;
 import com.zurrtum.create.client.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -103,7 +105,7 @@ public class LiquidBlazeBurnerRenderer extends SafeBlockEntityRenderer<LiquidBla
 		if (modelTransform != null)
 			blazeBuffer.transform(modelTransform);
 		blazeBuffer.translate(0, headY, 0);
-		draw(blazeBuffer, horizontalAngle, ms, bufferSource.getBuffer(RenderType.solid()));
+		draw(blazeBuffer, horizontalAngle, ms, bufferSource.getBuffer(RenderTypes.solid()));
 
 		if (drawGoggles) {
 			PartialModel gogglesModel = blazeModel == AllPartialModels.BLAZE_INERT
@@ -113,7 +115,7 @@ public class LiquidBlazeBurnerRenderer extends SafeBlockEntityRenderer<LiquidBla
 			if (modelTransform != null)
 				gogglesBuffer.transform(modelTransform);
 			gogglesBuffer.translate(0, headY + 8 / 16f, 0);
-			draw(gogglesBuffer, horizontalAngle, ms, bufferSource.getBuffer(RenderType.solid()));
+			draw(gogglesBuffer, horizontalAngle, ms, bufferSource.getBuffer(RenderTypes.solid()));
 		}
 
 		SuperByteBuffer hatBuffer = CachedBuffers.partial(CAPartials.LIQUID_HAT, blockState);
@@ -131,8 +133,8 @@ public class LiquidBlazeBurnerRenderer extends SafeBlockEntityRenderer<LiquidBla
 		hatBuffer
 				.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
 				.translate(0.5f, 0, 0.5f)
-				.light(LightTexture.FULL_BRIGHT)
-				.renderInto(ms, bufferSource.getBuffer(RenderType.cutoutMipped()));
+				.light(LightCoordsUtil.FULL_BRIGHT)
+				.renderInto(ms, bufferSource.getBuffer(RenderTypes.cutoutMipped()));
 
 		if (heatLevel.isAtLeast(BlazeBurnerBlock.HeatLevel.FADING)) {
 			PartialModel rodsModel = heatLevel == BlazeBurnerBlock.HeatLevel.SEETHING ? AllPartialModels.BLAZE_BURNER_SUPER_RODS
@@ -144,15 +146,15 @@ public class LiquidBlazeBurnerRenderer extends SafeBlockEntityRenderer<LiquidBla
 			if (modelTransform != null)
 				rodsBuffer.transform(modelTransform);
 			rodsBuffer.translate(0, offset1 + animation + .125f, 0)
-					.light(LightTexture.FULL_BRIGHT)
-					.renderInto(ms, bufferSource.getBuffer(RenderType.solid()));
+					.light(LightCoordsUtil.FULL_BRIGHT)
+					.renderInto(ms, bufferSource.getBuffer(RenderTypes.solid()));
 
 			SuperByteBuffer rodsBuffer2 = CachedBuffers.partial(rodsModel2, blockState);
 			if (modelTransform != null)
 				rodsBuffer2.transform(modelTransform);
 			rodsBuffer2.translate(0, offset2 + animation - 3 / 16f, 0)
-					.light(LightTexture.FULL_BRIGHT)
-					.renderInto(ms, bufferSource.getBuffer(RenderType.solid()));
+					.light(LightCoordsUtil.FULL_BRIGHT)
+					.renderInto(ms, bufferSource.getBuffer(RenderTypes.solid()));
 		}
 
 		if (canDrawFlame && blockAbove) {
@@ -183,7 +185,7 @@ public class LiquidBlazeBurnerRenderer extends SafeBlockEntityRenderer<LiquidBla
 			if (modelTransform != null)
 				flameBuffer.transform(modelTransform);
 			flameBuffer.shiftUVScrolling(spriteShift, (float) uScroll, (float) vScroll);
-			draw(flameBuffer, horizontalAngle, ms, bufferSource.getBuffer(RenderType.cutoutMipped()));
+			draw(flameBuffer, horizontalAngle, ms, bufferSource.getBuffer(RenderTypes.cutoutMipped()));
 		}
 		ms.popPose();
 	}
@@ -201,7 +203,7 @@ public class LiquidBlazeBurnerRenderer extends SafeBlockEntityRenderer<LiquidBla
 
 	private static void draw(SuperByteBuffer buffer, float horizontalAngle, PoseStack ms, VertexConsumer vc) {
 		buffer.rotateCentered(horizontalAngle, Direction.UP)
-			.light(LightTexture.FULL_BRIGHT)
+			.light(LightCoordsUtil.FULL_BRIGHT)
 			.renderInto(ms, vc);
 	}
 }

@@ -1,8 +1,6 @@
 package com.mrh0.createaddition.index;
 
-import static com.zurrtum.create.AllItemTags.PLATES;
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.datagen.TagProvider.CATagRegister;
 import com.mrh0.createaddition.item.ElectrumAmuletItem;
 import com.mrh0.createaddition.item.WireSpool;
 import com.mrh0.createaddition.item.BiomassPelletItem;
@@ -48,11 +46,9 @@ public class CAItems {
 
 	public static final ItemEntry<Item> ELECTRUM_SHEET =
 			CreateAddition.REGISTRATE.item("electrum_sheet", Item::new)
-					.tag(CATagRegister.Items.commonTags("plates", "electrum"), PLATES.tag)
 					.register();
 	public static final ItemEntry<Item> ZINC_SHEET =
 			CreateAddition.REGISTRATE.item("zinc_sheet", Item::new)
-					.tag(CATagRegister.Items.commonTags("plates", "zinc"), PLATES.tag)
 					.register();
 
 	public static final ItemEntry<Item> COPPER_WIRE =

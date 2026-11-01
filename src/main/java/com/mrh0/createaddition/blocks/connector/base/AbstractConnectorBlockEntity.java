@@ -1,12 +1,17 @@
 package com.mrh0.createaddition.blocks.connector.base;
 
+import com.mrh0.createaddition.port.minecraft.CAValueIO;
+
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.compat.sable.ISableRender;
-import com.mrh0.createaddition.compat.sable.SableUtil;
+import com.mrh0.createaddition.port.sable.SableUtil;
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.debug.IDebugDrawer;
 import com.mrh0.createaddition.energy.*;
@@ -39,7 +44,7 @@ import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import com.mrh0.createaddition.port.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.Nullable;
 
-public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity implements IWireNode, IObserveBlockEntity, IHaveGoggleInformation, IDebugDrawer, IEnergyProvider, ISableRender {
+public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity implements IWireNode, IObserveBlockEntity, IHaveGoggleInformation, IDebugDrawer, IEnergyProvider {
 
 	private final Set<LocalNode> wireCache = new HashSet<>();
 	private final LocalNode[] localNodes;
@@ -172,10 +177,10 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 	}
 
 	@Override
-	public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(nbt, registries, clientPacket);
+	public void read(ValueInput nbt, boolean clientPacket) {
+		super.read(nbt, clientPacket);
 		// Convert old nbt data. x0, y0, z0, node0 & type0 etc.
-		if (!clientPacket && nbt.contains("node0")) {
+		if (!clientPacket && CAValueIO.contains(nbt, "node0")) {
 			convertOldNbt(nbt);
 			setChanged();
 		}
@@ -183,15 +188,15 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 		// Read the nodes.
 		invalidateLocalNodes();
 		invalidateNodeCache();
-		ListTag nodes = nbt.getList(LocalNode.NODES, Tag.TAG_COMPOUND);
+		ListTag nodes = CAValueIO.getList(nbt, LocalNode.NODES);
 		nodes.forEach(tag -> {
 			LocalNode localNode = new LocalNode(this, (CompoundTag) tag);
 			this.localNodes[localNode.getIndex()] = localNode;
 		});
 
 		// Check if this was a contraption.
-		if (nbt.contains("contraption") && !clientPacket) {
-			this.wasContraption = nbt.getBoolean("contraption");
+		if (CAValueIO.contains(nbt, "contraption") && !clientPacket) {
+			this.wasContraption = nbt.getBooleanOr("contraption", false);
 			NodeRotation rotation = getBlockState().getValue(NodeRotation.ROTATION);
 			if(level == null) return;
 			if (rotation != NodeRotation.NONE)
@@ -208,8 +213,8 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 	}
 
 	@Override
-	public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-		super.write(nbt, registries, clientPacket);
+	public void write(ValueOutput nbt, boolean clientPacket) {
+		super.write(nbt, clientPacket);
 		// Write nodes.
 		ListTag nodes = new ListTag();
 		for (int i = 0; i < getNodeCount(); i++) {
@@ -219,7 +224,7 @@ public abstract class AbstractConnectorBlockEntity extends SmartBlockEntity impl
 			localNode.write(tag);
 			nodes.add(tag);
 		}
-		nbt.put(LocalNode.NODES, nodes);
+		CAValueIO.put(nbt, LocalNode.NODES, nodes);
 	}
 
 	// Called after the tile entity has been part of a contraption

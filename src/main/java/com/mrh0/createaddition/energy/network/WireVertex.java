@@ -46,20 +46,20 @@ final class WireVertex {
 
 	static WireVertex fromBlockEntityTag(BlockPos pos, WireNodeKind kind, CompoundTag tag) {
 		WireVertex vertex = new WireVertex(pos.asLong(), kind);
-		for (Tag t : tag.getList(LocalNode.NODES, Tag.TAG_COMPOUND)) {
+		for (Tag t : tag.getListOrEmpty(LocalNode.NODES)) {
 			CompoundTag node = (CompoundTag) t;
-			WireType type = WireType.fromIndex(node.getInt(LocalNode.TYPE));
+			WireType type = WireType.fromIndex(node.getIntOr(LocalNode.TYPE, 0));
 			if (type == null) continue;
-			int index = node.getInt(LocalNode.ID);
-			BlockPos other = pos.offset(node.getInt(LocalNode.X), node.getInt(LocalNode.Y), node.getInt(LocalNode.Z));
-			vertex.slots.put(index, new WireSlot(index, other.asLong(), node.getInt(LocalNode.OTHER), type));
+			int index = node.getIntOr(LocalNode.ID, 0);
+			BlockPos other = pos.offset(node.getIntOr(LocalNode.X, 0), node.getIntOr(LocalNode.Y, 0), node.getIntOr(LocalNode.Z, 0));
+			vertex.slots.put(index, new WireSlot(index, other.asLong(), node.getIntOr(LocalNode.OTHER, 0), type));
 		}
 		for (int i = 0; i < LEGACY_NODE_LIMIT; i++) {
-			if (!tag.contains("node" + i) || tag.getInt("node" + i) == -1) continue;
-			WireType type = WireType.fromIndex(tag.getInt("type" + i));
+			if (!tag.contains("node" + i) || tag.getIntOr("node" + i, 0) == -1) continue;
+			WireType type = WireType.fromIndex(tag.getIntOr("type" + i, 0));
 			if (type == null) continue;
-			BlockPos other = new BlockPos(tag.getInt("x" + i), tag.getInt("y" + i), tag.getInt("z" + i));
-			vertex.slots.put(i, new WireSlot(i, other.asLong(), tag.getInt("node" + i), type));
+			BlockPos other = new BlockPos(tag.getIntOr("x" + i, 0), tag.getIntOr("y" + i, 0), tag.getIntOr("z" + i, 0));
+			vertex.slots.put(i, new WireSlot(i, other.asLong(), tag.getIntOr("node" + i, 0), type));
 		}
 		return vertex;
 	}
@@ -97,16 +97,16 @@ final class WireVertex {
 
 	@Nullable
 	static WireVertex read(CompoundTag tag) {
-		WireNodeKind kind = WireNodeKind.byName(tag.getString("Kind"));
+		WireNodeKind kind = WireNodeKind.byName(tag.getStringOr("Kind", ""));
 		if (kind == null) return null;
-		WireVertex vertex = new WireVertex(tag.getLong("Pos"), kind);
-		vertex.powered = tag.getBoolean("Powered");
-		for (Tag t : tag.getList("Slots", Tag.TAG_COMPOUND)) {
+		WireVertex vertex = new WireVertex(tag.getLongOr("Pos", 0), kind);
+		vertex.powered = tag.getBooleanOr("Powered", false);
+		for (Tag t : tag.getListOrEmpty("Slots")) {
 			CompoundTag slotTag = (CompoundTag) t;
-			WireType type = WireType.fromIndex(slotTag.getInt("Type"));
+			WireType type = WireType.fromIndex(slotTag.getIntOr("Type", 0));
 			if (type == null) continue;
-			int index = slotTag.getInt("Index");
-			vertex.slots.put(index, new WireSlot(index, slotTag.getLong("Other"), slotTag.getInt("OtherIndex"), type));
+			int index = slotTag.getIntOr("Index", 0);
+			vertex.slots.put(index, new WireSlot(index, slotTag.getLongOr("Other", 0), slotTag.getIntOr("OtherIndex", 0), type));
 		}
 		return vertex;
 	}

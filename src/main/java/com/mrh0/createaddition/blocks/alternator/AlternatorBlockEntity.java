@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.blocks.alternator;
 
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.List;
@@ -83,14 +87,14 @@ public class AlternatorBlockEntity extends KineticBlockEntity implements IEnergy
 	}
 
 	@Override
-	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(tag, registries, clientPacket);
+	protected void read(ValueInput tag, boolean clientPacket) {
+		super.read(tag, clientPacket);
 		energy.read(tag);
 	}
 
 	@Override
-	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-		super.writeSafe(tag, registries);
+	public void writeSafe(ValueOutput tag) {
+		super.writeSafe(tag);
 		energy.write(tag);
 	}
 

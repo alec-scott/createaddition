@@ -1,5 +1,11 @@
 package com.mrh0.createaddition.blocks.servo_motor;
 
+import com.mrh0.createaddition.port.minecraft.CAValueIO;
+
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -73,13 +79,13 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 		}
 
 		@Override
-		public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
+		public void write(ValueOutput nbt, boolean clientPacket) {
 			nbt.putInt("RotationMode", value);
 		}
 
 		@Override
-		public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-			value = nbt.getInt("RotationMode");
+		public void read(ValueInput nbt, boolean clientPacket) {
+			value = nbt.getIntOr("RotationMode", 0);
 		}
 	}
 
@@ -127,14 +133,14 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 		}
 
 		@Override
-		public void write(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
+		public void write(ValueOutput nbt, boolean clientPacket) {
 			nbt.putInt(nbtKey, value);
 		}
 
 		@Override
-		public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
+		public void read(ValueInput nbt, boolean clientPacket) {
 			// nbt.getInt() returns 0 for a missing key fall back to the constructor default.
-			value = nbt.contains(nbtKey) ? nbt.getInt(nbtKey) : defaultVal;
+			value = CAValueIO.contains(nbt, nbtKey) ? nbt.getInt(nbtKey) : defaultVal;
 		}
 	}
 
@@ -188,7 +194,7 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 		super.addBehaviours(behaviours);
 
 		// super's movementMode uses ScrollValueBehaviour.TYPE same as generatedSpeed's type,
@@ -436,8 +442,8 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 	}
 
 	@Override
-	public void write(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		super.write(compound, registries, clientPacket);
+	public void write(ValueOutput compound, boolean clientPacket) {
+		super.write(compound, clientPacket);
 		if (!clientPacket)
 			energy.write(compound);
 		compound.putBoolean("servo_active", active);
@@ -445,18 +451,18 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 	}
 
 	@Override
-	protected void read(CompoundTag compound, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(compound, registries, clientPacket);
+	protected void read(ValueInput compound, boolean clientPacket) {
+		super.read(compound, clientPacket);
 		if (!clientPacket)
 			energy.read(compound);
-		active = compound.getBoolean("servo_active");
-		if (compound.contains("TargetAngle"))
-			targetAngle = compound.getFloat("TargetAngle");
+		active = compound.getBooleanOr("servo_active", false);
+		if (CAValueIO.contains(compound, "TargetAngle"))
+			targetAngle = compound.getFloatOr("TargetAngle", 0f);
 		// The parent's client-side read resets angle = angleBefore so kinetic-speed
 		// extrapolation works for normal bearings. We use explicit server-sent angles, so
 		// restore the actual server angle for correct applyRotation() calls each client tick.
 		if (clientPacket && running)
-			angle = compound.getFloat("Angle");
+			angle = compound.getFloatOr("Angle", 0f);
 	}
 
 	public void triggerAssemble() {

@@ -17,7 +17,7 @@ public abstract class ContraptionMixin {
 	)
 	protected void getTileEntityNBT(Level world, BlockPos pos, CallbackInfoReturnable<CompoundTag> info, BlockEntity tileentity, CompoundTag nbt) {
 		if (tileentity instanceof ModularAccumulatorBlockEntity && nbt.contains("Controller")) {
-			nbt.put("Controller", NbtUtils.writeBlockPos(NbtUtils.readBlockPos(nbt.getCompound("Controller")).subtract(anchor)));
+			nbt.put("Controller", NbtUtils.writeBlockPos(NbtUtils.readBlockPos(nbt.getCompoundOrEmpty("Controller")).subtract(anchor)));
 		}
 	}
 	*/

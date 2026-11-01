@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.energy;
 
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import com.zurrtum.create.foundation.blockEntity.SmartBlockEntity;
 import com.zurrtum.create.api.behaviour.BlockEntityBehaviour;
 import net.minecraft.core.BlockPos;
@@ -35,20 +39,20 @@ public abstract class AbstractElectricBlockEntity extends SmartBlockEntity {
 	public abstract int getMaxOut();
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {}
+	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {}
 
 	public abstract boolean isEnergyInput(Direction side);
 	public abstract boolean isEnergyOutput(Direction side);
 
 	@Override
-	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(tag, registries, clientPacket);
+	protected void read(ValueInput tag, boolean clientPacket) {
+		super.read(tag, clientPacket);
 		localEnergy.read(tag);
 	}
 
 	@Override
-	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-		super.writeSafe(tag, registries);
+	public void writeSafe(ValueOutput tag) {
+		super.writeSafe(tag);
 		localEnergy.write(tag);
 	}
 

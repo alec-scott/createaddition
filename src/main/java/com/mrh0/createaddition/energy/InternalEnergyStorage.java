@@ -3,6 +3,8 @@ package com.mrh0.createaddition.energy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.level.Level;
 import com.mrh0.createaddition.port.neoforge.capabilities.Capabilities;
 import com.mrh0.createaddition.port.neoforge.energy.EnergyStorage;
@@ -31,16 +33,33 @@ public class InternalEnergyStorage extends EnergyStorage {
     }
     
     public void read(CompoundTag nbt) {
-    	setEnergy(nbt.getInt("energy"));
+    	setEnergy(nbt.getIntOr("energy", 0));
     }
     
+    // PORT-NOTE(26.1): block entity save/load goes through ValueOutput/ValueInput
+    public void write(ValueOutput view) {
+    	view.putInt("energy", energy);
+    }
+
+    public void read(ValueInput view) {
+    	setEnergy(view.getIntOr("energy", 0));
+    }
+
+    public void write(ValueOutput view, String name) {
+    	view.putInt("energy_"+name, energy);
+    }
+
+    public void read(ValueInput view, String name) {
+    	setEnergy(view.getIntOr("energy_"+name, 0));
+    }
+
     public CompoundTag write(CompoundTag nbt, String name) {
     	nbt.putInt("energy_"+name, energy);
     	return nbt;
     }
     
     public void read(CompoundTag nbt, String name) {
-    	setEnergy(nbt.getInt("energy_"+name));
+    	setEnergy(nbt.getIntOr("energy_"+name, 0));
     }
     
     public int getSpace() {

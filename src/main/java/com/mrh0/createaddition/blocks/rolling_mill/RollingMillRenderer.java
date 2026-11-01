@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.rolling_mill;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.zurrtum.create.client.AllPartialModels;
@@ -38,7 +40,7 @@ public class RollingMillRenderer extends KineticBlockEntityRenderer {
 		BlockState blockState = be.getBlockState();
 		BlockPos pos = be.getBlockPos();
 		
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
 		
 		int packedLightmapCoords = LevelRenderer.getLightColor(be.getLevel(), pos);
 		// SuperByteBuffer shaft = AllBlockPartials.SHAFT_HALF.renderOn(blockState);

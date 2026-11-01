@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-public class PortableEnergyInterfaceMovement implements MovementBehaviour {
+public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 
 	static final String _workingPos_ = "WorkingPos";
 	static final String _clientPrevPos_ = "ClientPrevPos";

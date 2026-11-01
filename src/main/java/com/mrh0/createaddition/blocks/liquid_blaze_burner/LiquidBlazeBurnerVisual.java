@@ -27,7 +27,7 @@ import com.zurrtum.create.client.flywheel.lib.visual.SimpleDynamicVisual;
 import com.zurrtum.create.client.flywheel.lib.visual.SimpleTickableVisual;
 import com.zurrtum.create.client.catnip.render.SpriteShiftEntry;
 import com.zurrtum.create.catnip.math.AngleHelper;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 
@@ -64,7 +64,7 @@ public class LiquidBlazeBurnerVisual extends AbstractBlockEntityVisual<LiquidBla
         head = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(blazeModel))
                 .createInstance();
 
-        head.light(LightTexture.FULL_BRIGHT);
+        head.light(LightCoordsUtil.FULL_BRIGHT);
 
         animate(partialTick);
     }
@@ -110,8 +110,8 @@ public class LiquidBlazeBurnerVisual extends AbstractBlockEntityVisual<LiquidBla
                 largeRods = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(rodsModel2))
                         .createInstance();
 
-                smallRods.light(LightTexture.FULL_BRIGHT);
-                largeRods.light(LightTexture.FULL_BRIGHT);
+                smallRods.light(LightCoordsUtil.FULL_BRIGHT);
+                largeRods.light(LightCoordsUtil.FULL_BRIGHT);
 
             } else if (!needsRods && hasRods) {
                 if (smallRods != null)
@@ -136,7 +136,7 @@ public class LiquidBlazeBurnerVisual extends AbstractBlockEntityVisual<LiquidBla
         if (blockEntity.goggles && goggles == null) {
             goggles = instancerProvider().instancer(InstanceTypes.TRANSFORMED, Models.partial(isInert ? AllPartialModels.BLAZE_GOGGLES_SMALL : AllPartialModels.BLAZE_GOGGLES))
                     .createInstance();
-            goggles.light(LightTexture.FULL_BRIGHT);
+            goggles.light(LightCoordsUtil.FULL_BRIGHT);
         } else if (!blockEntity.goggles && goggles != null) {
             goggles.delete();
             goggles = null;
@@ -148,7 +148,7 @@ public class LiquidBlazeBurnerVisual extends AbstractBlockEntityVisual<LiquidBla
                             Models.partial(
                                     CAPartials.LIQUID_HAT))
                     .createInstance();
-            hat.light(LightTexture.FULL_BRIGHT);
+            hat.light(LightCoordsUtil.FULL_BRIGHT);
         }
 
         var hashCode = blockEntity.hashCode();
@@ -185,7 +185,7 @@ public class LiquidBlazeBurnerVisual extends AbstractBlockEntityVisual<LiquidBla
                     .translateY(0.75f);
             hat.rotateCentered(horizontalAngle + Mth.PI, Direction.UP)
                     .translate(0.5f, 0, 0.5f)
-                    .light(LightTexture.FULL_BRIGHT);
+                    .light(LightCoordsUtil.FULL_BRIGHT);
 
             hat.setChanged();
         }
@@ -214,7 +214,7 @@ public class LiquidBlazeBurnerVisual extends AbstractBlockEntityVisual<LiquidBla
                 .createInstance();
 
         flame.position(getVisualPosition())
-                .light(LightTexture.FULL_BRIGHT);
+                .light(LightCoordsUtil.FULL_BRIGHT);
 
         SpriteShiftEntry spriteShift =
                 heatLevel == BlazeBurnerBlock.HeatLevel.SEETHING ? AllSpriteShifts.SUPER_BURNER_FLAME : AllSpriteShifts.BURNER_FLAME;

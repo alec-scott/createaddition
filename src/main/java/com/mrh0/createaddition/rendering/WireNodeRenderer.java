@@ -7,14 +7,14 @@ import com.mrh0.createaddition.energy.IWireNode;
 import com.mrh0.createaddition.energy.WireType;
 import com.mrh0.createaddition.event.ClientEventHandler;
 import com.mrh0.createaddition.index.CAPartials;
-import com.mrh0.createaddition.compat.sable.SableUtil;
+import com.mrh0.createaddition.port.sable.SableUtil;
 import com.mrh0.createaddition.util.ClientMinecraftWrapper;
 import com.mrh0.createaddition.util.Util;
 import com.zurrtum.create.client.catnip.render.CachedBuffers;
 import com.zurrtum.create.catnip.theme.Color;
 
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.LightTexture;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -283,7 +283,7 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 			float f = (float) j / 23.0F;
 			int k = (int) Mth.lerp(f, (float) l1, (float) l2);
 			int l = (int) Mth.lerp(f, (float) l3, (float) l4);
-			int light = LightTexture.pack(k, l);
+			int light = LightCoordsUtil.pack(k, l);
 
 			wireVert(vertBuilder, matrix, light, x, y, z, a, b, 24, j, false, o1, o2, type, dis, state, stack, lightOffset, hangFactor, gdx, gdy, gdz);
 			wireVert(vertBuilder, matrix, light, x, y, z, a, b, 24, j + 1, true, o1, o2, type, dis, state, stack, lightOffset+1, hangFactor, gdx, gdy, gdz);

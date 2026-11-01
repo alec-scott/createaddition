@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.liquid_blaze_burner;
 
+import net.minecraft.core.Direction;
+
 import java.util.Random;
 
 import org.jetbrains.annotations.Nullable;
@@ -190,7 +192,7 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
 		return Math.max(0, state.getValue(HEAT_LEVEL)
 			.ordinal() - 1);
 	}

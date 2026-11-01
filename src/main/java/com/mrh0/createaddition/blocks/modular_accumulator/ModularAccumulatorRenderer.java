@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.modular_accumulator;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mrh0.createaddition.index.CAPartials;
@@ -30,7 +32,7 @@ public class ModularAccumulatorRenderer extends SafeBlockEntityRenderer<ModularA
 	protected void renderDial(ModularAccumulatorBlockEntity te, float partialTicks, PoseStack ms, MultiBufferSource buffer,
 							  int light, int overlay) {
 		BlockState blockState = te.getBlockState();
-		VertexConsumer vb = buffer.getBuffer(RenderType.solid());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
 		ms.pushPose();
 		TransformStack<PoseTransformStack> msr = TransformStack.of(ms);
 		msr.translate(te.width / 2f, te.height - 0.5f, te.width / 2f);

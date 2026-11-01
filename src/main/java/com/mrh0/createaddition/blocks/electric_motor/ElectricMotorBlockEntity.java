@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.blocks.electric_motor;
 
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import java.util.List;
 
 import com.mrh0.createaddition.CreateAddition;
@@ -63,7 +67,7 @@ public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity {
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 		super.addBehaviours(behaviours);
 
 		CenteredSideValueBoxTransform slot =
@@ -136,15 +140,15 @@ public class ElectricMotorBlockEntity extends GeneratingKineticBlockEntity {
 	}
 
 	@Override
-	protected void read(CompoundTag tag, HolderLookup.Provider registries, boolean clientPacket) {
-		super.read(tag, registries, clientPacket);
+	protected void read(ValueInput tag, boolean clientPacket) {
+		super.read(tag, clientPacket);
 		energy.read(tag);
-		active = tag.getBoolean("active");
+		active = tag.getBooleanOr("active", false);
 	}
 
 	@Override
-	public void writeSafe(CompoundTag tag, HolderLookup.Provider registries) {
-		super.writeSafe(tag, registries);
+	public void writeSafe(ValueOutput tag) {
+		super.writeSafe(tag);
 		energy.write(tag);
 		tag.putBoolean("active", active);
 	}

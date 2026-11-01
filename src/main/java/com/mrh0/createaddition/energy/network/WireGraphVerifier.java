@@ -6,7 +6,7 @@ import java.util.Optional;
 
 import com.mojang.serialization.Codec;
 import com.mrh0.createaddition.CreateAddition;
-import com.mrh0.createaddition.compat.sable.SableUtil;
+import com.mrh0.createaddition.port.sable.SableUtil;
 import com.mrh0.createaddition.energy.IWireNode;
 import com.mrh0.createaddition.energy.LocalNode;
 
@@ -26,12 +26,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.PalettedContainer;
+import net.minecraft.world.level.chunk.Strategy;
 import org.jetbrains.annotations.Nullable;
 
 final class WireGraphVerifier {
 	private static final int MAX_READS_IN_FLIGHT = 16;
-	private static final Codec<PalettedContainer<BlockState>> BLOCK_STATE_CODEC = PalettedContainer.codecRW(
-			Block.BLOCK_STATE_REGISTRY, BlockState.CODEC, PalettedContainer.Strategy.SECTION_STATES, Blocks.AIR.defaultBlockState());
+	private static final Codec<PalettedContainer<BlockState>> BLOCK_STATE_CODEC = PalettedContainer.codecRW(BlockState.CODEC, Strategy.createForBlockStates(Block.BLOCK_STATE_REGISTRY), Blocks.AIR.defaultBlockState());
 
 	private final WireGraph graph;
 	private final ServerLevel level;
@@ -90,7 +90,7 @@ final class WireGraphVerifier {
 			unresolved.add(pos);
 			return;
 		}
-		long chunk = ChunkPos.asLong(SectionPos.blockToSectionCoord(BlockPos.getX(pos)), SectionPos.blockToSectionCoord(BlockPos.getZ(pos)));
+		long chunk = ChunkPos.pack(SectionPos.blockToSectionCoord(BlockPos.getX(pos)), SectionPos.blockToSectionCoord(BlockPos.getZ(pos)));
 		LongOpenHashSet positions = waitingForDisk.get(chunk);
 		if (positions == null) {
 			positions = new LongOpenHashSet();
@@ -105,7 +105,7 @@ final class WireGraphVerifier {
 			long chunk = readQueue.dequeueLong();
 			if (!waitingForDisk.containsKey(chunk) || !readsInFlight.add(chunk)) continue;
 			// Reads the chunk as saved (or queued for saving) without loading it or adding a ticket.
-			level.getChunkSource().chunkMap.read(new ChunkPos(chunk))
+			level.getChunkSource().chunkMap.read(ChunkPos.unpack(chunk))
 					.whenCompleteAsync((tag, error) -> onRead(chunk, tag, error), level.getServer());
 		}
 	}
@@ -114,16 +114,16 @@ final class WireGraphVerifier {
 		readsInFlight.remove(chunk);
 		LongOpenHashSet positions = waitingForDisk.remove(chunk);
 		if (graph.isClosed() || positions == null) return;
-		ChunkPos chunkPos = new ChunkPos(chunk);
+		ChunkPos chunkPos = ChunkPos.unpack(chunk);
 		LongIterator it = positions.iterator();
-		if (level.getChunkSource().getChunkNow(chunkPos.x, chunkPos.z) != null) {
+		if (level.getChunkSource().getChunkNow(chunkPos.x(), chunkPos.z()) != null) {
 			// Loaded while we were reading: the live chunk is the better answer.
 			while (it.hasNext()) request(it.nextLong());
 		} else if (error != null || tag == null || tag.isEmpty()) {
 			if (error != null) CreateAddition.LOGGER.warn("Could not read chunk {} to check wire nodes", chunkPos, error);
 			unresolved.addAll(positions);
 		} else {
-			SavedChunk saved = new SavedChunk(tag.get());
+			SavedChunk saved = new SavedChunk(tag.get(), chunkPos);
 			while (it.hasNext()) resolve(it.nextLong(), saved);
 		}
 		startReads();
@@ -138,7 +138,7 @@ final class WireGraphVerifier {
 		}
 		BlockPos blockPos = BlockPos.of(pos);
 		CompoundTag blockEntity = saved.blockEntity(blockPos);
-		WireNodeKind kind = blockEntity == null ? null : WireNodeKind.fromBlockEntityId(blockEntity.getString("id"));
+		WireNodeKind kind = blockEntity == null ? null : WireNodeKind.fromBlockEntityId(blockEntity.getStringOr("id", ""));
 		if (kind == null) {
 			// Wire nodes from other mods can't be read here; anything else means the node is gone.
 			if (blockEntity != null && blockEntity.contains(LocalNode.NODES)) unresolved.add(pos);
@@ -159,22 +159,24 @@ final class WireGraphVerifier {
 		private final CompoundTag tag;
 		@Nullable
 		private Map<BlockPos, CompoundTag> blockEntities;
+		private final ChunkPos chunkPos;
 
-		SavedChunk(CompoundTag tag) {
+		SavedChunk(CompoundTag tag, ChunkPos chunkPos) {
 			this.tag = tag;
+			this.chunkPos = chunkPos;
 		}
 
 		boolean isReadable() {
-			return !tag.contains("Level", Tag.TAG_COMPOUND);
+			return !tag.contains("Level");
 		}
 
 		@Nullable
 		CompoundTag blockEntity(BlockPos pos) {
 			if (blockEntities == null) {
 				blockEntities = new HashMap<>();
-				for (Tag t : tag.getList("block_entities", Tag.TAG_COMPOUND)) {
+				for (Tag t : tag.getListOrEmpty("block_entities")) {
 					CompoundTag blockEntity = (CompoundTag) t;
-					blockEntities.put(BlockEntity.getPosFromTag(blockEntity), blockEntity);
+					blockEntities.put(BlockEntity.getPosFromTag(chunkPos, blockEntity), blockEntity);
 				}
 			}
 			return blockEntities.get(pos);
@@ -183,10 +185,10 @@ final class WireGraphVerifier {
 		@Nullable
 		BlockState blockState(BlockPos pos) {
 			int sectionY = SectionPos.blockToSectionCoord(pos.getY());
-			for (Tag t : tag.getList("sections", Tag.TAG_COMPOUND)) {
+			for (Tag t : tag.getListOrEmpty("sections")) {
 				CompoundTag section = (CompoundTag) t;
-				if (section.getByte("Y") != sectionY || !section.contains("block_states", Tag.TAG_COMPOUND)) continue;
-				return BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, section.getCompound("block_states")).result()
+				if (section.getByteOr("Y", (byte) 0) != sectionY || !section.contains("block_states")) continue;
+				return BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, section.getCompoundOrEmpty("block_states")).result()
 						.map(states -> states.get(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15))
 						.orElse(null);
 			}

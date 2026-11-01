@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.servo_motor;
 
+import net.minecraft.world.level.redstone.Orientation;
+
 import net.minecraft.world.InteractionResult;
 
 import com.mrh0.createaddition.index.CABlockEntities;
@@ -180,7 +182,7 @@ public class ServoMotorBlock extends DirectionalKineticBlock implements IBE<Serv
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos from, boolean b) {
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, @Nullable Orientation orientation, boolean b) {
 		if (!world.isClientSide) {
 			boolean flag = state.getValue(POWERED);
 			if (flag != world.hasNeighborSignal(pos)) {

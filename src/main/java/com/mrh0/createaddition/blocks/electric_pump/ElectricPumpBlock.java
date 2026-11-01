@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.electric_pump;
 
+import net.minecraft.world.level.redstone.Orientation;
+
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
 import com.zurrtum.create.content.fluids.pump.PumpBlock;
@@ -80,9 +82,9 @@ public class ElectricPumpBlock extends PumpBlock {
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, BlockPos neighborPos,
+	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block otherBlock, @Nullable Orientation orientation,
 			boolean isMoving) {
-		super.neighborChanged(state, world, pos, otherBlock, neighborPos, isMoving);
+		super.neighborChanged(state, world, pos, otherBlock, orientation, isMoving);
 
 		if (!world.isClientSide) {
 			boolean neighborSignal = world.hasNeighborSignal(pos);

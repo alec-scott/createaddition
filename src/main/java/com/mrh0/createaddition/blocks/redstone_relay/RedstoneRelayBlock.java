@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.redstone_relay;
 
+import net.minecraft.world.level.redstone.Orientation;
+
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.energy.IWireNode;
 import com.mrh0.createaddition.energy.NodeRotation;
@@ -122,7 +124,7 @@ public class RedstoneRelayBlock extends Block implements IBE<RedstoneRelayBlockE
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
 		if (state.canSurvive(worldIn, pos))
 			this.updateState(worldIn, pos, state);
 		else {

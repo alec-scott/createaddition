@@ -1,5 +1,13 @@
 package com.mrh0.createaddition.blocks.modular_accumulator;
 
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.world.level.redstone.Orientation;
+
+import net.minecraft.world.level.ScheduledTickAccess;
+
+import net.minecraft.util.RandomSource;
+
 import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.zurrtum.create.content.equipment.wrench.IWrenchable;
@@ -83,8 +91,7 @@ public class ModularAccumulatorBlock extends Block implements IWrenchable, IBE<M
 	}
 
 	@Override
-	public BlockState updateShape(BlockState pState, Direction pDirection, BlockState pNeighborState,
-		LevelAccessor pLevel, BlockPos pCurrentPos, BlockPos pNeighborPos) {
+	public BlockState updateShape(BlockState pState, LevelReader pLevel, ScheduledTickAccess ticks, BlockPos pCurrentPos, Direction pDirection, BlockPos pNeighborPos, BlockState pNeighborState, RandomSource random) {
 		return pState;
 	}
 
@@ -116,14 +123,14 @@ public class ModularAccumulatorBlock extends Block implements IWrenchable, IBE<M
 	}
 
 	@Override
-	public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
+	public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos, Direction direction) {
 		return getBlockEntityOptional(level, pos).map(ModularAccumulatorBlockEntity::getControllerBE)
 			.map(te -> ComparatorUtil.fractionToRedstoneLevel(te.getFillState()))
 			.orElse(0);
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
 		BlockEntity be = state.hasBlockEntity() ? level.getBlockEntity(pos) : null;
 		if(be != null) {
 			if(be instanceof ModularAccumulatorBlockEntity) {

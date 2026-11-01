@@ -52,10 +52,10 @@ public class LocalNode {
 
 	public LocalNode(BlockEntity entity, CompoundTag tag) {
 		this.entity = entity;
-		this.index = tag.getInt(ID);
-		this.otherIndex = tag.getInt(OTHER);
-		this.type = WireType.fromIndex(tag.getInt(TYPE));
-		this.relativePos = new Vec3i(tag.getInt(X), tag.getInt(Y), tag.getInt(Z));
+		this.index = tag.getIntOr(ID, 0);
+		this.otherIndex = tag.getIntOr(OTHER, 0);
+		this.type = WireType.fromIndex(tag.getIntOr(TYPE, 0));
+		this.relativePos = new Vec3i(tag.getIntOr(X, 0), tag.getIntOr(Y, 0), tag.getIntOr(Z, 0));
 	}
 
 	public void write(CompoundTag tag) {

@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.alternator;
 
+import net.minecraft.world.level.redstone.Orientation;
+
 import com.mrh0.createaddition.index.CABlockEntities;
 import com.mrh0.createaddition.shapes.CAShapes;
 import com.zurrtum.create.content.kinetics.base.DirectionalKineticBlock;
@@ -77,7 +79,7 @@ public class AlternatorBlock extends DirectionalKineticBlock implements IBE<Alte
 	}
 	*/
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
 		BlockEntity tileentity = state.hasBlockEntity() ? worldIn.getBlockEntity(pos) : null;
 		if(tileentity != null) {
 			if(tileentity instanceof AlternatorBlockEntity) {

@@ -87,7 +87,7 @@ public class EnergyMeterTileEntity extends SmartBlockEntity implements IWireNode
 	}
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> list) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> list) {
 
 	}
 
@@ -229,7 +229,7 @@ public class EnergyMeterTileEntity extends SmartBlockEntity implements IWireNode
 		// Read the nodes.
 		invalidateLocalNodes();
 		invalidateNodeCache();
-		ListTag nodes = nbt.getList(LocalNode.NODES, Tag.TAG_COMPOUND);
+		ListTag nodes = nbt.getListOrEmpty(LocalNode.NODES);
 		nodes.forEach(tag -> {
 			LocalNode localNode = new LocalNode(this, (CompoundTag) tag);
 			this.localNodes[localNode.getIndex()] = localNode;

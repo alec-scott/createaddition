@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.blocks.connector;
 
+import net.minecraft.world.level.storage.ValueOutput;
+
+import net.minecraft.world.level.storage.ValueInput;
+
 import com.mrh0.createaddition.blocks.connector.base.AbstractConnectorBlock;
 import com.mrh0.createaddition.blocks.connector.base.AbstractConnectorBlockEntity;
 import com.mrh0.createaddition.config.CommonConfig;
@@ -44,19 +48,19 @@ public class SmallLightConnectorBlockEntity extends AbstractConnectorBlockEntity
     }
 
     @Override
-    public void read(CompoundTag nbt, HolderLookup.Provider registries, boolean clientPacket) {
-        tickToggleTimer = nbt.getInt("tick_toggle_timer");
-        super.read(nbt, registries, clientPacket);
+    public void read(ValueInput nbt, boolean clientPacket) {
+        tickToggleTimer = nbt.getIntOr("tick_toggle_timer", 0);
+        super.read(nbt, clientPacket);
     }
 
     @Override
-    public void writeSafe(CompoundTag nbt, HolderLookup.Provider registries) {
+    public void writeSafe(ValueOutput nbt) {
         nbt.putInt("tick_toggle_timer", tickToggleTimer);
-        super.writeSafe(nbt, registries);
+        super.writeSafe(nbt);
     }
 
     @Override
-    public void addBehaviours(List<BlockEntityBehaviour> list) {}
+    public void addBehaviours(List<BlockEntityBehaviour<?>> list) {}
 
     @Override
     public int getMaxIn() {

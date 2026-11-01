@@ -1,5 +1,9 @@
 package com.mrh0.createaddition.blocks.connector.base;
 
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.world.level.redstone.Orientation;
+
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.energy.IWireNode;
 import com.mrh0.createaddition.energy.LocalNode;
@@ -137,7 +141,7 @@ public abstract class AbstractConnectorBlock<BE extends AbstractConnectorBlockEn
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
 		BlockEntity blockEntity = state.hasBlockEntity() ? worldIn.getBlockEntity(pos) : null;
 		if (!state.canSurvive(worldIn, pos)) {
 			dropResources(state, worldIn, pos, blockEntity);

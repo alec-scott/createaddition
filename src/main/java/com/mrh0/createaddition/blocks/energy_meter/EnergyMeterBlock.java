@@ -114,7 +114,7 @@ public class EnergyMeterBlock extends Block implements IBE<EnergyMeterTileEntity
 	}
 	
 	@Override
-	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, BlockPos fromPos, boolean isMoving) {
+	public void neighborChanged(BlockState state, Level worldIn, BlockPos pos, Block blockIn, @Nullable Orientation orientation, boolean isMoving) {
 		if (state.canSurvive(worldIn, pos))
 			this.updateState(worldIn, pos, state);
 		else {

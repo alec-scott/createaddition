@@ -83,7 +83,7 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 	public BeltProcessingBehaviour processingBehaviour;
 
 	@Override
-	public void addBehaviours(List<BlockEntityBehaviour> behaviours) {
+	public void addBehaviours(List<BlockEntityBehaviour<?>> behaviours) {
 		super.addBehaviours(behaviours);
 		processingBehaviour =
 			new BeltProcessingBehaviour(this).whenItemEnters((s, i) -> TeslaCoilBeltCallbacks.onItemReceived(s, i, this))

@@ -1,5 +1,7 @@
 package com.mrh0.createaddition.blocks.electric_pump;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mrh0.createaddition.index.CAPartials;
@@ -38,7 +40,7 @@ public class ElectricPumpRenderer extends KineticBlockEntityRenderer {
 		float renderTime = AnimationTickHolder.getRenderTime(be.getLevel());
 		Direction facing = state.getValue(ElectricPumpBlock.FACING);
 		Quaternionf rotation = ElectricPumpBlockEntity.getFacingRotation(facing);
-		VertexConsumer vb = buffer.getBuffer(RenderType.cutoutMipped());
+		VertexConsumer vb = buffer.getBuffer(RenderTypes.cutoutMipped());
 
 		for (int i = 0; i < ElectricPumpBlockEntity.PARTIAL_OFFSETS.length; i++) {
 			float[] offset = ElectricPumpBlockEntity.PARTIAL_OFFSETS[i];
