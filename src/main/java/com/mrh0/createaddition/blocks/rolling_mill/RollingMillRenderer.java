@@ -1,64 +1,73 @@
 package com.mrh0.createaddition.blocks.rolling_mill;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.zurrtum.create.client.AllPartialModels;
-import com.zurrtum.create.content.kinetics.base.KineticBlockEntity;
-import com.zurrtum.create.client.content.kinetics.base.KineticBlockEntityRenderer;
-
-import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
 import com.zurrtum.create.client.catnip.render.CachedBuffers;
-import com.zurrtum.create.client.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import com.zurrtum.create.client.catnip.render.SuperByteBufferRenderState;
+import com.zurrtum.create.client.content.kinetics.base.KineticBlockEntityRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
-public class RollingMillRenderer extends KineticBlockEntityRenderer {
+/**
+ * PORT-NOTE(26.1): extract/submit. Create Fly's KineticBlockEntityRenderer draws the through shaft (skipped with
+ * Flywheel, as before); the two rollers are half shafts extracted alongside.
+ */
+public class RollingMillRenderer extends KineticBlockEntityRenderer<RollingMillBlockEntity, RollingMillRenderer.RollingMillRenderState> {
 
-	public RollingMillRenderer(Context dispatcher) {
-		super(dispatcher);
+	public RollingMillRenderer(Context context) {
+		super(context);
 	}
-	
+
 	@Override
-	protected BlockState getRenderedBlockState(KineticBlockEntity te) {
-		return shaft(getRotationAxisOf(te));
+	public RollingMillRenderState createRenderState() {
+		return new RollingMillRenderState();
 	}
 
-	@SuppressWarnings("unchecked")
 	@Override
-	protected void renderSafe(KineticBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-			int light, int overlay) {
-		super.renderSafe(be, partialTicks, ms, buffer, light, overlay);
-		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
+	protected BlockState getRenderedBlockState(RollingMillBlockEntity be) {
+		return shaft(getRotationAxisOf(be));
+	}
+
+	@Override
+	public void extractRenderState(RollingMillBlockEntity be, RollingMillRenderState state, float tickProgress,
+								   Vec3 cameraPos, @Nullable CrumblingOverlay crumblingOverlay) {
+		super.extractRenderState(be, state, tickProgress, cameraPos, crumblingOverlay);
+		state.rollerA = null;
+		state.rollerB = null;
+		if (state.support) return;
 		BlockState blockState = be.getBlockState();
-		BlockPos pos = be.getBlockPos();
-		
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.solid());
-		
-		int packedLightmapCoords = LevelRenderer.getLightColor(be.getLevel(), pos);
-		// SuperByteBuffer shaft = AllBlockPartials.SHAFT_HALF.renderOn(blockState);
-		SuperByteBuffer shaft =  CachedBuffers.partial(AllPartialModels.SHAFT_HALF, blockState);
 		Axis axis = getRotationAxisOf(be);
-		
-		shaft
-			.rotateCentered(axis == Axis.Z ? 0 : 90*(float)Math.PI/180f, Direction.UP)
-			.translate(0, 4f/16f, 0)
-			.rotateCentered(getAngleForBe(be, pos, axis), Direction.NORTH)
-			.light(packedLightmapCoords)
-			.renderInto(ms, vb);
-		
-		shaft
-			.rotateCentered(axis == Axis.Z ? 180*(float)Math.PI/180f : 270*(float)Math.PI/180f, Direction.UP)
-			.translate(0, 4f/16f, 0)
-			.rotateCentered(-getAngleForBe(be, pos, axis), Direction.NORTH)
-			.light(packedLightmapCoords)
-			.renderInto(ms, vb);
+		float angle = getAngleForBe(be, be.getBlockPos(), axis);
+		state.rollerA = CachedBuffers.partial(AllPartialModels.SHAFT_HALF, blockState)
+				.rotateCentered(axis == Axis.Z ? 0 : RAD_90, Direction.UP)
+				.translate(0, 4f / 16f, 0)
+				.rotateCentered(angle, Direction.NORTH)
+				.light(state.lightCoords)
+				.extractRenderState();
+		state.rollerB = CachedBuffers.partial(AllPartialModels.SHAFT_HALF, blockState)
+				.rotateCentered(axis == Axis.Z ? RAD_180 : RAD_270, Direction.UP)
+				.translate(0, 4f / 16f, 0)
+				.rotateCentered(-angle, Direction.NORTH)
+				.light(state.lightCoords)
+				.extractRenderState();
+	}
+
+	@Override
+	public void submit(RollingMillRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
+		super.submit(state, matrices, queue, cameraState);
+		if (state.rollerA != null) state.rollerA.submit(matrices, queue);
+		if (state.rollerB != null) state.rollerB.submit(matrices, queue);
+	}
+
+	public static class RollingMillRenderState extends KineticRenderState {
+		public @Nullable SuperByteBufferRenderState rollerA;
+		public @Nullable SuperByteBufferRenderState rollerB;
 	}
 }

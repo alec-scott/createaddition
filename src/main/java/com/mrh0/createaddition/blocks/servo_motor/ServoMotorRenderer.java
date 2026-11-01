@@ -1,21 +1,15 @@
 package com.mrh0.createaddition.blocks.servo_motor;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.zurrtum.create.client.AllPartialModels;
 import com.zurrtum.create.client.content.contraptions.bearing.BearingRenderer;
-
-import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
-import com.zurrtum.create.catnip.math.AngleHelper;
-import com.zurrtum.create.client.catnip.render.CachedBuffers;
-import com.zurrtum.create.client.catnip.render.SuperByteBuffer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 
+/**
+ * PORT-NOTE(26.1): extract/submit on Create Fly's BearingRenderer (the servo's angle comes from its
+ * getInterpolatedAngle override). Like the 1.21.1 renderer, only the disc is drawn; the motor body is the block model.
+ */
 public class ServoMotorRenderer extends BearingRenderer<ServoMotorBlockEntity> {
 
 	public ServoMotorRenderer(BlockEntityRendererProvider.Context context) {
@@ -23,20 +17,10 @@ public class ServoMotorRenderer extends BearingRenderer<ServoMotorBlockEntity> {
 	}
 
 	@Override
-	protected void renderSafe(ServoMotorBlockEntity be, float partialTicks, PoseStack ms,
-			MultiBufferSource buffer, int light, int overlay) {
-		if (VisualizationManager.supportsVisualization(be.getLevel())) return;
-
-		Direction facing = be.getBlockState().getValue(BlockStateProperties.FACING);
-		SuperByteBuffer superBuffer = CachedBuffers.partial(AllPartialModels.BEARING_TOP, be.getBlockState());
-
-		float interpolatedAngle = be.getInterpolatedAngle(partialTicks - 1);
-		kineticRotationTransform(superBuffer, be, facing.getAxis(), (float) (interpolatedAngle / 180 * Math.PI), light);
-
-		if (facing.getAxis().isHorizontal())
-			superBuffer.rotateCentered(AngleHelper.rad(AngleHelper.horizontalAngle(facing.getOpposite())), Direction.UP);
-		superBuffer.rotateCentered(AngleHelper.rad(-90 - AngleHelper.verticalAngle(facing)), Direction.EAST);
-		superBuffer.renderInto(ms, buffer.getBuffer(RenderTypes.solid()));
+	public void submit(BearingRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState cameraState) {
+		if (state.topAngle != null) matrices.rotateAround(state.topAngle, 0.5f, 0.5f, 0.5f);
+		if (state.upAngle != null) matrices.rotateAround(state.upAngle, 0.5f, 0.5f, 0.5f);
+		if (state.eastAngle != null) matrices.rotateAround(state.eastAngle, 0.5f, 0.5f, 0.5f);
+		state.top.submit(matrices, queue);
 	}
-
 }

@@ -1,57 +1,68 @@
 package com.mrh0.createaddition.blocks.electric_pump;
 
-import net.minecraft.client.renderer.rendertype.RenderTypes;
-
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mrh0.createaddition.index.CAPartials;
-import com.zurrtum.create.content.kinetics.base.KineticBlockEntity;
-import com.zurrtum.create.client.content.kinetics.base.KineticBlockEntityRenderer;
-
-import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
 import com.zurrtum.create.client.catnip.animation.AnimationTickHolder;
 import com.zurrtum.create.client.catnip.render.CachedBuffers;
-import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import com.zurrtum.create.client.catnip.render.SuperByteBufferRenderState;
+import com.zurrtum.create.client.flywheel.api.visualization.VisualizationManager;
+import com.zurrtum.create.client.foundation.blockEntity.renderer.SmartBlockEntityRenderer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider.Context;
-import net.minecraft.core.BlockPos;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer.CrumblingOverlay;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
+import org.jspecify.annotations.Nullable;
 
-public class ElectricPumpRenderer extends KineticBlockEntityRenderer {
+import java.util.ArrayList;
+import java.util.List;
+
+/** PORT-NOTE(26.1): extract/submit; the pulsing pump partials, only without Flywheel (as before). */
+public class ElectricPumpRenderer implements BlockEntityRenderer<ElectricPumpBlockEntity, ElectricPumpRenderer.PumpRenderState> {
 
 	public ElectricPumpRenderer(Context context) {
-		super(context);
 	}
 
 	@Override
-	protected void renderSafe(KineticBlockEntity be, float partialTicks, PoseStack ms, MultiBufferSource buffer,
-			int light, int overlay) {
-		if (VisualizationManager.supportsVisualization(be.getLevel()))
-			return;
-		if (!(be instanceof ElectricPumpBlockEntity pump))
-			return;
+	public PumpRenderState createRenderState() {
+		return new PumpRenderState();
+	}
 
-		BlockPos pos = be.getBlockPos();
-		BlockState state = be.getBlockState();
-		int packedLight = LevelRenderer.getLightColor(be.getLevel(), pos);
-		float renderTime = AnimationTickHolder.getRenderTime(be.getLevel());
-		Direction facing = state.getValue(ElectricPumpBlock.FACING);
+	@Override
+	public void extractRenderState(ElectricPumpBlockEntity pump, PumpRenderState state, float partialTicks,
+								   Vec3 cameraPosition, @Nullable CrumblingOverlay breakProgress) {
+		state.parts.clear();
+		Level level = pump.getLevel();
+		if (VisualizationManager.supportsVisualization(level)) return;
+		SmartBlockEntityRenderer.extractBase(pump, state, breakProgress);
+		float renderTime = AnimationTickHolder.getRenderTime(level);
+		Direction facing = state.blockState.getValue(ElectricPumpBlock.FACING);
 		Quaternionf rotation = ElectricPumpBlockEntity.getFacingRotation(facing);
-		VertexConsumer vb = buffer.getBuffer(RenderTypes.cutoutMipped());
 
 		for (int i = 0; i < ElectricPumpBlockEntity.PARTIAL_OFFSETS.length; i++) {
 			float[] offset = ElectricPumpBlockEntity.PARTIAL_OFFSETS[i];
 			float scale = ElectricPumpBlockEntity.getPulseScale(pump.isActive(), pump.getPumpSpeed(), renderTime,
 					ElectricPumpBlockEntity.PARTIAL_PHASE_OFFSETS[i]);
-			CachedBuffers.partial(CAPartials.ELECTRIC_PUMP_PARTIAL, state)
+			state.parts.add(CachedBuffers.partial(CAPartials.ELECTRIC_PUMP_PARTIAL, state.blockState)
 					.rotateCentered(rotation)
 					.translate(offset[0], offset[1], offset[2])
 					.scale(scale)
-					.light(packedLight)
-					.renderInto(ms, vb);
+					.light(state.lightCoords)
+					.extractRenderState());
 		}
+	}
+
+	@Override
+	public void submit(PumpRenderState state, PoseStack matrices, SubmitNodeCollector queue, CameraRenderState camera) {
+		for (SuperByteBufferRenderState part : state.parts) part.submit(matrices, queue);
+	}
+
+	public static class PumpRenderState extends BlockEntityRenderState {
+		public final List<SuperByteBufferRenderState> parts = new ArrayList<>();
 	}
 }
