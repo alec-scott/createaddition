@@ -51,6 +51,8 @@ dependencies {
 }
 
 processResources {
+    // Hand-crafted resources take priority over datagen output (as upstream).
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     def props = [
             version                   : project.version,
             minecraft_version         : minecraft_version,
@@ -73,6 +75,10 @@ tasks.withType(JavaCompile).configureEach {
     options.release = java_version as int
     options.encoding = 'UTF-8'
     options.compilerArgs.addAll(['-Xmaxerrs', '10000'])
+}
+
+tasks.withType(Jar).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 jar {
