@@ -10,7 +10,7 @@ import com.zurrtum.create.content.kinetics.mechanicalArm.ArmInteractionPointType
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -50,9 +50,8 @@ public class CAArmInteractions {
         @Override
         public ItemStack insert(ArmBlockEntity armBlockEntity, ItemStack stack, boolean simulate) {
             ItemStack input = stack.copy();
-            InteractionResultHolder<ItemStack> res =
-                    LiquidBlazeBurnerBlock.tryInsert(cachedState, level, pos, input, false, false, simulate);
-            ItemStack remainder = res.getObject();
+            InteractionResult res = LiquidBlazeBurnerBlock.tryInsert(cachedState, level, pos, input, false, false, simulate);
+            ItemStack remainder = res instanceof InteractionResult.Success success && success.heldItemTransformedTo() != null ? success.heldItemTransformedTo() : ItemStack.EMPTY;
             if (input.isEmpty()) {
                 return remainder;
             } else {

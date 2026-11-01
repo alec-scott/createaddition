@@ -74,7 +74,7 @@ public abstract class AbstractConnectorBlock<BE extends AbstractConnectorBlockEn
 	}
 
 	public static void playWireBreakSound(Level level, BlockPos pos) {
-		level.playSound(null, pos, SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 1.0f, 2.0f + level.random.nextFloat() * 0.1f);
+		level.playSound(null, pos, SoundEvents.CHAIN_BREAK, SoundSource.BLOCKS, 1.0f, 2.0f + level.getRandom().nextFloat() * 0.1f);
 	}
 
 	@Override
@@ -110,7 +110,7 @@ public abstract class AbstractConnectorBlock<BE extends AbstractConnectorBlockEn
 							remoteNodes.get(i).removeNode(remoteIndices.get(i), false);
 					}
 					playWireBreakSound(level, pos);
-					level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1f, 1f + level.random.nextFloat() * 0.1f);
+					level.playSound(null, pos, SoundEvents.SHEEP_SHEAR, SoundSource.BLOCKS, 1f, 1f + level.getRandom().nextFloat() * 0.1f);
 				}
 			}
 			return InteractionResult.SUCCESS;

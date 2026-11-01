@@ -21,7 +21,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +37,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.fabricmc.fabric.api.entity.FakePlayer;
-import net.neoforged.neoforge.fluids.FluidActionResult;
+import net.minecraft.world.item.ItemStackTemplate;
 
 import static com.zurrtum.create.content.processing.burner.BlazeBurnerBlock.HEAT_LEVEL;
 
@@ -78,7 +77,7 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 
 	@Override
 	public void onPlace(BlockState state, Level world, BlockPos pos, BlockState p_220082_4_, boolean p_220082_5_) {
-		if (world.isClientSide) return;
+		if (world.isClientSide()) return;
 		BlockEntity tileEntity = world.getBlockEntity(pos.above());
 		if (!(tileEntity instanceof BasinBlockEntity basin)) return;
         basin.notifyChangeOfContents();
@@ -102,7 +101,7 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 
 	@Override
 	public Item asItem() {
-		return AllBlocks.BLAZE_BURNER.get().asItem();
+		return AllBlocks.BLAZE_BURNER.asItem();
 	}
 
 	@Override
@@ -110,7 +109,7 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 		ItemStack heldItem = player.getItemInHand(hand);
 		BlazeBurnerBlock.HeatLevel heat = state.getValue(HEAT_LEVEL);
 
-		if (AllItems.GOGGLES.isIn(heldItem) && heat != BlazeBurnerBlock.HeatLevel.NONE)
+		if (heldItem.is(AllItems.GOGGLES) && heat != BlazeBurnerBlock.HeatLevel.NONE)
 			return onBlockEntityUseItemOn(level, pos, be -> {
 				if (be.goggles) return InteractionResult.TRY_WITH_EMPTY_HAND;
 				be.goggles = true;
@@ -129,10 +128,9 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 		boolean doNotConsume = player.isCreative();
 		boolean forceOverflow = !(player instanceof FakePlayer);
 
-		InteractionResultHolder<ItemStack> res =
-			tryInsert(state, level, pos, heldItem, doNotConsume, forceOverflow, false);
-		ItemStack leftover = res.getObject();
-		if (!level.isClientSide && !doNotConsume && !leftover.isEmpty()) {
+		InteractionResult res = tryInsert(state, level, pos, heldItem, doNotConsume, forceOverflow, false);
+		ItemStack leftover = res instanceof InteractionResult.Success success && success.heldItemTransformedTo() != null ? success.heldItemTransformedTo() : ItemStack.EMPTY;
+		if (!level.isClientSide() && !doNotConsume && !leftover.isEmpty()) {
 			if (heldItem.isEmpty()) {
 				player.setItemInHand(hand, leftover);
 			} else if (!player.getInventory()
@@ -141,37 +139,39 @@ public class LiquidBlazeBurnerBlock extends HorizontalDirectionalBlock implement
 			}
 		}
 
-		return res.getResult() == InteractionResult.SUCCESS ? InteractionResult.SUCCESS : InteractionResult.TRY_WITH_EMPTY_HAND;
+		return res.consumesAction() ? res : InteractionResult.TRY_WITH_EMPTY_HAND;
 	}
 
-	public static InteractionResultHolder<ItemStack> tryInsert(BlockState state, Level level, BlockPos pos,
+	// PORT-NOTE(26.1): InteractionResult with heldItemTransformedTo (was InteractionResultHolder), as Create Fly's BlazeBurnerBlock
+	public static InteractionResult tryInsert(BlockState state, Level level, BlockPos pos,
 		ItemStack stack, boolean doNotConsume, boolean forceOverflow, boolean simulate) {
-		if (!state.hasBlockEntity()) return InteractionResultHolder.fail(ItemStack.EMPTY);
+		if (!state.hasBlockEntity()) return InteractionResult.FAIL;
 
 		BlockEntity te = level.getBlockEntity(pos);
 		if (!(te instanceof LiquidBlazeBurnerBlockEntity burnerTE))
-			return InteractionResultHolder.fail(ItemStack.EMPTY);
+			return InteractionResult.FAIL;
 
         if (burnerTE.isCreativeFuel(stack)) {
 			if (!simulate) burnerTE.applyCreativeFuel();
-			return InteractionResultHolder.success(ItemStack.EMPTY);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(ItemStack.EMPTY);
 		}
 
-		FluidActionResult emptied = burnerTE.tryEmptyFluidContainer(stack, simulate);
-		if (emptied.isSuccess()) {
-			if (doNotConsume) return InteractionResultHolder.success(ItemStack.EMPTY);
-			if (!level.isClientSide) stack.shrink(1);
-			return InteractionResultHolder.success(emptied.getResult());
+		ItemStack emptied = burnerTE.tryEmptyFluidContainer(stack, simulate);
+		if (emptied != null) {
+			if (doNotConsume) return InteractionResult.SUCCESS.heldItemTransformedTo(ItemStack.EMPTY);
+			if (!level.isClientSide()) stack.shrink(1);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(emptied);
 		}
 
-		if (!burnerTE.tryUpdateFuel(stack, forceOverflow, simulate)) return InteractionResultHolder.fail(ItemStack.EMPTY);
+		if (!burnerTE.tryUpdateFuel(stack, forceOverflow, simulate)) return InteractionResult.FAIL;
 
 		if (!doNotConsume) {
-			ItemStack container = stack.hasCraftingRemainingItem() ? stack.getCraftingRemainingItem() : ItemStack.EMPTY;
-			if (!level.isClientSide) stack.shrink(1);
-			return InteractionResultHolder.success(container);
+			ItemStackTemplate remainder = stack.getItem().getCraftingRemainder();
+			ItemStack container = remainder != null ? remainder.create() : ItemStack.EMPTY;
+			if (!level.isClientSide()) stack.shrink(1);
+			return InteractionResult.SUCCESS.heldItemTransformedTo(container);
 		}
-		return InteractionResultHolder.success(ItemStack.EMPTY);
+		return InteractionResult.SUCCESS.heldItemTransformedTo(ItemStack.EMPTY);
 	}
 
 	@Override

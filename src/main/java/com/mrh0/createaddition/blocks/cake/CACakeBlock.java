@@ -26,7 +26,7 @@ public class CACakeBlock extends CakeBlock {
 
 	@Override
 	protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			return InteractionResult.CONSUME;
 		}
 		return eat(level, pos, state, player);

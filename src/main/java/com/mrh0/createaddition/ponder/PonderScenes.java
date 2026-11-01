@@ -276,7 +276,7 @@ public class PonderScenes {
 			.pointAt(topOf);
 		scene.idle(60);
 
-		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, AllItems.CHROMATIC_COMPOUND.asStack());
+		scene.world().createItemOnBeltLike(depotPos, Direction.NORTH, new ItemStack(AllItems.CHROMATIC_COMPOUND));
 		scene.idle(10);
 		scene.world().setBlock(util.grid().at(2, 3, 2), CABlocks.TESLA_COIL.getDefaultState().setValue(TeslaCoilBlock.FACING, Direction.UP).setValue(TeslaCoilBlock.POWERED, true), false);
 		scene.overlay().showText(70)
@@ -413,7 +413,7 @@ public class PonderScenes {
 
 		scene.idle(15);
 		scene.overlay().showControls(util.vector().centerOf(cIn), Pointing.DOWN, 0).rightClick()
-				.withItem(new ItemStack(AllItems.WRENCH.get()));
+				.withItem(new ItemStack(AllItems.WRENCH));
 		scene.world().setBlock(cIn, CABlocks.SMALL_CONNECTOR.getDefaultState().setValue(AbstractConnectorBlock.FACING, Direction.DOWN).setValue(AbstractConnectorBlock.MODE, ConnectorMode.Push), false);
 		scene.overlay().showText(50)
 			.attachKeyFrame()
@@ -424,7 +424,7 @@ public class PonderScenes {
 		scene.idle(60);
 		scene.overlay().showControls(util.vector().centerOf(cOut), Pointing.DOWN, 40)
 				.rightClick()
-				.withItem(new ItemStack(AllItems.WRENCH.get()));
+				.withItem(new ItemStack(AllItems.WRENCH));
 		scene.world().setBlock(cOut, CABlocks.SMALL_CONNECTOR.getDefaultState().setValue(AbstractConnectorBlock.FACING, Direction.DOWN).setValue(AbstractConnectorBlock.MODE, ConnectorMode.Pull), false);
 		scene.overlay().showText(50)
 			.text("and an output connector.")
@@ -601,7 +601,7 @@ public class PonderScenes {
 		Selection connector2 = util.select().position(connector2Pos);
 		Selection accumulator = util.select().position(accumulatorPos);
 
-		scene.world().setBlock(pumpPos, AllBlocks.FLUID_PIPE.get()
+		scene.world().setBlock(pumpPos, AllBlocks.FLUID_PIPE
 			.getAxisState(Axis.X), false);
 
 		scene.world().showSection(tank1, Direction.DOWN);
@@ -687,7 +687,7 @@ public class PonderScenes {
 		scene.idle(25);
 
 		scene.overlay().showControls(util.vector().topOf(pumpPos), Pointing.DOWN, 40).rightClick()
-			.withItem(AllItems.WRENCH.asStack());
+			.withItem(new ItemStack(AllItems.WRENCH));
 		scene.idle(7);
 		scene.world().modifyBlock(pumpPos, s -> s.setValue(PumpBlock.FACING, Direction.EAST), true);
 		scene.overlay().showText(70)
@@ -773,7 +773,7 @@ public class PonderScenes {
 		scene.idle(90);
 
 		scene.overlay().showControls(util.vector().topOf(push), Pointing.DOWN, 50).rightClick()
-			.withItem(AllItems.WRENCH.asStack());
+			.withItem(new ItemStack(AllItems.WRENCH));
 		scene.overlay().showText(50)
 			.text("Use a Wrench on a connector to cycle its mode")
 			.placeNearTarget()

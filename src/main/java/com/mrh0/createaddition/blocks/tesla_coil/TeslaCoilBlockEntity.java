@@ -159,7 +159,7 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 		super.tick();
 		if(level == null) return;
 
-		if (level.isClientSide) {
+		if (level.isClientSide()) {
 			CatnipServices.PLATFORM.executeOnClientOnly(() -> this::tickAudio);
 			return;
 		}
@@ -172,7 +172,7 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 		if(poweredTimer > 0) {
 			if (zapTimer == 0) {
 				if (CommonConfig.AUDIO_ENABLED.get()) level.playSound(null, worldPosition, CASounds.LITTLE_ZAP.get(), SoundSource.BLOCKS, 0.1f, 1f);
-				zapTimer = level.random.nextInt(100, 300);
+				zapTimer = level.getRandom().nextInt(100, 300);
 			}
 			zapTimer--;
 
@@ -244,7 +244,7 @@ public class TeslaCoilBlockEntity extends AbstractElectricBlockEntity implements
 				TransportedItemStack remainingStack = transported.copy();
 				remainingStack.stack.shrink(1);
 				List<TransportedItemStack> outList = new ArrayList<>();
-				for(ItemStack out : recipe.rollResults(this.getLevel().random)) {
+				for(ItemStack out : recipe.rollResults(this.getLevel().getRandom())) {
 					TransportedItemStack result = transported.copy();
 					result.stack = out;
 					outList.add(result);

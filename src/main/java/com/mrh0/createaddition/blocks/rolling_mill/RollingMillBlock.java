@@ -47,7 +47,7 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 
 	@Override
 	protected @NotNull InteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-		if (level.isClientSide) return InteractionResult.SUCCESS;
+		if (level.isClientSide()) return InteractionResult.SUCCESS;
 		withBlockEntityDo(level, pos, rollingMill -> {
 			boolean emptyOutput = true;
 			ItemStackHandler inv = rollingMill.outputInv;
@@ -76,7 +76,7 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-		if (level.isClientSide) return InteractionResult.SUCCESS;
+		if (level.isClientSide()) return InteractionResult.SUCCESS;
 		return InteractionResult.PASS;
 	}
 
@@ -84,7 +84,7 @@ public class RollingMillBlock extends HorizontalKineticBlock implements IBE<Roll
 	public void updateEntityAfterFallOn(BlockGetter getter, Entity entityIn) {
 		super.updateEntityAfterFallOn(getter, entityIn);
 
-        if (entityIn.level().isClientSide) return;
+        if (entityIn.level().isClientSide()) return;
 		if (!(entityIn instanceof ItemEntity itemEntity)) return;
 		if (!entityIn.isAlive()) return;
 

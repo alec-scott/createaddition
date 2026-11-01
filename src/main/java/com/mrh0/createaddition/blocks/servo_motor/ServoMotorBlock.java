@@ -153,7 +153,7 @@ public class ServoMotorBlock extends DirectionalKineticBlock implements IBE<Serv
 		if (player.isShiftKeyDown())
 			return InteractionResult.FAIL;
 		if (stack.isEmpty()) {
-			if (level.isClientSide)
+			if (level.isClientSide())
 				return InteractionResult.SUCCESS;
 			withBlockEntityDo(level, pos, be -> {
 				if (be.isRunning()) {
@@ -183,7 +183,7 @@ public class ServoMotorBlock extends DirectionalKineticBlock implements IBE<Serv
 
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, @Nullable Orientation orientation, boolean b) {
-		if (!world.isClientSide) {
+		if (!world.isClientSide()) {
 			boolean flag = state.getValue(POWERED);
 			if (flag != world.hasNeighborSignal(pos)) {
 				if (flag) {

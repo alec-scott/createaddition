@@ -25,14 +25,14 @@ public enum ConnectorVariant implements StringRepresentable {
 
     public static ConnectorVariant test(Level level, BlockPos pos, Direction face) {
         BlockState state = level.getBlockState(pos);
-        if(state.is(AllBlocks.METAL_GIRDER.get())) {
+        if(state.is(AllBlocks.METAL_GIRDER)) {
             if(state.getValue(GirderBlock.TOP) && face == Direction.UP) return Default;
             if(state.getValue(GirderBlock.BOTTOM) && face == Direction.DOWN) return Default;
             if(state.getValue(GirderBlock.X) && face.getAxis() == Direction.Axis.X) return Default;
             if(state.getValue(GirderBlock.Z) && face.getAxis() == Direction.Axis.Z) return Default;
             return Girder;
         }
-        if(state.is(AllBlocks.METAL_GIRDER_ENCASED_SHAFT.get())){
+        if(state.is(AllBlocks.METAL_GIRDER_ENCASED_SHAFT)){
             if(!state.getValue(GirderEncasedShaftBlock.TOP) && face == Direction.UP) return Girder;
             if(!state.getValue(GirderEncasedShaftBlock.BOTTOM) && face == Direction.DOWN) return Girder;
             return Default;

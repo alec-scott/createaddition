@@ -96,7 +96,7 @@ public class ElectricMotorBlock extends DirectionalKineticBlock implements IBE<E
 	/*
 	@Override
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, @Nullable Orientation orientation, boolean b) {
-		if (!world.isClientSide) {
+		if (!world.isClientSide()) {
 			boolean flag = state.getValue(POWERED);
 			if (flag != world.hasNeighborSignal(pos)) {
 				if (flag)
@@ -109,7 +109,7 @@ public class ElectricMotorBlock extends DirectionalKineticBlock implements IBE<E
 	*/
 
 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, @Nullable Orientation orientation, boolean b) {
-		if (!world.isClientSide) {
+		if (!world.isClientSide()) {
 			boolean flag = state.getValue(POWERED);
 			if (flag != world.hasNeighborSignal(pos)) {
 				if (flag){

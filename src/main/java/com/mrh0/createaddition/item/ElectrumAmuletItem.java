@@ -24,7 +24,7 @@ public class ElectrumAmuletItem extends Item {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int pSlotId, boolean pIsSelected) {
         if (!(entity instanceof Player player)) return;
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         if (!CommonConfig.AMULET_EFFECT_ENABLED.get()) return;
 
         ItemStack mainHand = player.getMainHandItem();
@@ -38,7 +38,7 @@ public class ElectrumAmuletItem extends Item {
         IEnergyStorage es = Capabilities.getCapability(toCharge, Capabilities.EnergyStorage.ITEM);
         boolean canCharge = es != null && es.receiveEnergy(1, true) > 0;
 
-        if (canCharge && level.random.nextInt(CHARGE_CHANCE) == 0) {
+        if (canCharge && level.getRandom().nextInt(CHARGE_CHANCE) == 0) {
             es.receiveEnergy(CHARGE_CHANCE * CommonConfig.ELECTRUM_AMULET_CHARGE_RATE.get(), false);
             player.addEffect(new MobEffectInstance(CAEffects.SHOCKING, 40, 0, false, true, true));
             if (CommonConfig.AUDIO_ENABLED.get())

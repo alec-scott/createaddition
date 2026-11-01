@@ -370,7 +370,7 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity {
 
 		// Net redstone = maxFaceSignal - minFaceSignal, range -15 to +15.
 		// Net 0 → center (angle 0), positive → toward maxAngle, negative → toward minAngle.
-		if (!level.isClientSide && active) {
+		if (!level.isClientSide() && active) {
 			Direction maxFace = ServoMotorBlock.getTop(getBlockState());
 			Direction minFace = maxFace.getOpposite();
 			int maxSignal = level.getSignal(worldPosition.relative(maxFace), maxFace);

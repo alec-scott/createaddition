@@ -86,7 +86,7 @@ public class ElectricPumpBlock extends PumpBlock {
 			boolean isMoving) {
 		super.neighborChanged(state, world, pos, otherBlock, orientation, isMoving);
 
-		if (!world.isClientSide) {
+		if (!world.isClientSide()) {
 			boolean neighborSignal = world.hasNeighborSignal(pos);
 			BlockState current = world.getBlockState(pos);
 			if (current.getValue(POWERED) != neighborSignal)

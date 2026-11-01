@@ -118,7 +118,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 	protected void updateConnectivity() {
 		updateConnectivity = false;
 		if (level == null) return;
-		if (level.isClientSide) return;
+		if (level.isClientSide()) return;
 		if (!level.isLoaded(getBlockPos())) return;
 		if (!isController()) return;
 		CAConnectivityHandler.formMulti(this);
@@ -220,7 +220,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 		super.initialize();
 		sendData();
 		if (level == null) return;
-		if (level.isClientSide) invalidateRenderBoundingBox();
+		if (level.isClientSide()) invalidateRenderBoundingBox();
 	}
 
 	private void onPositionChanged() {
@@ -247,7 +247,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 			}
 		}
 
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			setChanged();
 			sendData();
 		}
@@ -274,7 +274,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 
 	public void removeController(boolean keepEnergy) {
 		if (level == null) return;
-		if (level.isClientSide) return;
+		if (level.isClientSide()) return;
 		if (!level.isLoaded(getBlockPos())) return;
 		updateConnectivity = true;
 		if (!keepEnergy) applySize(1);
@@ -316,7 +316,7 @@ public class ModularAccumulatorBlockEntity extends SmartBlockEntity implements I
 	@Override
 	public void setController(BlockPos controller) {
 		if (level == null) return;
-		if (level.isClientSide && !isVirtual()) return;
+		if (level.isClientSide() && !isVirtual()) return;
 		if (controller.equals(this.controller)) return;
 		this.controller = controller;
 		refreshCapability();
