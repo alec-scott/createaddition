@@ -6,9 +6,7 @@
     {
       "components": {
         "minecraft:stored_enchantments": {
-          "levels": {
-            "minecraft:channeling": 1
-          }
+          "minecraft:channeling": 1
         }
       },
       "id": "minecraft:enchanted_book"

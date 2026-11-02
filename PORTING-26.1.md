@@ -157,6 +157,16 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   `printCompileClasspath`): only false positives (commented-out `ContraptionMixin`, inherited `BlockState.is(TagKey)`).
   Handler parameters / injection points are not checked statically: verify at server boot / in game.
 - Not yet run: dedicated server boot, client.
+- **Dedicated server boots clean** (`../railways-test-server`: Create Fly, Steam 'n' Rails, D&D, CC&A; no CC&A errors or
+  warnings, `/reload` clean, 7073 recipes). Data fixes: `create:copper_nugget` → `minecraft:copper_nugget` in the tuff
+  crushing overrides; `channeling` charging result uses the 26.1 `stored_enchantments` map (no `levels` wrapper).
+  Functional check: `/setblock` of every CC&A machine (motor, pump, servo, alternator, rolling mill, creative energy,
+  connectors, relay, tesla coil, liquid blaze burner, accumulator, PEI, digital adapter, barbed wire) ticks without
+  errors; block entity NBT saves as expected. `fabric:tags_populated` conditions parsed without errors.
+- **Copycats+ bug found** (not CC&A): its `SyncedBlockEntityMixin.doNotSyncVirtual` does `instanceof
+  VirtualRenderWorld` (a client class), so any block entity calling `notifyUpdate` on a dedicated server crashes
+  (`NoClassDefFoundError: BlockAndTintGetter`). Hit by the liquid blaze burner; affects Create's own block entities
+  too. The test above ran with the copycats jar moved to `../ca-test-disabled/`.
 
 ## TODO
 
@@ -166,7 +176,6 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
 - [x] Resources: item definitions, recipe/data conversion (done by the resources agent, `931d8fd8`).
 - [ ] Restore the `seed_oil` recipe (Create Fly's compacting has no fluid output; needs a CC&A recipe type or a
       Create Fly change).
-- [ ] Verify the `fabric:tags_populated` field names (`registry`/`values`) at server boot.
 - [ ] Servo motor client value boxes for movement mode and min/max angle (client mixin into Create Fly's
       `ValueSettingsInputHandler`/`ScrollValueRenderer` to iterate all value behaviours, or one composite behaviour).
 - [ ] Rolling mill/electric pump: check the CC&A sound scapes and Create Fly audio behaviours together in game.
@@ -181,6 +190,8 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
 - [ ] Verify at boot: client-package `IHaveGoggleInformation` on common block entities loads on a dedicated server;
       `FireBlockMixin`/`FlowingFluidMixin` handler locals (`@Local Direction`, trailing target args on
       `@ModifyExpressionValue`); `WireGraph` saved data (`createaddition_wires.dat`).
-- [ ] Dedicated server boot (`../railways-test-server`).
+- [x] Dedicated server boot (`../railways-test-server`): clean, `/reload` clean, all machines placed and ticked.
+- [ ] Copycats+: fix `SyncedBlockEntityMixin` (client class on the server) in `../copycats`; restore its jar to the
+      test server (`../ca-test-disabled/`).
 - [ ] Client test (user launches the game).
 - [ ] Compat second pass: JEI, CC:Tweaked, Sable/Simulated (Aeronautics).
