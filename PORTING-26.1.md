@@ -191,7 +191,7 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
       `FireBlockMixin`/`FlowingFluidMixin` handler locals (`@Local Direction`, trailing target args on
       `@ModifyExpressionValue`); `WireGraph` saved data (`createaddition_wires.dat`).
 - [x] Dedicated server boot (`../railways-test-server`): clean, `/reload` clean, all machines placed and ticked.
-- [ ] Copycats+: fix `SyncedBlockEntityMixin` (client class on the server) in `../copycats`; restore its jar to the
-      test server (`../ca-test-disabled/`).
+- [x] Copycats+: fixed `SyncedBlockEntityMixin` in `../copycats` (7591de4d); jar restored to the test server, CC&A
+      machines tick with it loaded.
 - [ ] Client test (user launches the game).
 - [ ] Compat second pass: JEI, CC:Tweaked, Sable/Simulated (Aeronautics).
