@@ -50,6 +50,13 @@ public abstract class AbstractElectricBlockEntity extends SmartBlockEntity {
 		localEnergy.read(tag);
 	}
 
+	// PORT-NOTE(26.1): Create Fly's write() does not go through writeSafe, so the energy was never saved or synced
+	@Override
+	protected void write(ValueOutput tag, boolean clientPacket) {
+		super.write(tag, clientPacket);
+		localEnergy.write(tag);
+	}
+
 	@Override
 	public void writeSafe(ValueOutput tag) {
 		super.writeSafe(tag);

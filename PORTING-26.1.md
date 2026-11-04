@@ -168,6 +168,23 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   (`NoClassDefFoundError: BlockAndTintGetter`). Hit by the liquid blaze burner; affects Create's own block entities
   too. The test above ran with the copycats jar moved to `../ca-test-disabled/`.
 
+### 2026-11-04
+- Client test reports: tesla coil not charging, servo not reacting to redstone. Reproduced on the dedicated server:
+  - The test server pauses ticking after 60 s with no players (`pause-when-empty-seconds`), which froze both setups;
+    set it to -1 while testing (restored to 60 afterwards).
+  - **Energy was never saved or synced**: Create Fly's `SmartBlockEntity.write` does not go through `writeSafe`, and
+    `AbstractElectricBlockEntity` only wrote energy in `writeSafe`. Now written in `write` too (tesla coil, and every
+    other `AbstractElectricBlockEntity`).
+  - Tesla coil: hanging from a ceiling is `facing=up` (the clicked face's opposite); `facing=down` is a floor coil, which
+    only zaps. With `facing=up` over a depot: gold ingot → electrum ingot, capacitor charges through TR Energy.
+  - Servo: works as upstream. Redstone goes on the **top or bottom** (relative to its facing/roll; top = max angle,
+    bottom = min angle), it assembles on a non-zero signal, rotates to the target and, in the default "place when
+    stopped" mode, places the contraption at the limit (checked with an oriented log: `axis=y` → `axis=x`). Only the
+    block attached to the front moves unless glued (as any Create bearing).
+- Servo client value boxes: `client/ServoValueBoxes`, one client ScrollValueBehaviour whose sided slot picks the
+  setting from the looked-at side (back = speed, top = max angle, bottom = min angle, other two sides = movement
+  mode, as in 1.21.1); settings sent with the matching netId. Untested in game.
+
 ## TODO
 
 - [x] Phase 1: build migration, shims copied, imports mapped, entrypoints/registration/configs/networking ported.
@@ -176,8 +193,7 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
 - [x] Resources: item definitions, recipe/data conversion (done by the resources agent, `931d8fd8`).
 - [ ] Restore the `seed_oil` recipe (Create Fly's compacting has no fluid output; needs a CC&A recipe type or a
       Create Fly change).
-- [ ] Servo motor client value boxes for movement mode and min/max angle (client mixin into Create Fly's
-      `ValueSettingsInputHandler`/`ScrollValueRenderer` to iterate all value behaviours, or one composite behaviour).
+- [x] Servo motor client value boxes (ServoValueBoxes); check in game (boxes on each side, editing, mode labels).
 - [ ] Rolling mill/electric pump: check the CC&A sound scapes and Create Fly audio behaviours together in game.
 - [ ] Check `TREnergy` against other TR mods in game (insert/extract inside nested transactions).
 - [ ] PEI and liquid blaze burner rendering on contraptions (was `renderInContraption`/`createVisual` on the movement

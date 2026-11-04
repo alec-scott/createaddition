@@ -44,14 +44,11 @@ public final class CABlockEntityBehaviours {
                 be -> new CAKineticAudioBehaviour<>(be, ElectricMotorBlockEntity::tickAudio),
                 be -> new KineticScrollValueBehaviour(CreateLang.translateDirect("generic.speed"), be,
                         new CenteredSideValueBoxTransform((state, side) -> state.getValue(ElectricMotorBlock.FACING) == side.getOpposite())));
-        // TODO(26.1): the servo's movement mode and angle limit value boxes. Create Fly's client only handles one
-        // ScrollValueBehaviour.TYPE per block entity (ValueSettingsInputHandler, ScrollValueRenderer); the server side
-        // already routes all four by netId (AllHandleMixin).
+        // All four servo settings in one client value box (Create Fly handles one per block entity), see ServoValueBoxes
         add(CABlockEntities.SERVO_MOTOR.get(),
                 CAKineticTooltipBehaviour.Generating::new,
                 be -> new CAKineticAudioBehaviour<>(be, ServoMotorBlockEntity::tickAudio),
-                be -> new KineticScrollValueBehaviour(CreateLang.translateDirect("generic.speed"), be,
-                        new CenteredSideValueBoxTransform((state, side) -> state.getValue(ServoMotorBlock.FACING) == side.getOpposite())));
+                ServoValueBoxes::new);
         add(CABlockEntities.ALTERNATOR.get(),
                 CAKineticTooltipBehaviour.Consuming::new,
                 be -> new CAKineticAudioBehaviour<>(be, AlternatorBlockEntity::tickAudio));
