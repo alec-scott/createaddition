@@ -1,9 +1,6 @@
 package com.mrh0.createaddition.compat.sable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import com.mrh0.createaddition.blocks.connector.base.AbstractConnectorBlock;
 import com.mrh0.createaddition.energy.IWireNode;
 import com.mrh0.createaddition.energy.LocalNode;
 import dev.ryanhcode.sable.companion.ClientSubLevelAccess;
@@ -13,14 +10,27 @@ import dev.ryanhcode.sable.sublevel.SubLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Position;
 import net.minecraft.server.level.ServerLevel;
-import com.mrh0.createaddition.blocks.connector.base.AbstractConnectorBlock;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * The Sable answers behind {@link com.mrh0.createaddition.port.sable.SableUtil}. Only reached when the "sable" mod is
+ * loaded, so this class (and the Sable classes it uses) never loads without it.
+ * <p>
+ * PORT-NOTE(26.1): unchanged from 1.21.1 apart from the facade; Sable Companion's API (bundled in the Sable jar on
+ * Fabric) is the same. The client-only parts ({@link #localDown}, {@link #transformRelativeTo}) only see a
+ * {@link ClientSubLevelAccess} on the client and fall back to world space elsewhere.
+ */
 public final class SableUtil {
+    private SableUtil() {}
+
     // Wire break helpers
 
     private record WireBreak(int localIdx, IWireNode other, int otherIdx) {}
@@ -99,15 +109,21 @@ public final class SableUtil {
     }
 
     public static double localNodeDistSq(Level level, BlockPos pos1, Vec3 off1, BlockPos pos2, Vec3 off2) {
-        Position p2 = SableCompanion.INSTANCE.projectOutOfSubLevel(level, (Position) Vec3.atCenterOf(pos2).add(off2));
-        Position p1 = SableCompanion.INSTANCE.projectOutOfSubLevel(level, (Position) Vec3.atCenterOf(pos1).add(off1));
-        return SableCompanion.INSTANCE.distanceSquaredWithSubLevels(level, p1, p2);
+        Vec3 p2 = SableCompanion.INSTANCE.projectOutOfSubLevel(level, Vec3.atCenterOf(pos2).add(off2));
+        Vec3 p1 = SableCompanion.INSTANCE.projectOutOfSubLevel(level, Vec3.atCenterOf(pos1).add(off1));
+        return SableCompanion.INSTANCE.distanceSquaredWithSubLevels(level, (Position) p1, (Position) p2);
     }
 
     // Render helpers
 
     public static boolean isInSubLevel(Level level, BlockPos pos) {
         return SableCompanion.INSTANCE.getContaining(level, pos) != null;
+    }
+
+    /** World position of a block (its sub-level's logical pose applied), e.g. for light lookups. */
+    public static BlockPos projectOut(Level level, BlockPos pos) {
+        if (SableCompanion.INSTANCE.getContaining(level, pos) == null) return pos;
+        return BlockPos.containing(SableCompanion.INSTANCE.projectOutOfSubLevel(level, Vec3.atCenterOf(pos)));
     }
 
     public static Vec3 localDown(Level level, BlockPos pos, float partialTick) {
@@ -126,9 +142,11 @@ public final class SableUtil {
         return transformRelativeTo(level, pos, Vec3.atCenterOf(remotePos).add(remoteOffset), partialTick);
     }
 
+    /** {@code vec} (world or plot space) in the frame of the block at {@code pos} (plot space if it is on a sub-level). */
     public static Vec3 transformRelativeTo(Level level, BlockPos pos, Vec3 vec, float partialTick) {
         SubLevelAccess originAccess = SableCompanion.INSTANCE.getContaining(level, pos);
         SubLevelAccess vecAccess = SableCompanion.INSTANCE.getContaining(level, (Position) vec);
+        if (originAccess != null && vecAccess == originAccess) return vec;
         Vec3 worldVec = vecAccess instanceof ClientSubLevelAccess csa ? csa.renderPose(partialTick).transformPosition(vec) : vec;
         if (originAccess instanceof ClientSubLevelAccess csa) return csa.renderPose(partialTick).transformPositionInverse(worldVec);
         return worldVec;

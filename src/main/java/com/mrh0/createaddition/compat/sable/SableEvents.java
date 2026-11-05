@@ -3,10 +3,9 @@ package com.mrh0.createaddition.compat.sable;
 import com.mrh0.createaddition.energy.IWireNode;
 import dev.ryanhcode.sable.api.sublevel.ServerSubLevelContainer;
 import dev.ryanhcode.sable.api.sublevel.SubLevelContainer;
-import dev.ryanhcode.sable.neoforge.event.ForgeSablePostPhysicsTickEvent;
 import dev.ryanhcode.sable.sublevel.ServerSubLevel;
-import dev.ryanhcode.sable.sublevel.SubLevel;
 import dev.ryanhcode.sable.sublevel.plot.PlotChunkHolder;
+import dev.ryanhcode.sable.sublevel.system.SubLevelPhysicsSystem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -17,6 +16,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+/**
+ * Breaks wires of connectors on sub-levels that moved too far from their other end. Ground connectors check their own
+ * wires in their tick ({@code AbstractConnectorBlockEntity}); this covers the sub-level side.
+ */
 public final class SableEvents {
     private SableEvents() {}
 
@@ -25,8 +28,8 @@ public final class SableEvents {
 
     private static Map<BlockPos, IWireNode> collectWireNodes(ServerSubLevelContainer container) {
         Map<BlockPos, IWireNode> result = new HashMap<>();
-        for (SubLevel subLevel : container.getAllSubLevels()) {
-            if (!(subLevel instanceof ServerSubLevel ssl) || ssl.isRemoved()) continue;
+        for (ServerSubLevel ssl : container.getAllSubLevels()) {
+            if (ssl.isRemoved()) continue;
             for (PlotChunkHolder holder : ssl.getPlot().getLoadedChunks()) {
                 LevelChunk chunk = holder.getChunk();
                 if (chunk == null) continue;
@@ -38,8 +41,9 @@ public final class SableEvents {
         return result;
     }
 
-    static void onPostPhysicsTick(ForgeSablePostPhysicsTickEvent event) {
-        ServerLevel level = event.getPhysicsSystem().getLevel();
+    // Fires once per physics sub-step; only the first of each game tick (every TICK_STEP ticks) does work.
+    static void onPostPhysicsTick(SubLevelPhysicsSystem physicsSystem, double timeStep) {
+        ServerLevel level = physicsSystem.getLevel();
         long tick = level.getGameTime();
         if (tick % TICK_STEP != 0) return;
 

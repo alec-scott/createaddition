@@ -284,7 +284,8 @@ public class CommonConfig {
 		COMMON_BUILDER.pop();
 
 		COMMON_BUILDER.comment("Compatibility").push(CATAGORY_COMPATIBILITY);
-		DOCKING_CONNECTOR_CAPACITY = COMMON_BUILDER.comment("Energy capacity of the Docking Connector (Aeronautics/Simulated).")
+		// PORT-NOTE(26.1): kept for config compatibility only. Simulated 1.3 has its own docking connector battery (TR Energy).
+		DOCKING_CONNECTOR_CAPACITY = COMMON_BUILDER.comment("Unused on Fabric: Simulated's Docking Connector has its own energy buffer (Simulated server config).")
 				.defineInRange("docking_connector_capacity", 80000, 1, Integer.MAX_VALUE);
 		COMMON_BUILDER.pop();
 

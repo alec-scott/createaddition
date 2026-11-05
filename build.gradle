@@ -25,10 +25,6 @@ sourceSets {
             // Compat excluded for the first pass (no 26.1 Fabric builds wired up yet).
             exclude 'com/mrh0/createaddition/compat/jei/**'
             exclude 'com/mrh0/createaddition/compat/computercraft/**'
-            exclude 'com/mrh0/createaddition/compat/sable/**'
-            exclude 'com/mrh0/createaddition/compat/simulated/**'
-            exclude 'com/mrh0/createaddition/mixin/DockingConnectorBEMixin.java'
-            exclude 'com/mrh0/createaddition/mixin/VanillaSubLevelBERenderMixin.java'
         }
     }
 }
@@ -44,6 +40,9 @@ dependencies {
     include "teamreborn:energy:${tr_energy_version}"
 
     implementation files(create_fly_jar)
+
+    // Optional Sable compat (compat/sable), only touched when the "sable" mod is loaded (see porting-notes/sable.md)
+    compileOnly files(sable_jar)
 
     // Used by the relocated Registrate port (com.mrh0.createaddition.port.registrate)
     compileOnly "org.projectlombok:lombok:1.18.42"
