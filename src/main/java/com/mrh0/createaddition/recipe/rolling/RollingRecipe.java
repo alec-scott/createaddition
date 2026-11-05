@@ -1,6 +1,11 @@
 package com.mrh0.createaddition.recipe.rolling;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.MapCodec;
+import com.mrh0.createaddition.CreateAddition;
+import net.minecraft.network.chat.Component;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.mrh0.createaddition.index.CARecipes;
 import com.zurrtum.create.content.processing.recipe.ProcessingOutput;
@@ -27,6 +32,10 @@ public record RollingRecipe(List<ProcessingOutput> results, Ingredient ingredien
             RollingRecipe::new
     );
     public static final RecipeSerializer<RollingRecipe> SERIALIZER = new RecipeSerializer<>(MAP_CODEC, STREAM_CODEC);
+
+    public static Component getDescriptionForAssembly(DynamicOps<JsonElement> ops, JsonObject json) {
+        return Component.translatable(CreateAddition.MODID + ".recipe.rolling.sequence");
+    }
 
     public Ingredient getIngredient() {
         return ingredient;

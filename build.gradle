@@ -32,7 +32,6 @@ sourceSets {
             // Datagen is stubbed (the committed src/generated/resources are used); see PORTING-26.1.md.
             exclude 'com/mrh0/createaddition/datagen/**'
             // Compat excluded for the first pass (no 26.1 Fabric builds wired up yet).
-            exclude 'com/mrh0/createaddition/compat/jei/**'
             exclude 'com/mrh0/createaddition/compat/sable/**'
             exclude 'com/mrh0/createaddition/compat/simulated/**'
             exclude 'com/mrh0/createaddition/mixin/DockingConnectorBEMixin.java'
@@ -55,6 +54,8 @@ dependencies {
 
     // Optional: CC:Tweaked peripherals (only touched when the mod is loaded)
     compileOnly "maven.modrinth:cc-tweaked:${computercraft_tweaked_version}"
+    // Optional: compat/jei is only loaded by JEI itself via the jei_mod_plugin entrypoint.
+    compileOnly "maven.modrinth:jei:${jei_version}"
 
     // Used by the relocated Registrate port (com.mrh0.createaddition.port.registrate)
     compileOnly "org.projectlombok:lombok:1.18.42"

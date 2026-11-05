@@ -41,5 +41,6 @@ public class CARecipes {
 
 	public static void register() {
 		AllAssemblyRecipeNames.register(CHARGING_TYPE, ChargingRecipe::getDescriptionForAssembly);
+		AllAssemblyRecipeNames.register(ROLLING_TYPE, RollingRecipe::getDescriptionForAssembly);
 	}
 }
