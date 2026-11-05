@@ -185,6 +185,14 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   setting from the looked-at side (back = speed, top = max angle, bottom = min angle, other two sides = movement
   mode, as in 1.21.1); settings sent with the matching netId. Untested in game.
 
+### 2026-11-05
+- In game: tesla coil works. The servo's movement mode box drew the option labels as overlapping text: the single
+  composite box was not a `ScrollOptionBehaviour`, so Create Fly's renderer and board used the text style. Replaced
+  by real per-side boxes: `ServoValueBoxes.Switcher` (client tick) puts the box for the looked-at side into the
+  `ScrollValueBehaviour.TYPE` slot (`attachBehaviourLate`): back = `KineticScrollValueBehaviour` (Create's motor speed
+  box), sides = `RotationModeScrollBehaviour` (the bearing's icon box) bound to the servo's mode, top/bottom = angle
+  boxes (text, 0-180 in 5s, as 1.21.1).
+
 ## TODO
 
 - [x] Phase 1: build migration, shims copied, imports mapped, entrypoints/registration/configs/networking ported.
@@ -193,7 +201,7 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
 - [x] Resources: item definitions, recipe/data conversion (done by the resources agent, `931d8fd8`).
 - [ ] Restore the `seed_oil` recipe (Create Fly's compacting has no fluid output; needs a CC&A recipe type or a
       Create Fly change).
-- [x] Servo motor client value boxes (ServoValueBoxes); check in game (boxes on each side, editing, mode labels).
+- [x] Servo motor client value boxes (ServoValueBoxes, per-side switcher); re-check the mode icons and editing in game.
 - [ ] Rolling mill/electric pump: check the CC&A sound scapes and Create Fly audio behaviours together in game.
 - [ ] Check `TREnergy` against other TR mods in game (insert/extract inside nested transactions).
 - [ ] PEI and liquid blaze burner rendering on contraptions (was `renderInContraption`/`createVisual` on the movement

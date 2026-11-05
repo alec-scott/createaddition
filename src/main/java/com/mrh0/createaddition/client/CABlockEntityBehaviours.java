@@ -44,11 +44,12 @@ public final class CABlockEntityBehaviours {
                 be -> new CAKineticAudioBehaviour<>(be, ElectricMotorBlockEntity::tickAudio),
                 be -> new KineticScrollValueBehaviour(CreateLang.translateDirect("generic.speed"), be,
                         new CenteredSideValueBoxTransform((state, side) -> state.getValue(ElectricMotorBlock.FACING) == side.getOpposite())));
-        // All four servo settings in one client value box (Create Fly handles one per block entity), see ServoValueBoxes
+        // Servo value boxes: the switcher swaps in the box for the looked-at side (Create Fly handles one per block entity)
         add(CABlockEntities.SERVO_MOTOR.get(),
                 CAKineticTooltipBehaviour.Generating::new,
                 be -> new CAKineticAudioBehaviour<>(be, ServoMotorBlockEntity::tickAudio),
-                ServoValueBoxes::new);
+                ServoValueBoxes::speed,
+                ServoValueBoxes.Switcher::new);
         add(CABlockEntities.ALTERNATOR.get(),
                 CAKineticTooltipBehaviour.Consuming::new,
                 be -> new CAKineticAudioBehaviour<>(be, AlternatorBlockEntity::tickAudio));
