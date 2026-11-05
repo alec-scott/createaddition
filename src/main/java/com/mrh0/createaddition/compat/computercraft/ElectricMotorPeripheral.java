@@ -43,7 +43,7 @@ public class ElectricMotorPeripheral implements IPeripheral {
 
     @Override
     public boolean equals(IPeripheral iPeripheral) {
-        return iPeripheral == this;
+        return iPeripheral == this || (iPeripheral instanceof ElectricMotorPeripheral p && p.tileEntity == tileEntity);
     }
     
     @LuaFunction

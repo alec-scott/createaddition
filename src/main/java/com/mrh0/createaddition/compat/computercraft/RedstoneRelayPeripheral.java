@@ -25,7 +25,7 @@ public class RedstoneRelayPeripheral implements IPeripheral {
 
     @Override
     public boolean equals(@Nullable IPeripheral iPeripheral) {
-        return iPeripheral == this;
+        return iPeripheral == this || (iPeripheral instanceof RedstoneRelayPeripheral p && p.tileEntity == tileEntity);
     }
 
     @Nullable

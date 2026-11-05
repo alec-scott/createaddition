@@ -24,7 +24,7 @@ public class ModularAccumulatorPeripheral implements IPeripheral {
 
     @Override
     public boolean equals(@Nullable IPeripheral iPeripheral) {
-        return iPeripheral == this;
+        return iPeripheral == this || (iPeripheral instanceof ModularAccumulatorPeripheral p && p.tileEntity == tileEntity);
     }
 
     @Nullable

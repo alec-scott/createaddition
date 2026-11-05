@@ -36,7 +36,7 @@ public class DigitalAdapterPeripheral implements IPeripheral {
 
     @Override
     public boolean equals(@Nullable IPeripheral iPeripheral) {
-        return iPeripheral == this;
+        return iPeripheral == this || (iPeripheral instanceof DigitalAdapterPeripheral p && p.tileEntity == tileEntity);
     }
 
     @Nullable

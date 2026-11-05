@@ -24,7 +24,7 @@ public class PortableEnergyInterfacePeripheral implements IPeripheral {
 
 	@Override
 	public boolean equals(@Nullable IPeripheral iPeripheral) {
-		return iPeripheral == this;
+		return iPeripheral == this || (iPeripheral instanceof PortableEnergyInterfacePeripheral p && p.tileEntity == tileEntity);
 	}
 
 	@Nullable

@@ -41,7 +41,7 @@ public class ServoMotorPeripheral implements IPeripheral {
 
 	@Override
 	public boolean equals(IPeripheral other) {
-		return other == this;
+		return other == this || (other instanceof ServoMotorPeripheral p && p.tileEntity == tileEntity);
 	}
 
 	@LuaFunction(mainThread = true)

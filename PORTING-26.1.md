@@ -215,6 +215,14 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
     mill picture-in-picture renderer. Sable: wire and burner rendering in sub-levels; `compat/simulated` deleted.
   - Misc: PEI and burner contraption renderers, sandpaper animation, seed oil `create:mixing` recipe.
 
+### 2026-11-06
+
+- CC peripherals: results of `mainThread` Lua calls were intermittently dropped (empty return, setters lost) because
+  the Fabric `PeripheralLookup` lambda builds a new peripheral per query and `equals` was identity, so CC treated each
+  re-query as a changed peripheral, detached the old one and cancelled its pending calls. `equals` now compares the
+  block entity (all six peripherals). Verified on the test server: before, one call per boot returned nothing; after,
+  0 empty over 5 reboots x 3 passes.
+
 ## Workstreams (2026-11-05)
 
 Run in parallel, each in its own git worktree and branch off `26.1-fabric`; the orchestrator merged them back. The
