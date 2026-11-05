@@ -10,6 +10,10 @@ repositories {
     mavenCentral()
     maven { url = 'https://maven.fabricmc.net/' }
     maven { url = 'https://raw.githubusercontent.com/Fuzss/modresources/main/maven/' }
+    exclusiveContent {
+        forRepository { maven { name = 'Modrinth'; url = 'https://api.modrinth.com/maven' } }
+        filter { includeGroup 'maven.modrinth' }
+    }
 }
 
 loom {
@@ -23,7 +27,6 @@ sourceSets {
             // Datagen is stubbed (the committed src/generated/resources are used); see PORTING-26.1.md.
             exclude 'com/mrh0/createaddition/datagen/**'
             // Compat excluded for the first pass (no 26.1 Fabric builds wired up yet).
-            exclude 'com/mrh0/createaddition/compat/jei/**'
             exclude 'com/mrh0/createaddition/compat/computercraft/**'
             exclude 'com/mrh0/createaddition/compat/sable/**'
             exclude 'com/mrh0/createaddition/compat/simulated/**'
@@ -44,6 +47,9 @@ dependencies {
     include "teamreborn:energy:${tr_energy_version}"
 
     implementation files(create_fly_jar)
+
+    // Optional: compat/jei is only loaded by JEI itself via the jei_mod_plugin entrypoint.
+    compileOnly "maven.modrinth:jei:${jei_version}"
 
     // Used by the relocated Registrate port (com.mrh0.createaddition.port.registrate)
     compileOnly "org.projectlombok:lombok:1.18.42"
