@@ -222,6 +222,9 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   re-query as a changed peripheral, detached the old one and cancelled its pending calls. `equals` now compares the
   block entity (all six peripherals). Verified on the test server: before, one call per boot returned nothing; after,
   0 empty over 5 reboots x 3 passes.
+- Servo: the target angle was only recalculated when the net redstone signal changed (as upstream), so changing the
+  angle limits (value boxes or Lua `setTargetAngle`/`setMin/MaxAngle`) did nothing until the redstone changed. `tick`
+  now also retargets when either limit changes.
 
 ## Workstreams (2026-11-05)
 

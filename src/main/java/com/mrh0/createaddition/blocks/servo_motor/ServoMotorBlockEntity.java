@@ -158,6 +158,9 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity implemen
 	private boolean firstTick = true;
 	private boolean allowAssemble = false;
 	private int lastNetSignal = Integer.MIN_VALUE;
+	// PORT-NOTE(26.1): also retarget when the angle limits change (value boxes or Lua), not only on redstone changes
+	private float lastMaxAngle = Float.NaN;
+	private float lastMinAngle = Float.NaN;
 	private float targetAngle = 0;
 
 	public ServoMotorBlockEntity(BlockEntityType<? extends ServoMotorBlockEntity> type, BlockPos pos, BlockState state) {
@@ -366,8 +369,12 @@ public class ServoMotorBlockEntity extends MechanicalBearingBlockEntity implemen
 			int maxSignal = level.getSignal(worldPosition.relative(maxFace), maxFace);
 			int minSignal = level.getSignal(worldPosition.relative(minFace), minFace);
 			int net = maxSignal - minSignal;
-			if (net != lastNetSignal) {
+			float max = maxAngle.getAngle();
+			float min = minAngle.getAngle();
+			if (net != lastNetSignal || max != lastMaxAngle || min != lastMinAngle) {
 				lastNetSignal = net;
+				lastMaxAngle = max;
+				lastMinAngle = min;
 				// minAngle.getAngle() already returns a negative value (negated=true)
 				targetAngle = net >= 0
 					? (net / 15.0f) * maxAngle.getAngle()
