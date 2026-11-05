@@ -51,7 +51,7 @@ dependencies {
     compileOnly "maven.modrinth:cc-tweaked:${computercraft_tweaked_version}"
     // Optional: compat/jei is only loaded by JEI itself via the jei_mod_plugin entrypoint.
     compileOnly "maven.modrinth:jei:${jei_version}"
-    // Optional Sable compat (compat/sable), only touched when the "sable" mod is loaded (see porting-notes/sable.md)
+    // Optional Sable compat (compat/sable), only touched when the "sable" mod is loaded (see PORTING-26.1.md)
     compileOnly files(sable_jar)
 
     // Used by the relocated Registrate port (com.mrh0.createaddition.port.registrate)
