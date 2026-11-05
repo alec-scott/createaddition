@@ -248,8 +248,11 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 					x = -4;
 					z = -10;
 				} else {
-					x = player.getX();
-					z = player.getZ();
+					// On a Sable sub-level the burner sits in plot space: look at the player in that frame.
+					net.minecraft.world.phys.Vec3 eye = com.mrh0.createaddition.port.sable.SableUtil
+							.transformRelativeTo(level, getBlockPos(), player.position(), 1f);
+					x = eye.x;
+					z = eye.z;
 				}
 				double dx = x - (getBlockPos().getX() + 0.5);
 				double dz = z - (getBlockPos().getZ() + 0.5);
