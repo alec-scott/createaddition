@@ -1,6 +1,6 @@
 {
   "model": {
-    "type": "minecraft:model",
+    "type": "create:model/sand_paper",
     "model": "createaddition:item/diamond_grit_sandpaper"
   }
 }

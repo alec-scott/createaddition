@@ -25,7 +25,7 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * PORT-NOTE(26.1): extract/submit for the placed block (non-Flywheel only, as before).
- * TODO(26.1): rendering on contraptions (was renderInContraption) needs a Create Fly MovementRenderBehaviour.
+ * Contraption rendering: PortableEnergyInterfaceMovementRender.
  */
 public class PortableEnergyInterfaceRenderer implements BlockEntityRenderer<PortableEnergyInterfaceBlockEntity, PortableEnergyInterfaceRenderer.PEIRenderState> {
 

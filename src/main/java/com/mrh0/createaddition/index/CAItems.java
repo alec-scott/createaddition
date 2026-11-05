@@ -1,6 +1,7 @@
 package com.mrh0.createaddition.index;
 
 import com.mrh0.createaddition.CreateAddition;
+import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.item.ElectrumAmuletItem;
 import com.mrh0.createaddition.item.WireSpool;
 import com.mrh0.createaddition.item.BiomassPelletItem;
@@ -25,7 +26,7 @@ public class CAItems {
 			CreateAddition.REGISTRATE.item("diamond_grit", Item::new)
 			.register();
 	public static final ItemEntry<DiamondGritSandpaperItem> DIAMOND_GRIT_SANDPAPER = CreateAddition.REGISTRATE.item("diamond_grit_sandpaper", DiamondGritSandpaperItem::new)
-			.properties(p -> p.durability(1024))
+			.properties(p -> p.durability(CommonConfig.DIAMOND_GRIT_SANDPAPER_USES.get()))
 			.register();
 
 	public static final ItemEntry<Item> BIOMASS =

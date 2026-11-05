@@ -195,6 +195,7 @@ public class CABlocks {
 			.initialProperties(SharedProperties::softMetal)
 			.properties(p -> p.mapColor(DyeColor.GRAY))
 			.properties(p -> p.lightLevel(LiquidBlazeBurnerBlock::getLight))
+			.onRegister(b -> MovementBehaviour.REGISTRY.register(b, new com.mrh0.createaddition.blocks.liquid_blaze_burner.LiquidBlazeBurnerMovement()))
 			.transform(pickaxeOnly())
 			.register();
 

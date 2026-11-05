@@ -29,6 +29,7 @@ public class CreateAdditionClient implements ClientModInitializer {
         CAPartials.init();
         CreateRegistrate.registerBlockModels();
         CABlockEntityBehaviours.register();
+        com.mrh0.createaddition.client.CAMovementRenders.register();
         ClientPayloadHandler.register();
         ClientEventHandler.register();
         PonderIndex.addPlugin(new CAPonderPlugin());
