@@ -2,9 +2,9 @@ package com.mrh0.createaddition.compat.computercraft;
 
 import com.mrh0.createaddition.blocks.digital_adapter.DigitalAdapterBlockEntity;
 import com.mrh0.createaddition.blocks.electric_motor.ElectricMotorBlockEntity;
-import com.simibubi.create.content.contraptions.elevator.ElevatorColumn;
-import com.simibubi.create.content.contraptions.elevator.ElevatorContactBlock;
-import com.simibubi.create.content.contraptions.elevator.ElevatorContraption;
+import com.zurrtum.create.content.contraptions.elevator.ElevatorColumn;
+import com.zurrtum.create.content.contraptions.elevator.ElevatorContactBlock;
+import com.zurrtum.create.content.contraptions.elevator.ElevatorContraption;
 import com.zurrtum.create.content.contraptions.elevator.ElevatorPulleyBlockEntity;
 import com.zurrtum.create.infrastructure.config.AllConfigs;
 import dan200.computercraft.api.lua.LuaException;
