@@ -36,6 +36,7 @@ public class CACapabilities {
         RollingMillBlockEntity.registerCapabilities(event);
         LiquidBlazeBurnerBlockEntity.registerCapability(event);
         CapacitorItem.registerCapabilities(event);
-        // PORT-NOTE(26.1): ComputerCraft peripherals and Simulated capabilities are excluded for now
+        if (CreateAddition.CC_ACTIVE) com.mrh0.createaddition.compat.computercraft.Peripherals.registerPeripheralCapabilities();
+        // PORT-NOTE(26.1): Simulated capabilities are excluded for now
     }
 }
