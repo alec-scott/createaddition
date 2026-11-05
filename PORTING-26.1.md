@@ -203,7 +203,7 @@ writes its notes to `porting-notes/<topic>.md` (merged into this file afterwards
 | JEI compat | `port/jei` | `../createaddition-jei` | in progress |
 | CC:Tweaked compat | `port/cc` | `../createaddition-cc` | merged (943e094a); in-game test pending |
 | Sable / Simulated compat (Aeronautics) | `port/sable` | `../createaddition-sable` | in progress |
-| Contraption rendering (PEI, liquid blaze burner), sandpaper animation, seed oil recipe | `port/misc` | `../createaddition-misc` | in progress |
+| Contraption rendering (PEI, liquid blaze burner), sandpaper animation, seed oil recipe | `port/misc` | `../createaddition-misc` | merged; in-game test pending |
 
 To resume: check each branch's `git log` and `porting-notes/<topic>.md`; merge finished branches into `26.1-fabric`.
 
