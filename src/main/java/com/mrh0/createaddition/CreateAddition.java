@@ -67,9 +67,10 @@ public class CreateAddition implements ModInitializer {
         CC_ACTIVE = loader.isModLoaded("computercraft");
         AE2_ACTIVE = loader.isModLoaded("ae2");
         MEK_ACTIVE = loader.isModLoaded("mekanism");
-        // PORT-NOTE(26.1): Sable/Simulated compat is excluded from the build for now (see PORTING-26.1.md)
-        SIM_ACTIVE = false;
-        SABLE_ACTIVE = false;
+        // PORT-NOTE(26.1): Sable Companion ("sablecompanion" on NeoForge) is bundled in the Sable jar on Fabric.
+        SIM_ACTIVE = loader.isModLoaded("simulated");
+        SABLE_ACTIVE = loader.isModLoaded("sable");
+        if (SABLE_ACTIVE) com.mrh0.createaddition.compat.sable.CreateAdditionSable.register();
 
         ConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.COMMON, CommonConfig.COMMON_CONFIG);
 

@@ -2,11 +2,13 @@ package com.mrh0.createaddition.rendering;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mrh0.createaddition.CreateAddition;
 import com.mrh0.createaddition.config.CommonConfig;
 import com.mrh0.createaddition.energy.IWireNode;
 import com.mrh0.createaddition.energy.WireType;
 import com.mrh0.createaddition.event.ClientEventHandler;
 import com.mrh0.createaddition.index.CAPartials;
+import com.mrh0.createaddition.port.sable.SableUtil;
 import com.mrh0.createaddition.util.ClientMinecraftWrapper;
 import com.mrh0.createaddition.util.Util;
 import com.zurrtum.create.catnip.theme.Color;
@@ -38,8 +40,13 @@ import java.util.List;
 /**
  * PORT-NOTE(26.1): extract/submit. Each wire (and the wire being placed) is extracted as a {@link Wire} with its
  * endpoints, type and light; submit draws it through {@code submitCustomGeometry} in {@link CARenderType#WIRE}, and
- * festive lights as Create Fly SuperByteBuffer states. The Sable sub-level path is gone with the Sable compat (see
- * PORTING-26.1.md). The render bounding box lives on the block entities ({@link #wireBounds}).
+ * festive lights as Create Fly SuperByteBuffer states. The render bounding box lives on the block entities
+ * ({@link #wireBounds}).
+ * <p>
+ * Sable: the 26.1 Sable port extracts a sub-level's block entities through the normal extract/submit path, with the
+ * pose stack in the sub-level's (plot) frame at submit. With Sable loaded, {@link #extractSubLevelAware} works in the
+ * connector's own frame: the other end is moved into it (from the world or from another sub-level) and the sag follows
+ * the frame's down; only one end of each wire draws it. Light is taken at the world positions.
  */
 public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRenderer<T, WireNodeRenderer.WireRenderState> {
 	public WireNodeRenderer(BlockEntityRendererProvider.Context context) {
@@ -47,7 +54,7 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 
 	private static final float HANG = 0.5f;
 
-	public record Wire(float tx, float ty, float tz, float x, float y, float z, WireType type, float dis,
+	public record Wire(float tx, float ty, float tz, float x, float y, float z, WireType type, float dis, float gdx, float gdy, float gdz,
 					   int blockLightTo, int blockLightFrom, int skyLightTo, int skyLightFrom, BlockState state) {
 	}
 
@@ -73,9 +80,13 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 		BlockPos pos = be.getBlockPos();
 		int minX = pos.getX(), minY = pos.getY(), minZ = pos.getZ();
 		int maxX = minX, maxY = minY, maxZ = minZ;
+		Level level = be.getLevel();
+		boolean sable = CreateAddition.SABLE_ACTIVE && level != null;
 		for (int i = 0; i < te.getNodeCount(); i++) {
 			BlockPos other = te.getNodePos(i);
 			if (other == null) continue;
+			// The other end in this connector's frame (a ship's plot or the world).
+			if (sable) other = BlockPos.containing(SableUtil.transformRelativeTo(level, pos, Vec3.atCenterOf(other), 1f));
 			minX = Math.min(minX, other.getX());
 			minY = Math.min(minY, other.getY());
 			minZ = Math.min(minZ, other.getZ());
@@ -89,7 +100,14 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 			// A wire being placed runs to the player.
 			LocalPlayer player = ClientMinecraftWrapper.getPlayer();
 			Util.Triple<BlockPos, Integer, WireType> wireNode = player == null ? null : Util.getWireNodeOfSpools(player.getInventory().getSelectedItem());
-			if (wireNode != null && wireNode.a.equals(pos)) box = box.minmax(player.getBoundingBox());
+			if (wireNode != null && wireNode.a.equals(pos)) {
+				AABB playerBox = player.getBoundingBox();
+				if (sable) {
+					Vec3 p = SableUtil.transformRelativeTo(level, pos, player.position(), 1f);
+					playerBox = playerBox.move(p.subtract(player.position()));
+				}
+				box = box.minmax(playerBox);
+			}
 		}
 		return box;
 	}
@@ -109,6 +127,11 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 		IWireNode te = (IWireNode) be;
 		Level level = be.getLevel();
 		if (level == null) return;
+
+		if (CreateAddition.SABLE_ACTIVE) {
+			extractSubLevelAware(te, be, level, state, partialTicks);
+			return;
+		}
 
 		for (int i = 0; i < te.getNodeCount(); i++) {
 			if (!te.hasConnection(i)) continue;
@@ -158,16 +181,86 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 		}
 	}
 
+	private void extractSubLevelAware(IWireNode te, BlockEntity be, Level level, WireRenderState state, float partialTicks) {
+		BlockPos pos = te.getPos();
+		Vec3 localOrigin = Vec3.atLowerCornerOf(pos);
+		Vec3 grav = SableUtil.localDown(level, pos, partialTicks);
+		// Light at the world positions: a sub-level's plot has no world light.
+		BlockPos lightPos = SableUtil.projectOut(level, pos);
+
+		for (int i = 0; i < te.getNodeCount(); i++) {
+			if (!te.hasConnection(i)) continue;
+
+			IWireNode remoteNode = te.getWireNode(i);
+			BlockPos remotePos = te.getNodePos(i);
+			WireType wireType = te.getNodeType(i);
+			if (remotePos == null || wireType == null) continue;
+
+			int otherIdx = te.getOtherNodeIndex(i);
+			// Without the other end loaded client-side only this end draws the wire, aimed at the other block's centre.
+			if (remoteNode != null && !shouldRenderConnection(te, i, remoteNode, otherIdx, level)) continue;
+			Vec3 remoteOffset = remoteNode != null ? remoteNode.getNodeOffset(otherIdx) : Vec3.ZERO;
+
+			Vec3 localNodePos = Vec3.atCenterOf(pos).add(te.getNodeOffset(i));
+			Vec3 remoteNodePos = SableUtil.nodeWireOffsetRelativeTo(level, pos, remotePos, remoteOffset, partialTicks);
+
+			Vec3 translateTo = remoteNodePos.subtract(localOrigin);
+			Vec3 wireDir = localNodePos.subtract(remoteNodePos);
+			float dis = (float) localNodePos.distanceTo(remoteNodePos);
+			addWire(state, be, lightPos, SableUtil.projectOut(level, remotePos),
+					(float) translateTo.x, (float) translateTo.y, (float) translateTo.z,
+					(float) wireDir.x, (float) wireDir.y, (float) wireDir.z, wireType, dis, grav);
+		}
+
+		if (ClientEventHandler.clientRenderHeldWire) {
+			LocalPlayer player = ClientMinecraftWrapper.getPlayer();
+			if (player == null) return;
+			Util.Triple<BlockPos, Integer, WireType> wireNode = Util.getWireNodeOfSpools(player.getInventory().getSelectedItem());
+			if (wireNode == null || !wireNode.a.equals(pos)) return;
+
+			int nodeIndex = wireNode.b;
+			Vec3 localNodePos = Vec3.atCenterOf(pos).add(te.getNodeOffset(nodeIndex));
+			Vec3 projectedPlayer = SableUtil.transformRelativeTo(level, pos,
+					player.getPosition(partialTicks).add(0.5, 0.5, 0.5), partialTicks);
+
+			Vec3 translateTo = projectedPlayer.subtract(localOrigin);
+			Vec3 wireDir = localNodePos.subtract(projectedPlayer);
+			float dis = (float) localNodePos.distanceTo(projectedPlayer);
+			addWire(state, be, lightPos, player.blockPosition(),
+					(float) translateTo.x, (float) translateTo.y, (float) translateTo.z,
+					(float) wireDir.x, (float) wireDir.y, (float) wireDir.z, wireNode.c, dis, grav);
+		}
+	}
+
+	/** Draws a wire between two loaded nodes from one end only (each end is a separately placed block entity). */
+	private static boolean shouldRenderConnection(IWireNode node, int nodeIdx, IWireNode remoteNode, int remoteIdx, Level level) {
+		if (remoteNode instanceof BlockEntity remoteEntity) {
+			Level remoteLevel = remoteEntity.getLevel();
+			if (remoteLevel != null && remoteLevel != level) return true;
+		}
+		int cmp = node.getPos().compareTo(remoteNode.getPos());
+		if (cmp != 0) return cmp < 0;
+		if (nodeIdx != remoteIdx) return nodeIdx < remoteIdx;
+		return System.identityHashCode(node) < System.identityHashCode(remoteNode);
+	}
+
 	private static void addWire(WireRenderState state, BlockEntity be, BlockPos other, float tx, float ty, float tz,
 								float x, float y, float z, WireType type, float dis) {
+		addWire(state, be, be.getBlockPos(), other, tx, ty, tz, x, y, z, type, dis, null);
+	}
+
+	private static void addWire(WireRenderState state, BlockEntity be, BlockPos pos, BlockPos other, float tx, float ty, float tz,
+								float x, float y, float z, WireType type, float dis, @Nullable Vec3 down) {
 		if (type == null) return;
 		Level level = be.getLevel();
-		BlockPos pos = be.getBlockPos();
+		float gdx = down == null ? 0f : (float) down.x;
+		float gdy = down == null ? -1f : (float) down.y;
+		float gdz = down == null ? 0f : (float) down.z;
 		int i = level.getBrightness(LightLayer.BLOCK, pos);
 		int j = level.getBrightness(LightLayer.BLOCK, other);
 		int k = level.getBrightness(LightLayer.SKY, pos);
 		int l = level.getBrightness(LightLayer.SKY, other);
-		Wire wire = new Wire(tx, ty, tz, x, y, z, type, dis, j, i, l, k, be.getBlockState());
+		Wire wire = new Wire(tx, ty, tz, x, y, z, type, dis, gdx, gdy, gdz, j, i, l, k, be.getBlockState());
 		state.wires.add(wire);
 		if (type.isFestive()) {
 			boolean main = x + y + z > 0;
@@ -194,8 +287,8 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 		float f = (float) (Mth.fastInvSqrt(x * x + z * z) * 0.025F / 2.0F);
 		float o1 = z * f;
 		float o2 = x * f;
-		wirePart(consumer, matrix4f, x, y, z, w.blockLightTo(), w.blockLightFrom(), w.skyLightTo(), w.skyLightFrom(), 0.025F, 0.025F, o1, o2, w.type(), w.dis(), 0, 1f, 0f, -1f, 0f);
-		wirePart(consumer, matrix4f, x, y, z, w.blockLightTo(), w.blockLightFrom(), w.skyLightTo(), w.skyLightFrom(), 0.025F, 0.0F, o1, o2, w.type(), w.dis(), 1, 1f, 0f, -1f, 0f);
+		wirePart(consumer, matrix4f, x, y, z, w.blockLightTo(), w.blockLightFrom(), w.skyLightTo(), w.skyLightFrom(), 0.025F, 0.025F, o1, o2, w.type(), w.dis(), 0, 1f, w.gdx(), w.gdy(), w.gdz());
+		wirePart(consumer, matrix4f, x, y, z, w.blockLightTo(), w.blockLightFrom(), w.skyLightTo(), w.skyLightFrom(), 0.025F, 0.0F, o1, o2, w.type(), w.dis(), 1, 1f, w.gdx(), w.gdy(), w.gdz());
 	}
 
 	public static void wirePart(VertexConsumer vertBuilder, Matrix4f matrix, float x, float y, float z, int l1, int l2,
@@ -219,7 +312,7 @@ public class WireNodeRenderer<T extends BlockEntity> implements BlockEntityRende
 	private static @Nullable SuperByteBufferRenderState light(Wire w, int index, boolean main) {
 		int count = 24;
 		if (index % 3 != 0 || index == 1 || index == count) return null;
-		float gdx = 0f, gdy = -1f, gdz = 0f;
+		float gdx = w.gdx(), gdy = w.gdy(), gdz = w.gdz();
 		float x = w.x(), y = w.y(), z = w.z();
 		float part = (float) index / (float) count;
 		float v = x * (-gdx) + y * (-gdy) + z * (-gdz);

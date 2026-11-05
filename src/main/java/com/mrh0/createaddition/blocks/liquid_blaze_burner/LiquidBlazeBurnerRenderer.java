@@ -18,8 +18,10 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * PORT-NOTE(26.1): extract/submit through Create Fly's BlazeBurnerRenderer data, with CC&A's liquid hat as the hat
- * partial (Create Fly's renderer already places train/logistics hats the same way). The Sable sub-level path and
- * contraption rendering are not ported (see PORTING-26.1.md).
+ * partial (Create Fly's renderer already places train/logistics hats the same way). Contraption rendering is not
+ * ported (see PORTING-26.1.md). On Sable sub-levels no special path is needed any more: the 26.1 Sable port extracts
+ * sub-level block entities through this renderer and applies the sub-level transform at submit (1.21.1's
+ * LiquidBlazeBurnerSubLevelRenderer drew the same thing).
  */
 public class LiquidBlazeBurnerRenderer implements BlockEntityRenderer<LiquidBlazeBurnerBlockEntity, BlazeBurnerRenderState> {
 
