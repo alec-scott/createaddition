@@ -40,8 +40,9 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
 
 - **Base**: `1.21.1` NeoForge (Create 6), not `fabric-1.20.1` (Create Fabric 0.5 is much further from Create Fly).
 - **Build**: the D&D / Steam 'n' Rails template (non-remap Loom 1.17, Java 25, Fabric API 0.155.3, Forge Config API
-  Port 26.1.5). `compat/jei`, `compat/computercraft`, `compat/sable`, `compat/simulated`, `datagen` and the two
-  Sable/Simulated mixins are excluded in `build.gradle` (`sourceSets.main.java.exclude`).
+  Port 26.1.5). `datagen` is still excluded in `build.gradle` (`sourceSets.main.java.exclude`). The `compat/*`
+  packages compile; JEI, CC:Tweaked and Sable are `compileOnly` and only loaded when their mod is present.
+  `compat/simulated` and the Sable/Simulated mixins are deleted (see below).
 - **Registrate**: relocated Registrate shim + datagen stubs copied from D&D into `com.mrh0.createaddition.port.*`
   (D&D-only `CopperBlockSet`/`DyedBlockList` dropped). Datagen-only builder calls (`.blockstate`, `.loot`, `.addLayer`,
   `.tag`, `.setTooltipModifierFactory`) stripped with `porting-tools/strip_datagen_calls.pl`.
@@ -79,8 +80,24 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   only the speed box for now (Create Fly's client handles one `ScrollValueBehaviour.TYPE` per block entity; see TODO).
 - **Create Fly gaps**: `PumpBlockEntity` hardwires its type → `port/create/BETypeOverride` + `mixin/port/
   SmartBlockEntityMixin` (from D&D). Rolling mill = Create Fly millstone pattern (one 10-slot `SidedItemInventory`).
-- **Sable/Simulated**: `CreateAddition.SABLE_ACTIVE`/`SIM_ACTIVE` are always false; `port/sable/SableUtil` gives the
-  non-Sable answers to the few call sites outside the compat package.
+- **Sable/Simulated** (Create Aeronautics): `sable_jar` is `compileOnly` (Simulated is not on the classpath).
+  `port/sable/SableUtil` forwards to `compat/sable` only when `SABLE_ACTIVE` (`isModLoaded("sable")`, Sable Companion
+  is bundled), otherwise it gives the non-Sable answers. `compat/simulated` and both Sable mixins are deleted: 26.1
+  Sable's `renderSingleBE` is a stub, so sub-level wires and the burner render through `WireNodeRenderer` and the
+  normal extract path; Simulated 1.3.0 already exposes docking connector energy as `EnergyStorage.SIDED`, and a second
+  provider would clash. `docking_connector_capacity` is kept for config compatibility but is inert.
+- **CC:Tweaked**: optional `compileOnly` dependency (Modrinth `cc-tweaked`, not bundled). `CACapabilities.register()`
+  calls `compat.computercraft.Peripherals` only when `CC_ACTIVE` (`isModLoaded("computercraft")`), registering with
+  Fabric's `PeripheralLookup`, so no CC classes load without it.
+- **JEI**: `jei_mod_plugin` entrypoint `compat.jei.CreateAdditionJEI` (`suggests: jei`, `compileOnly` Modrinth `jei`),
+  mirroring Create Fly's `JeiClientPlugin`. Charging, rolling and liquid burning are `CreateCategory` categories;
+  sequenced assembly steps use `SequencedAssemblyCategory.registerRenderer`. The animated rolling mill is a
+  picture-in-picture renderer, hooked in by the client-only `mixin/client/GuiRendererMixin`.
+- **Contraption rendering and sandpaper** (misc): PEI and the liquid blaze burner get Create Fly
+  `MovementRenderBehaviour`s through `client/CAMovementRenders`; the burner had none upstream, so it gets a new
+  `LiquidBlazeBurnerMovement`. Diamond grit sandpaper animates through Create Fly's `create:model/sand_paper` item
+  model, with durability from `CommonConfig.DIAMOND_GRIT_SANDPAPER_USES` (a component default, so a config change
+  needs a restart). Seed oil is a `create:mixing` recipe, since Create Fly's `compacting` has no fluid results.
 - **Saved data**: the wire graph is a codec-based `SavedDataType` (one per level, since it needs the level; file name
   kept as `createaddition_wires.dat`). BE NBT goes through `port/minecraft/CAValueIO` (raw tags via `ExtraCodecs.NBT`,
   layout unchanged). The pre-1.21 `node0..` wire NBT conversion is not ported.
@@ -192,20 +209,23 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   `ScrollValueBehaviour.TYPE` slot (`attachBehaviourLate`): back = `KineticScrollValueBehaviour` (Create's motor speed
   box), sides = `RotationModeScrollBehaviour` (the bearing's icon box) bound to the servo's mode, top/bottom = angle
   boxes (text, 0-180 in 5s, as 1.21.1).
+- Four workstreams merged into `26.1-fabric` (JEI, Sable/Simulated, CC:Tweaked and misc), notes folded into this
+  file. Combined build green; not yet tested in game.
+  - CC:Tweaked: optional peripherals (`CACapabilities`). JEI: charging, rolling and liquid burning categories, rolling
+    mill picture-in-picture renderer. Sable: wire and burner rendering in sub-levels; `compat/simulated` deleted.
+  - Misc: PEI and burner contraption renderers, sandpaper animation, seed oil `create:mixing` recipe.
 
 ## Workstreams (2026-11-05)
 
-Run in parallel, each in its own git worktree and branch off `26.1-fabric`; the orchestrator merges them back. Each
-writes its notes to `porting-notes/<topic>.md` (merged into this file afterwards) instead of editing this file.
+Run in parallel, each in its own git worktree and branch off `26.1-fabric`; the orchestrator merged them back. The
+worktrees have been removed.
 
 | Topic | Branch | Worktree | Status |
 |---|---|---|---|
-| JEI compat | `port/jei` | `../createaddition-jei` | in progress |
-| CC:Tweaked compat | `port/cc` | `../createaddition-cc` | merged (943e094a); in-game test pending |
-| Sable / Simulated compat (Aeronautics) | `port/sable` | `../createaddition-sable` | in progress |
-| Contraption rendering (PEI, liquid blaze burner), sandpaper animation, seed oil recipe | `port/misc` | `../createaddition-misc` | merged; in-game test pending |
-
-To resume: check each branch's `git log` and `porting-notes/<topic>.md`; merge finished branches into `26.1-fabric`.
+| JEI compat | `port/jei` | removed | merged (`4923d94e`); in-game test pending |
+| CC:Tweaked compat | `port/cc` | removed | merged (`943e094a`); in-game test pending |
+| Sable / Simulated compat (Aeronautics) | `port/sable` | removed | merged (`4a7a4f4c`); in-game test pending |
+| Contraption rendering (PEI, liquid blaze burner), sandpaper animation, seed oil recipe | `port/misc` | removed | merged (`034bde1d`); in-game test pending |
 
 ## TODO
 
@@ -213,18 +233,17 @@ To resume: check each branch's `git log` and `porting-notes/<topic>.md`; merge f
 - [x] Phase 2: energy → TR Energy (bridge); capabilities → Fabric transfer API.
 - [x] Phase 3: compile clean (block/BE APIs, renderers to extract/submit, mixin retargets). Build produces a jar.
 - [x] Resources: item definitions, recipe/data conversion (done by the resources agent, `931d8fd8`).
-- [ ] Restore the `seed_oil` recipe (Create Fly's compacting has no fluid output; needs a CC&A recipe type or a
-      Create Fly change).
+- [x] Restore the `seed_oil` recipe (Create Fly's compacting has no fluid output; now a `create:mixing` recipe).
 - [x] Servo motor client value boxes (ServoValueBoxes, per-side switcher); re-check the mode icons and editing in game.
 - [ ] Rolling mill/electric pump: check the CC&A sound scapes and Create Fly audio behaviours together in game.
 - [ ] Check `TREnergy` against other TR mods in game (insert/extract inside nested transactions).
-- [ ] PEI and liquid blaze burner rendering on contraptions (was `renderInContraption`/`createVisual` on the movement
-      behaviours): Create Fly `MovementRenderBehaviour` via `AllMovementRenders`. Check `PEIActorVisual` and the
-      `*Visual` classes (compiled against Create Fly's Flywheel but untested).
-- [ ] Diamond grit sandpaper: animated item renderer (was `IClientItemExtensions`); durability is fixed at the config
-      default (1024) since durability is a component set at registration.
-- [ ] Sable/Simulated: `SableUtil` stub, the sub-level wire/burner render paths and docking connector are gone until the
-      compat pass.
+- [x] PEI and liquid blaze burner rendering on contraptions (was `renderInContraption`/`createVisual` on the movement
+      behaviours): Create Fly `MovementRenderBehaviour` via `client/CAMovementRenders`. `PEIActorVisual` and the
+      `*Visual` classes are still untested in game.
+- [x] Diamond grit sandpaper: animation via Create Fly's `create:model/sand_paper`; durability from
+      `CommonConfig.DIAMOND_GRIT_SANDPAPER_USES` (component default, so a config change needs a restart).
+- [x] Sable/Simulated: `SableUtil` facade, sub-level wire/burner rendering and docking connector done in the compat
+      pass (`compat/simulated` deleted; docking connector energy comes from Simulated).
 - [ ] Verify at boot: client-package `IHaveGoggleInformation` on common block entities loads on a dedicated server;
       `FireBlockMixin`/`FlowingFluidMixin` handler locals (`@Local Direction`, trailing target args on
       `@ModifyExpressionValue`); `WireGraph` saved data (`createaddition_wires.dat`).
@@ -232,4 +251,19 @@ To resume: check each branch's `git log` and `porting-notes/<topic>.md`; merge f
 - [x] Copycats+: fixed `SyncedBlockEntityMixin` in `../copycats` (7591de4d); jar restored to the test server, CC&A
       machines tick with it loaded.
 - [ ] Client test (user launches the game).
-- [ ] Compat second pass: JEI, CC:Tweaked, Sable/Simulated (Aeronautics).
+- [x] Compat second pass: JEI, CC:Tweaked, Sable/Simulated (Aeronautics).
+- [ ] In-game checks (CC:Tweaked): without CC the game starts; with CC, `peripheral.wrap` on electric motor, servo,
+      modular accumulator, PEI, redstone relay and digital adapter; digital adapter elevator and bearing methods.
+- [ ] In-game checks (JEI): rolling/charging/liquid burning categories show titles, icons, catalysts and recipes (also
+      via uses/recipes from tesla coil, rolling mill, blaze burner, diamond grit sandpaper); rolling mill shafts spin
+      in opposite directions and the mill is placed and sized in its 40x40 box; tesla coil and mill offsets in the
+      charging and sequenced assembly steps (estimates); liquid burning layout, heat text and fluid slot cycling;
+      sequenced assembly step names; the game starts without JEI.
+- [ ] In-game checks (Sable/Simulated, needs the Aeronautics jar): without Aeronautics, wires render and connect as
+      before; ship-ground, ship-ship and same-ship wires draw once from the right ends, sag down in the world and are
+      lit sensibly; wire placement from a ship connector; wires break past max length (sound, drop) from both ticks;
+      ship-to-ground connect length; wire graph after rejoin; liquid blaze burner on a ship moves with it and its idle
+      head looks at the player; docking connector power flows only while docked.
+- [ ] In-game checks (contraptions and sandpaper): PEI and liquid blaze burner on a contraption render, animate and
+      hide their block entity (goggles, liquid hat, rods, smoke when stationary, no double draw); sandpaper animates
+      in hand and polishes; seed oil mixes from `#c:seeds` in a mechanical mixer.
