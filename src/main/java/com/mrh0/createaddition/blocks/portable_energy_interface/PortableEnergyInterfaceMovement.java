@@ -27,13 +27,11 @@ public class PortableEnergyInterfaceMovement extends MovementBehaviour {
 		return Vec3.atLowerCornerOf(context.state.getValue(PortableEnergyInterfaceBlock.FACING).getUnitVec3i()).scale(1.850000023841858D);
 	}
 
-	//@Override
-	//public boolean hasSpecialInstancedRendering() {
-	//	return true;
-	//}
-
-	// TODO(26.1): contraption rendering (renderInContraption / createVisual) moves to a client MovementRenderBehaviour
-	// registered with Create Fly's AllMovementRenders (see PortableEnergyInterfaceRenderer, PEIActorVisual).
+	// Contraption rendering lives in PortableEnergyInterfaceMovementRender (attached in CreateAdditionClient)
+	@Override
+	public boolean disableBlockEntityRendering() {
+		return true;
+	}
 
 	@Override
 	public void visitNewPosition(MovementContext context, BlockPos pos) {
