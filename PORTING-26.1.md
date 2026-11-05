@@ -193,6 +193,20 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
   box), sides = `RotationModeScrollBehaviour` (the bearing's icon box) bound to the servo's mode, top/bottom = angle
   boxes (text, 0-180 in 5s, as 1.21.1).
 
+## Workstreams (2026-11-05)
+
+Run in parallel, each in its own git worktree and branch off `26.1-fabric`; the orchestrator merges them back. Each
+writes its notes to `porting-notes/<topic>.md` (merged into this file afterwards) instead of editing this file.
+
+| Topic | Branch | Worktree | Status |
+|---|---|---|---|
+| JEI compat | `port/jei` | `../createaddition-jei` | in progress |
+| CC:Tweaked compat | `port/cc` | `../createaddition-cc` | in progress |
+| Sable / Simulated compat (Aeronautics) | `port/sable` | `../createaddition-sable` | in progress |
+| Contraption rendering (PEI, liquid blaze burner), sandpaper animation, seed oil recipe | `port/misc` | `../createaddition-misc` | in progress |
+
+To resume: check each branch's `git log` and `porting-notes/<topic>.md`; merge finished branches into `26.1-fabric`.
+
 ## TODO
 
 - [x] Phase 1: build migration, shims copied, imports mapped, entrypoints/registration/configs/networking ported.
