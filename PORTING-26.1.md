@@ -201,7 +201,7 @@ writes its notes to `porting-notes/<topic>.md` (merged into this file afterwards
 | Topic | Branch | Worktree | Status |
 |---|---|---|---|
 | JEI compat | `port/jei` | `../createaddition-jei` | in progress |
-| CC:Tweaked compat | `port/cc` | `../createaddition-cc` | in progress |
+| CC:Tweaked compat | `port/cc` | `../createaddition-cc` | merged (943e094a); in-game test pending |
 | Sable / Simulated compat (Aeronautics) | `port/sable` | `../createaddition-sable` | in progress |
 | Contraption rendering (PEI, liquid blaze burner), sandpaper animation, seed oil recipe | `port/misc` | `../createaddition-misc` | in progress |
 
