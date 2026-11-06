@@ -225,6 +225,9 @@ Mixin audit: `./gradlew -q --init-script porting-tools/cp.init.gradle printCompi
 - Servo: the target angle was only recalculated when the net redstone signal changed (as upstream), so changing the
   angle limits (value boxes or Lua `setTargetAngle`/`setMin/MaxAngle`) did nothing until the redstone changed. `tick`
   now also retargets when either limit changes.
+- JEI: CC&A categories read client-synced recipes but the serializers were never synced, so the pages would be empty.
+  `CARecipes.register` now calls `RecipeSynchronization.synchronizeRecipeSerializer` for rolling, charging and liquid
+  burning when JEI is loaded (as New Age and Create Fly do).
 
 ## Workstreams (2026-11-05)
 
