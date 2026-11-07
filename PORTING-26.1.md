@@ -281,3 +281,11 @@ worktrees have been removed.
 - [ ] In-game checks (contraptions and sandpaper): PEI and liquid blaze burner on a contraption render, animate and
       hide their block entity (goggles, liquid hat, rods, smoke when stationary, no double draw); sandpaper animates
       in hand and polishes; seed oil mixes from `#c:seeds` in a mechanical mixer.
+
+## Liquid Blaze Burner fixes (2026-11-07)
+- Buckets (`8e0b4b65`): the fuel lookup returned nothing on the client, so a bucket went on to place its fluid. `find` now falls
+  back to synchronized recipes on the client, and `CARecipes` always syncs the three serializers (no JEI gate).
+- Goggles (`00447978`): the tooltip read `/ 0mB` because Create Fly's `FluidInventoryWrapper.init` compares the wrong way round and
+  reports a capacity of 0. The tooltip now reads the burner's own tank. The Create Fly bug itself is not fixed.
+- Half a bucket going straight away is upstream behaviour: the burner takes 100 mB at a time until stored burn time passes
+  `liquid_blaze_burner_max_heat_capacity`.
