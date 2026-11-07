@@ -493,7 +493,7 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 	public boolean addToGoggleTooltip(List<Component> tooltip, boolean isPlayerSneaking) {
 		if (level == null) return false;
 		ObservePacketPayload.send(worldPosition, 0);
-		containedFluidTooltip(tooltip, isPlayerSneaking, Capabilities.getCapability(level, Capabilities.FluidHandler.BLOCK, getBlockPos(), null));
+		containedFluidTooltip(tooltip, isPlayerSneaking, tankInventory);
 		if (TimeRemainingPacketPayload.clientTimeRemaining > 20) CALang.builder().add(Component.literal(" ").append(Component.translatable(CreateAddition.MODID + ".tooltip.liquid_burning.time_remaining").withStyle(ChatFormatting.GRAY))
 				.append(Component.literal(" " + Util.formatTime(TimeRemainingPacketPayload.clientTimeRemaining)).withStyle(ChatFormatting.AQUA))).forGoggles(tooltip);
 		return true;
