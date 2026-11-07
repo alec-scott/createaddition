@@ -42,11 +42,10 @@ public class CARecipes {
 	public static void register() {
 		AllAssemblyRecipeNames.register(CHARGING_TYPE, ChargingRecipe::getDescriptionForAssembly);
 		AllAssemblyRecipeNames.register(ROLLING_TYPE, RollingRecipe::getDescriptionForAssembly);
-		// Recipe viewers read client-synced recipes (as Create Fly's RecipeCommonPlugin does for its own types)
-		if (net.fabricmc.loader.api.FabricLoader.getInstance().isModLoaded("jei")) {
-			net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization.synchronizeRecipeSerializer(ROLLING);
-			net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization.synchronizeRecipeSerializer(CHARGING);
-			net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization.synchronizeRecipeSerializer(LIQUID_BURNING);
-		}
+		// Always synced: the liquid blaze burner checks fuels on the client, and recipe viewers read these too. A dedicated
+		// server doesn't need JEI installed for its clients to get them.
+		net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization.synchronizeRecipeSerializer(ROLLING);
+		net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization.synchronizeRecipeSerializer(CHARGING);
+		net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization.synchronizeRecipeSerializer(LIQUID_BURNING);
 	}
 }

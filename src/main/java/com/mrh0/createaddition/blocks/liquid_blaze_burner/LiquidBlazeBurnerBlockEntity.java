@@ -144,8 +144,10 @@ public class LiquidBlazeBurnerBlockEntity extends SmartBlockEntity implements IH
 	public Optional<RecipeHolder<LiquidBurningRecipe>> find(@Nullable FluidStack stack,@Nullable Level level) {
 		if (stack == null || level == null) return Optional.empty();
 		if (CARecipes.LIQUID_BURNING_TYPE == null) return Optional.empty();
-		if (!(level instanceof ServerLevel serverLevel)) return Optional.empty();
-		return serverLevel.recipeAccess().getRecipeFor(CARecipes.LIQUID_BURNING_TYPE, new FluidRecipeWrapper(new FluidStack(stack.getFluid(), 1000 * MB)), level);
+		FluidRecipeWrapper input = new FluidRecipeWrapper(new FluidStack(stack.getFluid(), 1000 * MB));
+		if (level instanceof ServerLevel serverLevel) return serverLevel.recipeAccess().getRecipeFor(CARecipes.LIQUID_BURNING_TYPE, input, level);
+		// The client has to agree when a bucket is clicked on the burner, or it goes on to place the bucket's fluid
+		return level.recipeAccess().getSynchronizedRecipes().getFirstMatch(CARecipes.LIQUID_BURNING_TYPE, input, level);
 	}
 
 	public boolean first = true;
